@@ -1,7 +1,7 @@
 import React from 'react';
 import { Shield } from 'lucide-react';
 
-const Navigation = () => (
+const Navigation = ({ onSignIn }) => (
   <nav className="fixed top-0 left-0 right-0 z-50 glass border-b border-white/20">
     <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
       <div className="flex items-center gap-2">
@@ -23,7 +23,12 @@ const Navigation = () => (
       </div>
 
       <div className="flex items-center gap-4">
-        <button className="text-slate-600 font-semibold hover:text-indigo-600 transition-colors px-4 py-2">Sign in</button>
+        <button 
+          onClick={onSignIn}
+          className="text-slate-600 font-semibold hover:text-indigo-600 transition-colors px-4 py-2"
+        >
+          Sign in
+        </button>
         <button className="bg-indigo-600 text-white font-bold px-6 py-2.5 rounded-full hover:bg-indigo-700 hover:shadow-xl hover:shadow-indigo-100 transition-all active:scale-95">
           Get started
         </button>
