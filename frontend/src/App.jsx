@@ -5,6 +5,7 @@ import TopSections from "./components/TopSections";
 import BottomSections from "./components/BottomSections";
 import SignIn from "./components/SignIn";
 import MapComponent from "./components/Map";
+import ResourcesPage from "./components/ResourcesPage";
 
 function App() {
   useEffect(() => {
@@ -43,6 +44,10 @@ function App() {
             </div>
           } 
         />
+        <Route path="/resources" element={<ResourcesPage />} />
+        <Route path="/insights" element={<div className="pt-32 px-10 text-center"><h1 className="text-3xl font-black">Insights Dashboard</h1><p className="text-slate-500 mt-2">Coming soon: Advanced market analytics.</p></div>} />
+        <Route path="/reports" element={<div className="pt-32 px-10 text-center"><h1 className="text-3xl font-black">Property Reports</h1><p className="text-slate-500 mt-2">Generate PDF investment reports in one click.</p></div>} />
+        <Route path="/about" element={<div className="pt-32 px-10 text-center"><h1 className="text-3xl font-black">About EstateIntel</h1><p className="text-slate-500 mt-2">Smart property decisions powered by AI.</p></div>} />
       </Routes>
     </div>
   );

@@ -21,10 +21,10 @@ const Navigation = () => {
         <div className="hidden lg:flex items-center gap-8 font-semibold text-slate-600">
           <NavLink to="/" end className={getLinkClasses}>Home</NavLink>
           <NavLink to="/map" className={getLinkClasses}>Map</NavLink>
-          <span className="hover:text-indigo-600 transition-colors cursor-default">Resources</span>
-          <span className="hover:text-indigo-600 transition-colors cursor-default">Insights</span>
-          <span className="hover:text-indigo-600 transition-colors cursor-default">Reports</span>
-          <span className="hover:text-indigo-600 transition-colors cursor-default">About</span>
+          <NavLink to="/resources" className={getLinkClasses}>Resources</NavLink>
+          <NavLink to="/insights" className={getLinkClasses}>Insights</NavLink>
+          <NavLink to="/reports" className={getLinkClasses}>Reports</NavLink>
+          <NavLink to="/about" className={getLinkClasses}>About</NavLink>
         </div>
 
       <div className="flex items-center gap-4">

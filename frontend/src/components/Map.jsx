@@ -6,14 +6,18 @@ const API_KEY = "AIzaSyCEW0bCq_jD9iZR5SIuWi9GXC8aZ-jiB_k";
 
 const defaultCenter = { lat: 20.5937, lng: 78.9629 };
 
-const MapComponent = () => {
+const MapComponent = ({ resources = [], selectedResourceId = null, onMarkerClick = null, externalUserLocation = null, shouldZoomToSelected = false }) => {
   const { isLoaded, loadError } = useJsApiLoader({
     id: 'google-map-script',
     googleMapsApiKey: API_KEY,
   });
 
   const [map, setMap] = useState(null);
-  const [userLocation, setUserLocation] = useState(null);
+  const [internalUserLocation, setInternalUserLocation] = useState(null);
+  
+  // Use external location if provided, else internal
+  const userLocation = externalUserLocation || internalUserLocation;
+  const safeResources = Array.isArray(resources) ? resources : [];
   const [errorMsg, setErrorMsg] = useState("");
   const watchIdRef = useRef(null);
 
@@ -38,7 +42,7 @@ const MapComponent = () => {
           lat: position.coords.latitude,
           lng: position.coords.longitude,
         };
-        setUserLocation(newPos);
+        setInternalUserLocation(newPos);
         
         if (map) {
           map.panTo(newPos);
@@ -49,7 +53,7 @@ const MapComponent = () => {
         if (!watchIdRef.current) {
           watchIdRef.current = navigator.geolocation.watchPosition(
             (pos) => {
-              setUserLocation({
+              setInternalUserLocation({
                 lat: pos.coords.latitude,
                 lng: pos.coords.longitude,
               });
@@ -72,6 +76,17 @@ const MapComponent = () => {
     };
   }, []);
 
+  // Effect to handle zooming into a selected resource
+  React.useEffect(() => {
+    if (map && selectedResourceId && shouldZoomToSelected && safeResources.length > 0) {
+      const selected = safeResources.find(r => r.id === selectedResourceId);
+      if (selected) {
+        map.panTo({ lat: selected.latitude, lng: selected.longitude });
+        map.setZoom(16);
+      }
+    }
+  }, [map, selectedResourceId, safeResources, shouldZoomToSelected]);
+
   if (loadError) {
     return <div className="map-container-wrapper flex items-center justify-center p-6 text-center text-red-600 bg-red-50 font-bold">Error loading maps! Your specific API key is either invalid or missing a billing account in Google Cloud.</div>;
   }
@@ -87,14 +102,40 @@ const MapComponent = () => {
       <GoogleMap
         mapContainerStyle={{ width: "100%", height: "100%" }}
         center={userLocation || defaultCenter}
-        zoom={userLocation ? 15 : 5}
+        zoom={userLocation ? 14 : 5}
         onLoad={onLoad}
         onUnmount={onUnmount}
+        options={{
+          mapId: '8ece33f178716766',
+          disableDefaultUI: false,
+          clickableIcons: true,
+          zoomControl: true,
+          streetViewControl: false,
+          fullscreenControl: false,
+        }}
       >
-        <Marker 
-          position={userLocation || defaultCenter} 
-          title={userLocation ? "You are here" : "Default Location"} 
-        />
+        {userLocation && (
+          <Marker 
+            position={userLocation} 
+            title="You are here" 
+            options={{
+              zIndex: 100
+            }}
+          />
+        )}
+        
+        {safeResources.map(res => (
+          <Marker
+            key={res.id}
+            position={{ lat: res.latitude, lng: res.longitude }}
+            title={res.name}
+            onClick={() => onMarkerClick && onMarkerClick(res)}
+          />
+        ))}
+        
+        {!safeResources.length && !userLocation && (
+           <Marker position={defaultCenter} title="Default Center" />
+        )}
       </GoogleMap>
 
       <button className="locate-me-btn" onClick={handleLocateMeClick}>
