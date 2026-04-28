@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-const SignIn = () => {
+const SignIn = ({ onLogin }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const initialView = location.pathname === '/signup' ? 'register' : 'login';
@@ -22,11 +22,51 @@ const SignIn = () => {
 
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [formData, setFormData] = useState({
+    fullName: '',
+    email: '',
+    password: ''
+  });
 
-  const handleSubmit = (e) => {
+  const { fullName, email, password } = formData;
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setError('');
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
-    setTimeout(() => setIsLoading(false), 1500);
+    setError('');
+
+    try {
+      const endpoint = view === 'login' ? '/api/user/login' : '/api/user/register';
+      const body = view === 'login' 
+        ? { email, password } 
+        : { fullName, email, password };
+
+      const response = await fetch(`http://localhost:5000${endpoint}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Something went wrong');
+      }
+
+      // Success
+      onLogin(data.user);
+      navigate('/');
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const loginImg = "/hero.png";
@@ -99,22 +139,51 @@ const SignIn = () => {
           </div>
 
           <form className="space-y-5" onSubmit={handleSubmit}>
+            {error && (
+              <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-sm font-medium mb-4 animate-in fade-in slide-in-from-top-1 duration-300">
+                {error}
+              </div>
+            )}
+
             {view === 'register' && (
               <div className="space-y-1.5 animate-in fade-in zoom-in-95 duration-300">
                 <label className="text-[13px] font-semibold text-slate-700 ml-1">Full Name</label>
-                <input required className="w-full px-4 py-3 border border-slate-200 bg-white rounded-xl focus:outline-none focus:ring-2 focus:ring-[#111827] focus:border-transparent placeholder-slate-400 text-slate-900 font-medium transition-all shadow-sm" placeholder="John Doe" />
+                <input 
+                  required 
+                  name="fullName"
+                  value={fullName}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 border border-slate-200 bg-white rounded-xl focus:outline-none focus:ring-2 focus:ring-[#111827] focus:border-transparent placeholder-slate-400 text-slate-900 font-medium transition-all shadow-sm" 
+                  placeholder="John Doe" 
+                />
               </div>
             )}
             
             <div className="space-y-1.5">
               <label className="text-[13px] font-semibold text-slate-700 ml-1">Your Email</label>
-              <input required type="email" className="w-full px-4 py-3 border border-slate-200 bg-white rounded-xl focus:outline-none focus:ring-2 focus:ring-[#111827] focus:border-transparent placeholder-slate-400 text-slate-900 font-medium transition-all shadow-sm" placeholder="info.madhu786@gmail.com" />
+              <input 
+                required 
+                type="email" 
+                name="email"
+                value={email}
+                onChange={handleChange}
+                className="w-full px-4 py-3 border border-slate-200 bg-white rounded-xl focus:outline-none focus:ring-2 focus:ring-[#111827] focus:border-transparent placeholder-slate-400 text-slate-900 font-medium transition-all shadow-sm" 
+                placeholder="info.madhu786@gmail.com" 
+              />
             </div>
             
             <div className="space-y-1.5">
               <label className="text-[13px] font-semibold text-slate-700 ml-1">Password</label>
               <div className="relative group">
-                <input required type={showPassword ? "text" : "password"} className="w-full pl-4 pr-12 py-3 border border-slate-200 bg-white rounded-xl focus:outline-none focus:ring-2 focus:ring-[#111827] focus:border-transparent placeholder-slate-400 text-slate-900 font-medium transition-all shadow-sm" placeholder="••••••••" />
+                <input 
+                  required 
+                  type={showPassword ? "text" : "password"} 
+                  name="password"
+                  value={password}
+                  onChange={handleChange}
+                  className="w-full pl-4 pr-12 py-3 border border-slate-200 bg-white rounded-xl focus:outline-none focus:ring-2 focus:ring-[#111827] focus:border-transparent placeholder-slate-400 text-slate-900 font-medium transition-all shadow-sm" 
+                  placeholder="••••••••" 
+                />
                 <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-[14px] text-slate-400 hover:text-slate-600 transition-colors">
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Navigation from "./components/Navigation";
 import TopSections from "./components/TopSections";
 import BottomSections from "./components/BottomSections";
@@ -8,7 +8,25 @@ import MapComponent from "./components/Map";
 import ResourcesPage from "./components/ResourcesPage";
 import AboutPage from "./components/AboutPage";
 
+// Component to protect routes
+const ProtectedRoute = ({ user, children }) => {
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+  return children;
+};
+
+// Component to redirect if already logged in
+const PublicRoute = ({ user, children }) => {
+  if (user) {
+    return <Navigate to="/" replace />;
+  }
+  return children;
+};
+
 function App() {
+  const [user, setUser] = useState(JSON.parse(localStorage.getItem('user')));
+
   useEffect(() => {
     document.title = "EstateIntel - Smart Property Decisions";
     if (window.location.hash) {
@@ -16,12 +34,22 @@ function App() {
     }
   }, []);
 
+  const handleLogin = (userData) => {
+    localStorage.setItem('user', JSON.stringify(userData));
+    setUser(userData);
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('user');
+    setUser(null);
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900 scroll-smooth">
-      <Navigation />
+      <Navigation user={user} onLogout={handleLogout} />
       <Routes>
-        <Route path="/login" element={<SignIn />} />
-        <Route path="/signup" element={<SignIn />} />
+        <Route path="/login" element={<PublicRoute user={user}><SignIn onLogin={handleLogin} /></PublicRoute>} />
+        <Route path="/signup" element={<PublicRoute user={user}><SignIn onLogin={handleLogin} /></PublicRoute>} />
         <Route 
           path="/" 
           element={
@@ -34,21 +62,23 @@ function App() {
         <Route 
           path="/map" 
           element={
-            <div className="pt-24 pb-12 px-6 max-w-7xl mx-auto flex flex-col min-h-screen">
-              <div className="mb-6 animate-in fade-in slide-in-from-bottom-2 duration-700">
-                <span className="text-indigo-600 font-black uppercase tracking-[.25em] text-sm italic">Live Tracking</span>
-                <h1 className="text-4xl md:text-5xl font-black mt-2 text-slate-900 tracking-tight">Neighborhood Map</h1>
+            <ProtectedRoute user={user}>
+              <div className="pt-24 pb-12 px-6 max-w-7xl mx-auto flex flex-col min-h-screen">
+                <div className="mb-6 animate-in fade-in slide-in-from-bottom-2 duration-700">
+                  <span className="text-indigo-600 font-black uppercase tracking-[.25em] text-sm italic">Live Tracking</span>
+                  <h1 className="text-4xl md:text-5xl font-black mt-2 text-slate-900 tracking-tight">Neighborhood Map</h1>
+                </div>
+                <div className="flex-grow h-[600px] md:h-0 rounded-[2rem] overflow-hidden shadow-2xl border border-slate-100 bg-white">
+                  <MapComponent />
+                </div>
               </div>
-              <div className="flex-grow h-[600px] md:h-0 rounded-[2rem] overflow-hidden shadow-2xl border border-slate-100 bg-white">
-                <MapComponent />
-              </div>
-            </div>
+            </ProtectedRoute>
           } 
         />
-        <Route path="/resources" element={<ResourcesPage />} />
-        <Route path="/insights" element={<div className="pt-32 px-10 text-center"><h1 className="text-3xl font-black">Insights Dashboard</h1><p className="text-slate-500 mt-2">Coming soon: Advanced market analytics.</p></div>} />
-        <Route path="/reports" element={<div className="pt-32 px-10 text-center"><h1 className="text-3xl font-black">Property Reports</h1><p className="text-slate-500 mt-2">Generate PDF investment reports in one click.</p></div>} />
-        <Route path="/about" element={<AboutPage />} />
+        <Route path="/resources" element={<ProtectedRoute user={user}><ResourcesPage /></ProtectedRoute>} />
+        <Route path="/insights" element={<ProtectedRoute user={user}><div className="pt-32 px-10 text-center"><h1 className="text-3xl font-black">Insights Dashboard</h1><p className="text-slate-500 mt-2">Coming soon: Advanced market analytics.</p></div></ProtectedRoute>} />
+        <Route path="/reports" element={<ProtectedRoute user={user}><div className="pt-32 px-10 text-center"><h1 className="text-3xl font-black">Property Reports</h1><p className="text-slate-500 mt-2">Generate PDF investment reports in one click.</p></div></ProtectedRoute>} />
+        <Route path="/about" element={<ProtectedRoute user={user}><AboutPage /></ProtectedRoute>} />
       </Routes>
     </div>
   );
