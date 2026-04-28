@@ -1,73 +1,67 @@
 import React, { useState, useEffect } from 'react';
-import { Eye, EyeOff, ArrowLeft } from 'lucide-react';
+import { Eye, EyeOff, ArrowLeft, AlertCircle } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
 
 const SignIn = ({ onLogin }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const initialView = location.pathname === '/signup' ? 'register' : 'login';
-  const [view, setView] = useState(initialView); // 'login' or 'register'
-  
+  const [view, setView] = useState(location.pathname === '/signup' ? 'register' : 'login');
+  const [showPassword, setShowPassword] = useState(false);
+  const [serverError, setServerError] = useState('');
+
   useEffect(() => {
-    setView(location.pathname === '/signup' ? 'register' : 'login');
+    const newView = location.pathname === '/signup' ? 'register' : 'login';
+    setView(newView);
+    formik.resetForm();
+    setServerError('');
   }, [location.pathname]);
 
   const handleViewChange = (newView) => {
     navigate(newView === 'login' ? '/login' : '/signup');
   };
 
-  const handleBack = () => {
-    navigate('/');
-  };
-
-  const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [formData, setFormData] = useState({
-    fullName: '',
-    email: '',
-    password: ''
+  const validationSchema = Yup.object({
+    fullName: view === 'register' 
+      ? Yup.string().min(2, 'Name is too short').required('Full name is required') 
+      : Yup.string(),
+    email: Yup.string().email('Invalid email address').required('Email is required'),
+    password: Yup.string().min(6, 'Password must be at least 6 characters').required('Password is required'),
   });
 
-  const { fullName, email, password } = formData;
+  const formik = useFormik({
+    initialValues: {
+      fullName: '',
+      email: '',
+      password: '',
+    },
+    validationSchema,
+    onSubmit: async (values, { setSubmitting }) => {
+      setServerError('');
+      try {
+        const endpoint = view === 'login' ? '/api/user/login' : '/api/user/register';
+        const response = await fetch(`http://localhost:5000${endpoint}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(values)
+        });
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-    setError('');
-  };
+        const data = await response.json();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError('');
+        if (!response.ok) {
+          throw new Error(data.message || 'Something went wrong');
+        }
 
-    try {
-      const endpoint = view === 'login' ? '/api/user/login' : '/api/user/register';
-      const body = view === 'login' 
-        ? { email, password } 
-        : { fullName, email, password };
-
-      const response = await fetch(`http://localhost:5000${endpoint}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        throw new Error(data.message || 'Something went wrong');
+        onLogin(data.user);
+        navigate('/');
+      } catch (err) {
+        setServerError(err.message);
+      } finally {
+        setSubmitting(false);
       }
-
-      // Success
-      onLogin(data.user);
-      navigate('/');
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    },
+  });
 
   const loginImg = "/hero.png";
   const registerImg = "/signup-bg.png";
@@ -107,7 +101,7 @@ const SignIn = ({ onLogin }) => {
         {/* Back Button */}
         <button 
           type="button"
-          onClick={handleBack}
+          onClick={() => navigate('/')}
           className="absolute top-8 left-6 sm:left-8 flex items-center space-x-2 text-slate-500 hover:text-slate-900 transition-colors font-medium text-sm group"
         >
           <div className="w-8 h-8 rounded-full bg-slate-200/50 group-hover:bg-slate-200 flex items-center justify-center transition-colors">
@@ -131,17 +125,18 @@ const SignIn = ({ onLogin }) => {
           
           <div className="mb-10">
             <h1 className="text-[32px] sm:text-[36px] font-bold text-slate-900 tracking-tight mb-2">
-              {view === 'login' ? 'Welcome Back to estateIntel!' : 'Create an Account!'}
+              {view === 'login' ? 'Welcome Back!' : 'Create an Account!'}
             </h1>
             <p className="text-slate-500 text-[15px]">
               {view === 'login' ? 'Sign in your account' : 'Fill in the details to get started.'}
             </p>
           </div>
 
-          <form className="space-y-5" onSubmit={handleSubmit}>
-            {error && (
-              <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-sm font-medium mb-4 animate-in fade-in slide-in-from-top-1 duration-300">
-                {error}
+          <form className="space-y-5" onSubmit={formik.handleSubmit}>
+            {serverError && (
+              <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-sm font-medium mb-4 animate-in fade-in slide-in-from-top-1 duration-300 flex items-center gap-2">
+                <AlertCircle size={16} />
+                {serverError}
               </div>
             )}
 
@@ -149,45 +144,45 @@ const SignIn = ({ onLogin }) => {
               <div className="space-y-1.5 animate-in fade-in zoom-in-95 duration-300">
                 <label className="text-[13px] font-semibold text-slate-700 ml-1">Full Name</label>
                 <input 
-                  required 
-                  name="fullName"
-                  value={fullName}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 border border-slate-200 bg-white rounded-xl focus:outline-none focus:ring-2 focus:ring-[#111827] focus:border-transparent placeholder-slate-400 text-slate-900 font-medium transition-all shadow-sm" 
+                  {...formik.getFieldProps('fullName')}
+                  className={`w-full px-4 py-3 border ${formik.touched.fullName && formik.errors.fullName ? 'border-red-500 focus:ring-red-500' : 'border-slate-200 focus:ring-[#111827]'} bg-white rounded-xl focus:outline-none focus:ring-2 focus:border-transparent placeholder-slate-400 text-slate-900 font-medium transition-all shadow-sm`} 
                   placeholder="John Doe" 
                 />
+                {formik.touched.fullName && formik.errors.fullName && (
+                  <p className="text-red-500 text-xs ml-1 font-medium">{formik.errors.fullName}</p>
+                )}
               </div>
             )}
             
             <div className="space-y-1.5">
               <label className="text-[13px] font-semibold text-slate-700 ml-1">Your Email</label>
               <input 
-                required 
+                {...formik.getFieldProps('email')}
                 type="email" 
-                name="email"
-                value={email}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-slate-200 bg-white rounded-xl focus:outline-none focus:ring-2 focus:ring-[#111827] focus:border-transparent placeholder-slate-400 text-slate-900 font-medium transition-all shadow-sm" 
+                className={`w-full px-4 py-3 border ${formik.touched.email && formik.errors.email ? 'border-red-500 focus:ring-red-500' : 'border-slate-200 focus:ring-[#111827]'} bg-white rounded-xl focus:outline-none focus:ring-2 focus:border-transparent placeholder-slate-400 text-slate-900 font-medium transition-all shadow-sm`} 
                 placeholder="info.madhu786@gmail.com" 
               />
+              {formik.touched.email && formik.errors.email && (
+                <p className="text-red-500 text-xs ml-1 font-medium">{formik.errors.email}</p>
+              )}
             </div>
             
             <div className="space-y-1.5">
               <label className="text-[13px] font-semibold text-slate-700 ml-1">Password</label>
               <div className="relative group">
                 <input 
-                  required 
+                  {...formik.getFieldProps('password')}
                   type={showPassword ? "text" : "password"} 
-                  name="password"
-                  value={password}
-                  onChange={handleChange}
-                  className="w-full pl-4 pr-12 py-3 border border-slate-200 bg-white rounded-xl focus:outline-none focus:ring-2 focus:ring-[#111827] focus:border-transparent placeholder-slate-400 text-slate-900 font-medium transition-all shadow-sm" 
+                  className={`w-full pl-4 pr-12 py-3 border ${formik.touched.password && formik.errors.password ? 'border-red-500 focus:ring-red-500' : 'border-slate-200 focus:ring-[#111827]'} bg-white rounded-xl focus:outline-none focus:ring-2 focus:border-transparent placeholder-slate-400 text-slate-900 font-medium transition-all shadow-sm`} 
                   placeholder="••••••••" 
                 />
                 <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-[14px] text-slate-400 hover:text-slate-600 transition-colors">
                   {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                 </button>
               </div>
+              {formik.touched.password && formik.errors.password && (
+                <p className="text-red-500 text-xs ml-1 font-medium">{formik.errors.password}</p>
+              )}
             </div>
             
             {view === 'login' && (
@@ -202,8 +197,12 @@ const SignIn = ({ onLogin }) => {
               </div>
             )}
 
-            <button disabled={isLoading} className="w-full py-4 mt-8 bg-[#18181b] hover:bg-black text-white font-semibold rounded-xl transition-all shadow-lg shadow-black/10 active:scale-[0.99] flex items-center justify-center">
-              {isLoading ? (
+            <button 
+              type="submit"
+              disabled={formik.isSubmitting} 
+              className="w-full py-4 mt-8 bg-[#18181b] hover:bg-black text-white font-semibold rounded-xl transition-all shadow-lg shadow-black/10 active:scale-[0.99] flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed"
+            >
+              {formik.isSubmitting ? (
                 <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
               ) : (
                 view === 'login' ? 'Login' : 'Sign Up'
