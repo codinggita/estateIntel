@@ -46,17 +46,17 @@ function App() {
 
   return (
     <div className="min-h-screen bg-slate-50 font-sans text-slate-900 scroll-smooth">
-      <Navigation user={user} onLogout={handleLogout} />
+      {user && <Navigation user={user} onLogout={handleLogout} />}
       <Routes>
         <Route path="/login" element={<PublicRoute user={user}><SignIn onLogin={handleLogin} /></PublicRoute>} />
         <Route path="/signup" element={<PublicRoute user={user}><SignIn onLogin={handleLogin} /></PublicRoute>} />
         <Route 
           path="/" 
           element={
-            <>
+            <ProtectedRoute user={user}>
               <TopSections />
               <BottomSections />
-            </>
+            </ProtectedRoute>
           } 
         />
         <Route 
