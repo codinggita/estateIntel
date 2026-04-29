@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Eye, EyeOff, ArrowLeft, AlertCircle } from 'lucide-react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { Eye, EyeOff, ArrowLeft, AlertCircle, Shield } from 'lucide-react';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
+import Button from './ui/Button';
+import { motion } from 'framer-motion';
 
 const SignIn = ({ onLogin }) => {
   const navigate = useNavigate();
@@ -63,48 +65,64 @@ const SignIn = ({ onLogin }) => {
     },
   });
 
-  const loginImg = "/hero.png";
-  const registerImg = "/signup-bg.png";
-
   return (
-    <div className="flex min-h-screen w-full bg-[#f4f7fc] text-slate-900 font-sans absolute inset-0 z-50">
+    <div className="flex min-h-screen w-full bg-bg text-text font-sans absolute inset-0 z-[200]">
       
-      {/* Left Panel - Image */}
-      <div className="hidden lg:flex lg:w-[45%] xl:w-[50%] relative overflow-hidden bg-black">
+      {/* Left Panel - Modern Gradient & Image */}
+      <div className="hidden lg:flex lg:w-[45%] xl:w-[50%] relative overflow-hidden">
+        <div className="absolute inset-0 bg-slate-900/40 z-10"></div>
         <img 
-          src={view === 'login' ? loginImg : registerImg} 
+          src={view === 'login' 
+            ? "https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&q=80&w=1200" 
+            : "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=1200"} 
           alt="Real Estate" 
-          className="object-cover w-full h-full opacity-80 transition-opacity duration-700 ease-in-out" 
+          className="object-cover w-full h-full transition-transform duration-1000 ease-in-out scale-105" 
           key={view}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0f172a] via-black/40 to-transparent"></div>
-        <div className="absolute bottom-16 left-12 right-12 xl:bottom-24 xl:left-16 xl:right-16 text-white">
-          <h2 className="text-[40px] xl:text-[48px] font-bold mt-2 leading-tight tracking-tight mb-3">
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/20 to-transparent z-20"></div>
+        
+        <div className="absolute bottom-16 left-12 right-12 z-30">
+          <Link to="/" className="flex items-center gap-2 mb-12">
+            <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white shadow-lg shadow-primary/20">
+              <Shield size={24} fill="currentColor" />
+            </div>
+            <span className="text-2xl font-bold tracking-tight text-white">
+              estate<span className="italic">Intel</span>
+            </span>
+          </Link>
+          
+          <motion.h2 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            key={view + 'title'}
+            className="text-5xl font-bold mt-2 leading-tight tracking-tight mb-4 text-white"
+          >
             {view === 'login' ? 'Smarter Property Decisions' : 'Unlock the Market'}
-          </h2>
-          <p className="text-gray-300 text-lg mb-8 max-w-md leading-relaxed">
+          </motion.h2>
+          <motion.p 
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            key={view + 'desc'}
+            className="text-white/70 text-lg mb-8 max-w-md leading-relaxed"
+          >
             {view === 'login' 
               ? 'Access real-time analytics, accurate valuations, and predictive insights for your real estate portfolio.' 
               : 'Join estateIntel to discover premium properties, neighborhood analytics, and data-driven insights.'}
-          </p>
-          <div className="flex space-x-2 items-center">
-            <div className={`h-1.5 w-8 rounded-full ${view === 'login' ? 'bg-white' : 'bg-white/40'} transition-all duration-300`}></div>
-            <div className={`h-1.5 w-2 rounded-full ${view === 'register' ? 'bg-white w-8' : 'bg-white/40'} transition-all duration-300`}></div>
-            <div className="h-1.5 w-2 rounded-full bg-white/40"></div>
-          </div>
+          </motion.p>
         </div>
       </div>
 
       {/* Right Panel - Form */}
-      <div className="w-full lg:w-[55%] xl:w-[50%] flex flex-col items-center justify-center relative py-12 px-6 sm:px-12 lg:px-16 xl:px-24 h-screen overflow-y-auto">
+      <div className="w-full lg:w-[55%] xl:w-[50%] flex flex-col items-center justify-center relative py-12 px-6 sm:px-12 lg:px-16 xl:px-24 bg-bg overflow-y-auto">
         
         {/* Back Button */}
         <button 
           type="button"
           onClick={() => navigate('/')}
-          className="absolute top-8 left-6 sm:left-8 flex items-center space-x-2 text-slate-500 hover:text-slate-900 transition-colors font-medium text-sm group"
+          className="absolute top-8 left-6 sm:left-8 flex items-center space-x-2 text-subtext hover:text-text transition-colors font-bold text-sm group"
         >
-          <div className="w-8 h-8 rounded-full bg-slate-200/50 group-hover:bg-slate-200 flex items-center justify-center transition-colors">
+          <div className="w-8 h-8 rounded-full bg-card border border-white/5 flex items-center justify-center transition-colors">
             <ArrowLeft size={16} />
           </div>
           <span className="hidden sm:inline">Back to Home</span>
@@ -112,127 +130,125 @@ const SignIn = ({ onLogin }) => {
 
         {/* Top Right Toggle */}
         <div className="absolute top-8 right-6 sm:right-12">
-          <button 
-            type="button"
+          <Button 
+            variant="secondary"
             onClick={() => handleViewChange(view === 'login' ? 'register' : 'login')} 
-            className="bg-[#111827] text-white px-6 sm:px-8 py-2.5 rounded-full font-semibold text-sm hover:bg-black transition-all shadow-md hover:shadow-xl hover:-translate-y-0.5"
+            className="text-sm px-6 rounded-full"
           >
-            {view === 'login' ? 'Sign up' : 'Sign in'}
-          </button>
+            {view === 'login' ? 'Create Account' : 'Sign In'}
+          </Button>
         </div>
 
-        <div className="w-full max-w-[440px] mt-16 md:mt-0 animate-in fade-in slide-in-from-bottom-4 duration-500 py-8">
+        <div className="w-full max-w-[440px] animate-in fade-in slide-in-from-bottom-4 duration-500 py-8">
           
-          <div className="mb-10">
-            <h1 className="text-[32px] sm:text-[36px] font-bold text-slate-900 tracking-tight mb-2">
-              {view === 'login' ? 'Welcome Back!' : 'Create an Account!'}
+          <div className="mb-10 text-center lg:text-left">
+            <h1 className="text-4xl font-bold text-text tracking-tight mb-3">
+              {view === 'login' ? 'Welcome Back' : 'Get Started'}
             </h1>
-            <p className="text-slate-500 text-[15px]">
-              {view === 'login' ? 'Sign in your account' : 'Fill in the details to get started.'}
+            <p className="text-subtext font-medium">
+              {view === 'login' ? 'Sign in to access your property insights' : 'Join thousands of smart property investors'}
             </p>
           </div>
 
-          <form className="space-y-5" onSubmit={formik.handleSubmit}>
+          <form className="space-y-6" onSubmit={formik.handleSubmit}>
             {serverError && (
-              <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-sm font-medium mb-4 animate-in fade-in slide-in-from-top-1 duration-300 flex items-center gap-2">
-                <AlertCircle size={16} />
+              <div className="bg-red-500/10 border border-red-500/20 text-red-500 px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-2">
+                <AlertCircle size={18} />
                 {serverError}
               </div>
             )}
 
             {view === 'register' && (
-              <div className="space-y-1.5 animate-in fade-in zoom-in-95 duration-300">
-                <label className="text-[13px] font-semibold text-slate-700 ml-1">Full Name</label>
+              <div className="space-y-2">
+                <label className="text-xs font-black uppercase tracking-widest text-subtext ml-1">Full Name</label>
                 <input 
                   {...formik.getFieldProps('fullName')}
-                  className={`w-full px-4 py-3 border ${formik.touched.fullName && formik.errors.fullName ? 'border-red-500 focus:ring-red-500' : 'border-slate-200 focus:ring-[#111827]'} bg-white rounded-xl focus:outline-none focus:ring-2 focus:border-transparent placeholder-slate-400 text-slate-900 font-medium transition-all shadow-sm`} 
+                  type="text" 
+                  className={`w-full px-5 py-4 bg-card border ${formik.touched.fullName && formik.errors.fullName ? 'border-red-500' : 'border-white/30'} rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/50 text-subtext font-bold transition-all placeholder:text-subtext/40`} 
                   placeholder="John Doe" 
                 />
                 {formik.touched.fullName && formik.errors.fullName && (
-                  <p className="text-red-500 text-xs ml-1 font-medium">{formik.errors.fullName}</p>
+                  <p className="text-red-500 text-xs ml-1 font-bold">{formik.errors.fullName}</p>
                 )}
               </div>
             )}
             
-            <div className="space-y-1.5">
-              <label className="text-[13px] font-semibold text-slate-700 ml-1">Your Email</label>
+            <div className="space-y-2">
+              <label className="text-xs font-black uppercase tracking-widest text-subtext ml-1">Email Address</label>
               <input 
                 {...formik.getFieldProps('email')}
                 type="email" 
-                className={`w-full px-4 py-3 border ${formik.touched.email && formik.errors.email ? 'border-red-500 focus:ring-red-500' : 'border-slate-200 focus:ring-[#111827]'} bg-white rounded-xl focus:outline-none focus:ring-2 focus:border-transparent placeholder-slate-400 text-slate-900 font-medium transition-all shadow-sm`} 
-                placeholder="info.madhu786@gmail.com" 
+                className={`w-full px-5 py-4 bg-card border ${formik.touched.email && formik.errors.email ? 'border-red-500' : 'border-white/30'} rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/50 text-subtext font-bold transition-all placeholder:text-subtext/40`} 
+                placeholder="you@example.com" 
               />
               {formik.touched.email && formik.errors.email && (
-                <p className="text-red-500 text-xs ml-1 font-medium">{formik.errors.email}</p>
+                <p className="text-red-500 text-xs ml-1 font-bold">{formik.errors.email}</p>
               )}
             </div>
             
-            <div className="space-y-1.5">
-              <label className="text-[13px] font-semibold text-slate-700 ml-1">Password</label>
+            <div className="space-y-2">
+              <label className="text-xs font-black uppercase tracking-widest text-subtext ml-1">Password</label>
               <div className="relative group">
                 <input 
                   {...formik.getFieldProps('password')}
                   type={showPassword ? "text" : "password"} 
-                  className={`w-full pl-4 pr-12 py-3 border ${formik.touched.password && formik.errors.password ? 'border-red-500 focus:ring-red-500' : 'border-slate-200 focus:ring-[#111827]'} bg-white rounded-xl focus:outline-none focus:ring-2 focus:border-transparent placeholder-slate-400 text-slate-900 font-medium transition-all shadow-sm`} 
+                  className={`w-full pl-5 pr-14 py-4 bg-card border ${formik.touched.password && formik.errors.password ? 'border-red-500' : 'border-white/30'} rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/50 text-subtext font-bold transition-all placeholder:text-subtext/40`} 
                   placeholder="••••••••" 
                 />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-[14px] text-slate-400 hover:text-slate-600 transition-colors">
-                  {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-5 top-[18px] text-subtext hover:text-text transition-colors">
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
               </div>
               {formik.touched.password && formik.errors.password && (
-                <p className="text-red-500 text-xs ml-1 font-medium">{formik.errors.password}</p>
+                <p className="text-red-500 text-xs ml-1 font-bold">{formik.errors.password}</p>
               )}
             </div>
             
             {view === 'login' && (
-              <div className="flex items-center justify-between mt-4">
-                <label className="flex items-center space-x-2 cursor-pointer group">
-                  <input type="checkbox" className="w-4 h-4 rounded border-slate-300 text-[#111827] focus:ring-[#111827] cursor-pointer" />
-                  <span className="text-[13px] font-medium text-slate-600 group-hover:text-slate-900 transition-colors">Remember Me</span>
+              <div className="flex items-center justify-between">
+                <label className="flex items-center gap-2 cursor-pointer group">
+                  <input type="checkbox" className="w-4 h-4 rounded border-white/10 bg-card text-primary focus:ring-primary/50 cursor-pointer" />
+                  <span className="text-sm font-bold text-subtext group-hover:text-text transition-colors">Remember me</span>
                 </label>
-                <button type="button" className="text-[13px] font-medium text-slate-400 hover:text-[#111827] transition-colors">
-                  Forgot Password?
+                <button type="button" className="text-sm font-bold text-primary hover:underline underline-offset-4">
+                  Forgot password?
                 </button>
               </div>
             )}
 
-            <button 
+            <Button 
               type="submit"
+              variant="secondary"
               disabled={formik.isSubmitting} 
-              className="w-full py-4 mt-8 bg-[#18181b] hover:bg-black text-white font-semibold rounded-xl transition-all shadow-lg shadow-black/10 active:scale-[0.99] flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed"
+              fullWidth
+              className="py-4 rounded-2xl text-lg mt-4 shadow-xl"
             >
               {formik.isSubmitting ? (
-                <div className="w-5 h-5 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+                <div className="w-6 h-6 border-2 border-black/20 border-t-black rounded-full animate-spin"></div>
               ) : (
-                view === 'login' ? 'Login' : 'Sign Up'
+                <span className="!text-black font-black uppercase tracking-widest text-sm">
+                  {view === 'login' ? 'Sign In' : 'Create Account'}
+                </span>
               )}
-            </button>
+            </Button>
           </form>
 
-          <div className="my-8 flex items-center">
-            <div className="flex-1 border-t border-slate-200"></div>
-            <span className="px-4 text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
-              Instant {view === 'login' ? 'Login' : 'Sign Up'}
+          <div className="my-10 flex items-center gap-4">
+            <div className="flex-1 h-px bg-white/5"></div>
+            <span className="text-[10px] font-black text-subtext uppercase tracking-[0.2em] whitespace-nowrap">
+              or continue with
             </span>
-            <div className="flex-1 border-t border-slate-200"></div>
+            <div className="flex-1 h-px bg-white/5"></div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-            <button type="button" className="flex items-center justify-center space-x-2 py-3.5 border border-slate-200 bg-white rounded-xl hover:bg-slate-50 transition-colors text-[13px] font-semibold text-slate-700 shadow-sm active:scale-[0.99]">
+          <div className="grid grid-cols-2 gap-4">
+            <button className="flex items-center justify-center gap-3 py-4 bg-card border border-white/30 rounded-2xl hover:border-primary/50 transition-all font-bold text-sm">
               <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" alt="Google" className="w-5 h-5" />
-              <span>Continue with Google</span>
+              Google
             </button>
-            <button type="button" className="flex items-center justify-center space-x-2 py-3.5 border border-slate-200 bg-white rounded-xl hover:bg-slate-50 transition-colors text-[13px] font-semibold text-slate-700 shadow-sm active:scale-[0.99]">
+            <button className="flex items-center justify-center gap-3 py-4 bg-card border border-white/30 rounded-2xl hover:border-primary/50 transition-all font-bold text-sm">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#1877F2" className="w-5 h-5"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-              <span>Continue with Facebook</span>
-            </button>
-          </div>
-
-          <div className="mt-8 text-center text-sm font-medium text-slate-500">
-            {view === 'login' ? "Don't have any account? " : "Already have an account? "}
-            <button type="button" onClick={() => handleViewChange(view === 'login' ? 'register' : 'login')} className="font-bold text-[#111827] hover:underline decoration-2 underline-offset-4">
-              {view === 'login' ? 'Register' : 'Login'}
+              Facebook
             </button>
           </div>
         </div>

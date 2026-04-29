@@ -9,6 +9,8 @@ import ResourcesPage from "./components/ResourcesPage";
 import AboutPage from "./components/AboutPage";
 import InsightsPage from "./components/InsightsPage";
 import ReportsPage from "./components/ReportsPage";
+import LandingPage from "./components/LandingPage";
+import { ThemeProvider } from "./context/ThemeContext";
 
 // Component to protect routes
 const ProtectedRoute = ({ user, children }) => {
@@ -47,42 +49,43 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 font-sans text-slate-900 scroll-smooth">
-      {user && <Navigation user={user} onLogout={handleLogout} />}
-      <Routes>
-        <Route path="/login" element={<PublicRoute user={user}><SignIn onLogin={handleLogin} /></PublicRoute>} />
-        <Route path="/signup" element={<PublicRoute user={user}><SignIn onLogin={handleLogin} /></PublicRoute>} />
-        <Route 
-          path="/" 
-          element={
-            <ProtectedRoute user={user}>
-              <TopSections />
-              <BottomSections />
-            </ProtectedRoute>
-          } 
-        />
-        <Route 
-          path="/map" 
-          element={
-            <ProtectedRoute user={user}>
-              <div className="pt-24 pb-12 px-6 max-w-7xl mx-auto flex flex-col min-h-screen">
-                <div className="mb-6 animate-in fade-in slide-in-from-bottom-2 duration-700">
-                  <span className="text-indigo-600 font-black uppercase tracking-[.25em] text-sm italic">Live Tracking</span>
-                  <h1 className="text-4xl md:text-5xl font-black mt-2 text-slate-900 tracking-tight">Neighborhood Map</h1>
+    <ThemeProvider>
+      <div className="min-h-screen bg-bg font-sans text-text transition-colors duration-300">
+        {user && <Navigation user={user} onLogout={handleLogout} />}
+        <Routes>
+          <Route path="/login" element={<PublicRoute user={user}><SignIn onLogin={handleLogin} /></PublicRoute>} />
+          <Route path="/signup" element={<PublicRoute user={user}><SignIn onLogin={handleLogin} /></PublicRoute>} />
+          <Route 
+            path="/" 
+            element={
+              <ProtectedRoute user={user}>
+                <LandingPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/map" 
+            element={
+              <ProtectedRoute user={user}>
+                <div className="pt-24 pb-12 px-6 max-w-7xl mx-auto flex flex-col min-h-screen">
+                  <div className="mb-6">
+                    <span className="text-primary font-bold uppercase tracking-widest text-sm italic">Live Tracking</span>
+                    <h1 className="text-4xl md:text-5xl font-bold mt-2 text-text tracking-tight">Neighborhood Map</h1>
+                  </div>
+                  <div className="flex-grow h-[600px] md:h-0 rounded-3xl overflow-hidden shadow-premium border border-white/10 bg-card">
+                    <MapComponent />
+                  </div>
                 </div>
-                <div className="flex-grow h-[600px] md:h-0 rounded-[2rem] overflow-hidden shadow-2xl border border-slate-100 bg-white">
-                  <MapComponent />
-                </div>
-              </div>
-            </ProtectedRoute>
-          } 
-        />
-        <Route path="/resources" element={<ProtectedRoute user={user}><ResourcesPage /></ProtectedRoute>} />
-        <Route path="/insights" element={<ProtectedRoute user={user}><InsightsPage /></ProtectedRoute>} />
-        <Route path="/reports" element={<ProtectedRoute user={user}><ReportsPage /></ProtectedRoute>} />
-        <Route path="/about" element={<ProtectedRoute user={user}><AboutPage /></ProtectedRoute>} />
-      </Routes>
-    </div>
+              </ProtectedRoute>
+            } 
+          />
+          <Route path="/resources" element={<ProtectedRoute user={user}><ResourcesPage /></ProtectedRoute>} />
+          <Route path="/insights" element={<ProtectedRoute user={user}><InsightsPage /></ProtectedRoute>} />
+          <Route path="/reports" element={<ProtectedRoute user={user}><ReportsPage /></ProtectedRoute>} />
+          <Route path="/about" element={<ProtectedRoute user={user}><AboutPage /></ProtectedRoute>} />
+        </Routes>
+      </div>
+    </ThemeProvider>
   );
 }
 

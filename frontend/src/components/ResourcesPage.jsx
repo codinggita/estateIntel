@@ -109,7 +109,7 @@ const ResourcesPage = () => {
   const resetFilters = () => setFilters({ search: '', type: 'all', radius: '5' });
 
   return (
-    <div className="pt-20 flex flex-col md:flex-row overflow-hidden bg-slate-50 h-screen">
+    <div className="pt-20 flex flex-col md:flex-row overflow-hidden bg-bg h-screen">
 
       {/* LEFT: Map (70%) */}
       <div className="flex-1 md:w-[70%] h-[45vh] md:h-full relative z-0">
@@ -128,12 +128,12 @@ const ResourcesPage = () => {
       </div>
 
       {/* RIGHT: Cards (30%) */}
-      <div className="w-full md:w-[380px] lg:w-[440px] flex flex-col bg-white border-l border-slate-200 overflow-hidden">
+      <div className="w-full md:w-[380px] lg:w-[440px] flex flex-col bg-card border-l border-white/10 overflow-hidden">
 
         {/* Filter Header */}
-        <div className="p-4 border-b border-slate-100 bg-white shadow-sm space-y-3 shrink-0">
+        <div className="p-4 border-b border-white/5 bg-card shadow-sm space-y-3 shrink-0">
           <div className="flex items-center justify-between">
-            <h2 className="text-lg font-black text-slate-900 flex items-center gap-2">
+            <h2 className="text-lg font-black text-text flex items-center gap-2">
               <Filter size={18} className="text-indigo-600" /> Nearby Resources
             </h2>
             <button onClick={resetFilters} className="flex items-center gap-1 text-xs text-slate-400 hover:text-indigo-600 font-semibold transition-colors">
@@ -149,7 +149,7 @@ const ResourcesPage = () => {
               placeholder="Search name, address or type..."
               value={filters.search}
               onChange={e => setFilters(f => ({ ...f, search: e.target.value }))}
-              className="w-full pl-9 pr-8 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+              className="w-full pl-9 pr-8 py-2 bg-bg border border-white/10 rounded-lg text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary transition"
             />
             {filters.search && (
               <button onClick={() => setFilters(f => ({ ...f, search: '' }))} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-300 hover:text-slate-500">
@@ -163,7 +163,7 @@ const ResourcesPage = () => {
             <select
               value={filters.type}
               onChange={e => setFilters(f => ({ ...f, type: e.target.value }))}
-              className="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="flex-1 bg-bg border border-white/10 rounded-lg px-2 py-1.5 text-sm font-semibold text-text focus:outline-none focus:ring-2 focus:ring-primary"
             >
               {Object.entries(TYPE_CONFIG).map(([key, val]) => (
                 <option key={key} value={key}>{val.label}</option>
@@ -172,7 +172,7 @@ const ResourcesPage = () => {
             <select
               value={filters.radius}
               onChange={e => setFilters(f => ({ ...f, radius: e.target.value }))}
-              className="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 text-sm font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="flex-1 bg-bg border border-white/10 rounded-lg px-2 py-1.5 text-sm font-semibold text-text focus:outline-none focus:ring-2 focus:ring-primary"
             >
               <option value="1">Within 1 km</option>
               <option value="3">Within 3 km</option>
@@ -240,10 +240,10 @@ const ResourcesPage = () => {
                 key={res.id}
                 id={`rc-${res.id}`}
                 onClick={() => setSelectedId(isSelected ? null : res.id)}
-                className={`group cursor-pointer bg-white rounded-2xl overflow-hidden border transition-all duration-300 ${
+                className={`group cursor-pointer bg-card rounded-2xl overflow-hidden border transition-all duration-300 ${
                   isSelected
-                    ? 'border-indigo-500 shadow-xl shadow-indigo-100/60 ring-2 ring-indigo-400/20'
-                    : 'border-slate-200 shadow-sm hover:shadow-lg hover:border-indigo-200'
+                    ? 'border-primary shadow-xl shadow-primary/10 ring-2 ring-primary/20'
+                    : 'border-white/10 shadow-sm hover:shadow-lg hover:border-primary/30'
                 }`}
               >
                 {/* Image at Top */}
@@ -274,7 +274,7 @@ const ResourcesPage = () => {
                 {/* Card Content */}
                 <div className="p-4 min-w-0">
                   <div className="flex items-start justify-between gap-2 mb-1">
-                    <h3 className="font-black text-slate-900 text-base leading-snug truncate">
+                    <h3 className="font-black text-text text-base leading-snug truncate">
                       {res.name}
                     </h3>
                   </div>

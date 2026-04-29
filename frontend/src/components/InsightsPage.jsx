@@ -24,7 +24,7 @@ import {
    Heart,
    X,
    Sparkles,
-   CheckCircle2,
+   CircleCheck,
    AlertCircle,
    Search,
    Radar,
@@ -120,7 +120,7 @@ const InsightsPage = () => {
 
    if (loading) {
       return (
-         <div className="flex flex-col items-center justify-center min-h-screen bg-[#F8FAFC]">
+         <div className="flex flex-col items-center justify-center min-h-screen bg-bg">
             <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
             <p className="mt-6 text-[10px] font-black text-slate-400 tracking-widest uppercase">Initializing Core</p>
          </div>
@@ -132,22 +132,22 @@ const InsightsPage = () => {
    const { property, overallScore, verdict } = data;
 
    return (
-      <div className="min-h-screen bg-[#F8FAFC] font-sans selection:bg-indigo-100">
+      <div className="min-h-screen bg-bg font-sans selection:bg-primary/10">
          {/* 
         MAIN DASHBOARD VIEW 
       */}
          <div className="pt-32 pb-16 px-6 max-w-7xl mx-auto">
             <div className="max-w-4xl mx-auto text-center mb-16">
-               <div className="inline-flex items-center gap-2 mb-4 bg-white px-4 py-1.5 rounded-full border border-slate-200 shadow-sm">
+               <div className="inline-flex items-center gap-2 mb-4 bg-card px-4 py-1.5 rounded-full border border-white/10 shadow-sm">
                   <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
                   <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none">Global Sentiment Active</span>
                </div>
-               <h2 className="text-6xl font-black text-slate-900 mb-8 tracking-tighter italic">
+               <h2 className="text-6xl font-black text-text mb-8 tracking-tighter italic">
                   EstateIntel <span className="text-indigo-600 italic">Audit Hub.</span>
                </h2>
 
                <form onSubmit={handleSearchSubmit} className="relative group max-w-2xl mx-auto">
-                  <div className="flex items-center bg-white border border-slate-200 rounded-[2rem] shadow-xl overflow-hidden p-1.5 group-focus-within:border-indigo-600 transition-all">
+                  <div className="flex items-center bg-card border border-white/10 rounded-[2rem] shadow-xl overflow-hidden p-1.5 group-focus-within:border-primary transition-all">
                      <div className="pl-6 text-slate-400">
                         <Search size={22} />
                      </div>
@@ -156,7 +156,7 @@ const InsightsPage = () => {
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder="Analyze neighborhood context..."
-                        className="flex-grow py-4 px-4 text-xl font-bold text-slate-900 outline-none placeholder:text-slate-300 bg-transparent"
+                        className="flex-grow py-4 px-4 text-xl font-bold text-text outline-none placeholder:text-subtext/40 bg-transparent"
                      />
                      <button type="submit" disabled={generatingReport} className="bg-slate-900 text-white px-10 py-5 rounded-[1.5rem] font-bold text-sm uppercase tracking-widest hover:bg-indigo-600 transition-all active:scale-95">
                         Request
@@ -207,15 +207,15 @@ const InsightsPage = () => {
                               <div className="text-5xl font-black text-slate-900 tracking-tighter leading-none">{overallScore}</div>
                            </div>
                         </div>
-                        <div className="bg-[#F1F5F9] p-8 rounded-[2rem] border border-slate-200 mb-4 group-hover:border-indigo-400 transition-colors">
-                           <h4 className="text-xl font-bold text-slate-900 mb-1 italics italic leading-tight uppercase">“{verdict}”</h4>
-                           <p className="text-slate-500 font-bold text-[10px] uppercase tracking-widest mt-2">AI Logic Result</p>
+                        <div className="bg-bg p-8 rounded-[2rem] border border-white/10 mb-4 group-hover:border-primary transition-colors">
+                           <h4 className="text-xl font-bold text-text mb-1 italic leading-tight uppercase">“{verdict}”</h4>
+                           <p className="text-subtext font-bold text-[10px] uppercase tracking-widest mt-2">AI Logic Result</p>
                         </div>
                      </div>
                      <button
                         onClick={() => handleGenerateReport(selectedCity)}
                         disabled={generatingReport}
-                        className="bg-indigo-600 text-white w-full py-6 rounded-[2rem] font-black uppercase tracking-widest text-xs flex items-center justify-center gap-3 hover:bg-slate-900 shadow-2xl transition-all"
+                        className="bg-primary text-white w-full py-6 rounded-[2rem] font-black uppercase tracking-widest text-xs flex items-center justify-center gap-3 hover:bg-primary/90 shadow-2xl transition-all"
                      >
                         {generatingReport ? <Loader2 className="animate-spin" /> : <><Sparkles size={20} /> Deep 2-Page Audit</>}
                      </button>
@@ -235,19 +235,19 @@ const InsightsPage = () => {
                   { icon: ShieldCheck, title: "Security Matrix", color: "rose", tag: "HIGH", content: "Minimal incident data recorded within the local precinct." },
                   { icon: Activity, title: "Market Momentum", color: "amber", tag: "MEDIUM", content: "Consistent demand intensity from high-frequency professional clusters." }
                ].map((card, i) => (
-                  <div key={i} className="bg-white p-10 rounded-[3.5rem] border border-slate-100 shadow-sm hover:shadow-2xl transition-all duration-500 flex flex-col justify-between min-h-[300px]">
+                  <div key={i} className="bg-card p-10 rounded-[3.5rem] border border-white/5 shadow-sm hover:shadow-2xl transition-all duration-500 flex flex-col justify-between min-h-[300px]">
                      <div className="flex items-center justify-between mb-10">
-                        <div className={`p-4 bg-${card.color}-50 text-${card.color}-600 rounded-2xl`}>
+                        <div className={`p-4 bg-${card.color}-500/10 text-${card.color}-500 rounded-2xl`}>
                            <card.icon size={26} />
                         </div>
-                        <span className="px-5 py-2 bg-slate-50 text-slate-400 rounded-full text-[10px] font-black uppercase tracking-widest border border-slate-100">
+                        <span className="px-5 py-2 bg-bg border border-white/5 text-subtext rounded-full text-[10px] font-black uppercase tracking-widest">
                            {card.tag}
                         </span>
                      </div>
                      <div>
-                        <h3 className="text-2xl font-black text-slate-900 mb-6 tracking-tight leading-none uppercase italic">{card.title}</h3>
-                        <div className="bg-[#F8FAFC] p-6 rounded-[2rem] border border-slate-100/50">
-                           <p className="text-slate-500 font-black text-xs leading-relaxed italic opacity-80">
+                        <h3 className="text-2xl font-black text-text mb-6 tracking-tight leading-none uppercase italic">{card.title}</h3>
+                        <div className="bg-bg/50 p-6 rounded-[2rem] border border-white/5">
+                           <p className="text-subtext font-bold text-xs leading-relaxed italic">
                               {card.content}
                            </p>
                         </div>
