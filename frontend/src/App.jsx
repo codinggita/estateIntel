@@ -8,6 +8,7 @@ import MapComponent from "./components/Map";
 import ResourcesPage from "./components/ResourcesPage";
 import AboutPage from "./components/AboutPage";
 import InsightsPage from "./components/InsightsPage";
+import ReportsPage from "./components/ReportsPage";
 
 // Component to protect routes
 const ProtectedRoute = ({ user, children }) => {
@@ -78,7 +79,7 @@ function App() {
         />
         <Route path="/resources" element={<ProtectedRoute user={user}><ResourcesPage /></ProtectedRoute>} />
         <Route path="/insights" element={<ProtectedRoute user={user}><InsightsPage /></ProtectedRoute>} />
-        <Route path="/reports" element={<ProtectedRoute user={user}><div className="pt-32 px-10 text-center"><h1 className="text-3xl font-black">Property Reports</h1><p className="text-slate-500 mt-2">Generate PDF investment reports in one click.</p></div></ProtectedRoute>} />
+        <Route path="/reports" element={<ProtectedRoute user={user}><ReportsPage /></ProtectedRoute>} />
         <Route path="/about" element={<ProtectedRoute user={user}><AboutPage /></ProtectedRoute>} />
       </Routes>
     </div>
