@@ -12,13 +12,17 @@ connectDB();
 
 const app = express();
 
-app.use(cors({ origin: ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:3000'] }));
+app.use(cors({ 
+  origin: ['http://localhost:5173', 'http://localhost:5174', 'http://localhost:3000', 'http://localhost:5175'],
+  credentials: true 
+}));
 app.use(express.json());
 
 // Routes
 app.use('/api/resources', require('./routes/resources.route'));
 app.use('/api/user', require('./routes/user.route'));
 app.use('/api/insights', require('./routes/insights.route'));
+app.use('/api/inspection', require('./routes/inspection.route'));
 
 // Health check
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
