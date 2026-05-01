@@ -5,6 +5,7 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import Button from './ui/Button';
 import { motion } from 'framer-motion';
+import { handleGoogleLogin } from '../utils/googleAuth';
 
 const SignIn = ({ onLogin }) => {
   const navigate = useNavigate();
@@ -22,6 +23,51 @@ const SignIn = ({ onLogin }) => {
 
   const handleViewChange = (newView) => {
     navigate(newView === 'login' ? '/login' : '/signup');
+  };
+
+  // Handle Google Sign-In
+  const handleGoogleSignIn = async () => {
+    setServerError('');
+    
+    try {
+      console.log('🔐 Starting Google sign-in from SignIn component...');
+      console.log('📍 Current path before login:', window.location.pathname);
+      
+      const result = await handleGoogleLogin();
+      
+      if (result.success) {
+        console.log('✅ Google authentication successful:', result.user);
+        console.log('📍 Current path before redirect:', window.location.pathname);
+        console.log('🚀 About to redirect to home...');
+        
+        // Call parent login handler first
+        onLogin(result.user);
+        
+        // Force redirect to home immediately
+        navigate('/');
+        
+        console.log('✅ Navigate to home called');
+        
+        // Additional redirect as fallback
+        setTimeout(() => {
+          if (window.location.pathname !== '/') {
+            console.log('🔄 Fallback: Still not on home, forcing redirect...');
+            window.location.href = '/';
+          }
+        }, 200);
+        
+                
+        if (result.warning) {
+          console.warn('⚠️ Warning:', result.warning);
+        }
+      } else {
+        setServerError(result.error || 'Google sign-in failed');
+        console.error('❌ Google authentication failed:', result.error);
+      }
+    } catch (error) {
+      console.error('❌ Unexpected error during Google sign-in:', error);
+      setServerError('An unexpected error occurred during Google sign-in');
+    }
   };
 
   const validationSchema = Yup.object({
@@ -241,14 +287,14 @@ const SignIn = ({ onLogin }) => {
             <div className="flex-1 h-px bg-white/5"></div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <button className="flex items-center justify-center gap-3 py-4 bg-card border border-white/30 rounded-2xl hover:border-primary/50 transition-all font-bold text-sm">
+          <div className="w-full">
+            <button 
+              onClick={handleGoogleSignIn}
+              className="w-full flex items-center justify-center gap-3 px-4 py-4 bg-card border border-white/30 rounded-2xl hover:border-primary/50 hover:shadow-md transition-all font-bold text-sm shadow-sm"
+              type="button"
+            >
               <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" alt="Google" className="w-5 h-5" />
-              Google
-            </button>
-            <button className="flex items-center justify-center gap-3 py-4 bg-card border border-white/30 rounded-2xl hover:border-primary/50 transition-all font-bold text-sm">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#1877F2" className="w-5 h-5"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.469h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.469h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
-              Facebook
+              <span>Continue with Google</span>
             </button>
           </div>
         </div>
