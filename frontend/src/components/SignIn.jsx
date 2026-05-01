@@ -31,31 +31,18 @@ const SignIn = ({ onLogin }) => {
     
     try {
       console.log('🔐 Starting Google sign-in from SignIn component...');
-      console.log('📍 Current path before login:', window.location.pathname);
       
       const result = await handleGoogleLogin();
       
       if (result.success) {
         console.log('✅ Google authentication successful:', result.user);
-        console.log('📍 Current path before redirect:', window.location.pathname);
-        console.log('🚀 About to redirect to home...');
         
-        // Call parent login handler first
+        // Call parent login handler
         onLogin(result.user);
         
-        // Force redirect to home immediately
-        navigate('/');
-        
-        console.log('✅ Navigate to home called');
-        
-        // Additional redirect as fallback
-        setTimeout(() => {
-          if (window.location.pathname !== '/') {
-            console.log('🔄 Fallback: Still not on home, forcing redirect...');
-            window.location.href = '/';
-          }
-        }, 200);
-        
+        // Let the App component handle the redirect via onAuthStateChanged
+        // This prevents race conditions
+        console.log('� User data sent to parent, waiting for redirect...');
                 
         if (result.warning) {
           console.warn('⚠️ Warning:', result.warning);

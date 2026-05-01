@@ -45,28 +45,42 @@ function App() {
       console.log('🔍 onAuthStateChanged - Current path:', currentPath, 'User:', firebaseUser?.displayName);
       
       if (firebaseUser) {
-        // User is signed in
-        const userData = {
-          uid: firebaseUser.uid,
-          name: firebaseUser.displayName,
-          email: firebaseUser.email,
-          photo: firebaseUser.photoURL,
-          emailVerified: firebaseUser.emailVerified
-        };
-        setUser(userData);
-        localStorage.setItem('user', JSON.stringify(userData));
-        console.log('👤 User is signed in:', firebaseUser.displayName);
+        // Check if we already have user data from Google login
+        const storedUser = localStorage.getItem('user');
         
-        // Only redirect if user is on auth pages and NOT already on home
-        // This prevents interfering with manual navigation or redirects from login flow
-        if ((currentPath === '/login' || currentPath === '/signup') && currentPath !== '/') {
-          console.log('🚀 Redirecting to home from auth page:', currentPath);
-          // Use setTimeout to avoid race conditions with login component redirects
-          setTimeout(() => {
-            if (window.location.pathname === currentPath) { // Double check we're still on the same page
+        if (storedUser) {
+          try {
+            const userData = JSON.parse(storedUser);
+            setUser(userData);
+            console.log('👤 User is signed in (from localStorage):', userData.name);
+            
+            // Only redirect if user is on auth pages
+            if (currentPath === '/login' || currentPath === '/signup') {
+              console.log('🚀 Redirecting to home from auth page:', currentPath);
               navigate('/');
             }
-          }, 100);
+          } catch (error) {
+            console.error('❌ Error parsing stored user data:', error);
+            localStorage.removeItem('user');
+          }
+        } else {
+          // Create user data from Firebase
+          const userData = {
+            uid: firebaseUser.uid,
+            name: firebaseUser.displayName,
+            email: firebaseUser.email,
+            photo: firebaseUser.photoURL,
+            emailVerified: firebaseUser.emailVerified
+          };
+          setUser(userData);
+          localStorage.setItem('user', JSON.stringify(userData));
+          console.log('👤 User is signed in (from Firebase):', firebaseUser.displayName);
+          
+          // Only redirect if user is on auth pages
+          if (currentPath === '/login' || currentPath === '/signup') {
+            console.log('🚀 Redirecting to home from auth page:', currentPath);
+            navigate('/');
+          }
         }
       } else {
         // User is signed out

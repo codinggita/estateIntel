@@ -1,5 +1,5 @@
 // Google Authentication Helper Functions
-import { signInWithPopup, signOut, onAuthStateChanged } from "firebase/auth";
+import { signInWithPopup, signOut, onAuthStateChanged, signInWithRedirect } from "firebase/auth";
 import { auth, googleProvider } from "../firebase";
 import axios from "axios";
 
@@ -11,11 +11,32 @@ export const handleGoogleLogin = async () => {
   try {
     console.log('🔐 Starting Google sign-in...');
     
-    const result = await signInWithPopup(auth, googleProvider);
+    // Determine backend URL based on environment
+    const backendUrl = window.location.hostname === 'localhost' 
+      ? 'http://localhost:5000' 
+      : 'https://estateintel-backend.onrender.com'; // Replace with your production backend URL
+    
+    console.log('🌐 Using backend URL:', backendUrl);
+    
+    // Try popup first, fallback to redirect if blocked
+    let result;
+    try {
+      result = await signInWithPopup(auth, googleProvider);
+      console.log('✅ Popup authentication successful');
+    } catch (popupError) {
+      if (popupError.code === 'auth/popup-blocked' || popupError.code === 'auth/popup-closed-by-user') {
+        console.log('⚠️ Popup blocked or closed, trying redirect method...');
+        // Fallback to redirect method
+        await signInWithRedirect(auth, googleProvider);
+        return { success: false, error: 'Redirecting to Google for authentication...', isRedirect: true };
+      }
+      throw popupError;
+    }
+    
     const user = result.user;
     
     // Extract user details
-    const userData = {
+    const firebaseUserData = {
       uid: user.uid,
       displayName: user.displayName,
       email: user.email,
@@ -25,37 +46,66 @@ export const handleGoogleLogin = async () => {
       refreshToken: result.user.refreshToken
     };
     
-    console.log('✅ Google sign-in successful:', userData);
+    console.log('✅ Firebase sign-in successful:', firebaseUserData);
     
     // Send user data to backend for MongoDB storage
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/google', {
-        uid: userData.uid,
-        name: userData.displayName,
-        email: userData.email,
-        photo: userData.photoURL,
-        emailVerified: userData.emailVerified
+      const response = await axios.post(`${backendUrl}/api/auth/google`, {
+        uid: firebaseUserData.uid,
+        name: firebaseUserData.displayName,
+        email: firebaseUserData.email,
+        photo: firebaseUserData.photoURL,
+        emailVerified: firebaseUserData.emailVerified
       }, {
         headers: {
           'Content-Type': 'application/json'
-        }
+        },
+        timeout: 10000
       });
       
       if (response.data.success) {
         console.log('✅ Backend authentication successful:', response.data.user);
+        
+        // Store user in localStorage for immediate access
+        localStorage.setItem('user', JSON.stringify(response.data.user));
+        
         return {
           success: true,
-          user: response.data.user
+          user: response.data.user,
+          firebaseUser: firebaseUserData
         };
       } else {
         throw new Error(response.data.message || 'Backend authentication failed');
       }
     } catch (backendError) {
       console.error('❌ Backend authentication error:', backendError);
+      
       // Still return Firebase user data even if backend fails
+      const fallbackUserData = {
+        id: firebaseUserData.uid,
+        uid: firebaseUserData.uid,
+        name: firebaseUserData.displayName,
+        email: firebaseUserData.email,
+        photo: firebaseUserData.photoURL,
+        emailVerified: firebaseUserData.emailVerified,
+        lastLogin: new Date(),
+        loginCount: 1,
+        createdAt: new Date(),
+        isActive: true,
+        isPremium: false,
+        preferences: {
+          theme: 'light',
+          notifications: true
+        }
+      };
+      
+      // Store fallback user data
+      localStorage.setItem('user', JSON.stringify(fallbackUserData));
+      
       return {
         success: true,
-        user: userData,
+        user: fallbackUserData,
+        firebaseUser: firebaseUserData,
         warning: 'Backend authentication failed, but Firebase login succeeded'
       };
     }
@@ -71,7 +121,7 @@ export const handleGoogleLogin = async () => {
         errorMessage = 'Sign-in popup was closed before completion';
         break;
       case 'auth/popup-blocked':
-        errorMessage = 'Sign-in popup was blocked by the browser';
+        errorMessage = 'Sign-in popup was blocked by the browser. Please allow popups for this site.';
         break;
       case 'auth/cancelled-popup-request':
         errorMessage = 'Sign-in was cancelled';
