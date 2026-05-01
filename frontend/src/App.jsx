@@ -8,21 +8,16 @@ import { ThemeProvider } from "./context/ThemeContext";
 // Layout and Page Components
 import Layout from "./components/Layout";
 import SignIn from "./components/SignIn";
+import Settings from "./components/Settings";
+import LandingPage from "./components/LandingPage";
 import MapComponent from "./components/Map";
-import ResourcesPage from "./components/ResourcesPage";
-import AboutPage from "./components/AboutPage";
+import ProtectedRoute from "./components/ProtectedRoute";
 import InsightsPage from "./components/InsightsPage";
 import ReportsPage from "./components/ReportsPage";
 import InspectionPage from "./components/InspectionPage";
-import LandingPage from "./components/LandingPage";
+import AboutPage from "./components/AboutPage";
+import ResourcesPage from "./components/ResourcesPage";
 
-// Component to protect routes
-const ProtectedRoute = ({ user, children }) => {
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
-  return children;
-};
 
 // Component to redirect if already logged in
 const PublicRoute = ({ user, children }) => {
@@ -154,6 +149,13 @@ function App() {
           <Route path="inspection" element={<InspectionPage />} />
           <Route path="about" element={<AboutPage />} />
         </Route>
+
+        {/* Settings Route */}
+        <Route path="/settings" element={
+          <ProtectedRoute user={user}>
+            <Settings user={user} onLogout={handleLogout} />
+          </ProtectedRoute>
+        } />
 
         {/* Legacy Dashboard Route - Redirect to home */}
         <Route path="/dashboard" element={<Navigate to="/" replace />} />

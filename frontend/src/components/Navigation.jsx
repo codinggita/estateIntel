@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, Sun, Moon, Menu, X, LogOut } from 'lucide-react';
+import { Shield, Sun, Moon, Menu, X, LogOut, Settings } from 'lucide-react';
 import { NavLink, Link } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -26,6 +26,7 @@ const Navigation = ({ user, onLogout }) => {
     { name: 'Reports', path: '/app/reports' },
     { name: 'Booking', path: '/app/inspection' },
     { name: 'About', path: '/app/about' },
+    { name: 'Settings', path: '/settings' },
   ];
 
   return (

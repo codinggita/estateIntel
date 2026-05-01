@@ -1,6 +1,6 @@
 // Firebase Configuration - EstateIntel Project
 import { initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider } from "firebase/auth";
+import { getAuth, GoogleAuthProvider, updateProfile } from "firebase/auth";
 
 // Firebase configuration from environment variables
 const firebaseConfig = {
@@ -26,4 +26,4 @@ googleProvider.setCustomParameters({
   access_type: 'offline'
 });
 
-export { auth, googleProvider };
+export { auth, googleProvider, updateProfile };
