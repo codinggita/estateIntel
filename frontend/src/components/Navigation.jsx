@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, Sun, Moon, Menu, X, LogOut, User } from 'lucide-react';
+import { Shield, Sun, Moon, Menu, X, LogOut } from 'lucide-react';
 import { NavLink, Link } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext';
 import { motion, AnimatePresence } from 'framer-motion';
 import Button from './ui/Button';
+import Avatar from './Avatar';
+import { getNameFromEmail } from '../utils/avatar';
 
 const Navigation = ({ user, onLogout }) => {
   const { theme, toggleTheme } = useTheme();
@@ -18,12 +20,12 @@ const Navigation = ({ user, onLogout }) => {
 
   const navLinks = [
     { name: 'Home', path: '/' },
-    { name: 'Map', path: '/map' },
-    { name: 'Resources', path: '/resources' },
-    { name: 'Insights', path: '/insights' },
-    { name: 'Reports', path: '/reports' },
-    { name: 'Booking', path: '/inspection' },
-    { name: 'About', path: '/about' },
+    { name: 'Map', path: '/app/map' },
+    { name: 'Resources', path: '/app/resources' },
+    { name: 'Insights', path: '/app/insights' },
+    { name: 'Reports', path: '/app/reports' },
+    { name: 'Booking', path: '/app/inspection' },
+    { name: 'About', path: '/app/about' },
   ];
 
   return (
@@ -88,25 +90,27 @@ const Navigation = ({ user, onLogout }) => {
           </button>
 
           {/* User/Auth */}
-          <div className="hidden md:flex items-center gap-3">
+          <div className="hidden md:flex items-center justify-end">
             {!user ? (
-              <>
+              <div className="flex items-center gap-3">
                 <Link to="/login">
                   <Button variant="ghost" className="text-sm">Sign in</Button>
                 </Link>
                 <Link to="/signup">
                   <Button className="text-sm rounded-full">Explore Now</Button>
                 </Link>
-              </>
+              </div>
             ) : (
-              <div className="flex items-center gap-3 bg-card/50 pl-4 pr-1 py-1 rounded-full border border-white/5">
-                <span className="text-sm font-bold text-subtext">
-                  {user.fullName?.split(' ')[0] || 'User'}
-                </span>
+              <div className="flex items-center justify-end gap-3">
+                <div className="text-right">
+                  <p className="text-sm font-medium text-text">{getNameFromEmail(user)}</p>
+                  <p className="text-xs text-subtext">{user.email}</p>
+                </div>
+                <Avatar user={user} size="md" />
                 <button 
                   onClick={onLogout}
-                  className="p-2 bg-text text-bg rounded-full hover:bg-primary transition-colors"
-                  title="Logout"
+                  className="p-2 bg-card border border-white/10 text-text rounded-full hover:bg-primary hover:text-white transition-colors"
+                  title="Sign Out"
                 >
                   <LogOut size={16} />
                 </button>
@@ -155,9 +159,20 @@ const Navigation = ({ user, onLogout }) => {
                   </Link>
                 </div>
               ) : (
-                <Button onClick={onLogout} variant="outline" fullWidth>
-                  <LogOut size={18} className="mr-2" /> Logout
-                </Button>
+                <div className="space-y-4">
+                  {/* User Profile Section */}
+                  <div className="flex items-center justify-between gap-4 p-4 bg-card/50 rounded-xl border border-white/5">
+                    <div className="flex-1">
+                      <p className="font-medium text-text">{getNameFromEmail(user)}</p>
+                      <p className="text-sm text-subtext">{user.email}</p>
+                    </div>
+                    <Avatar user={user} size="lg" />
+                  </div>
+                  
+                  <Button onClick={onLogout} variant="outline" fullWidth>
+                    <LogOut size={18} className="mr-2" /> Sign Out
+                  </Button>
+                </div>
               )}
             </div>
           </motion.div>
