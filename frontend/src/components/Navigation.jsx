@@ -22,6 +22,7 @@ const Navigation = ({ user, onLogout }) => {
     { name: 'Resources', path: '/resources' },
     { name: 'Insights', path: '/insights' },
     { name: 'Reports', path: '/reports' },
+    { name: 'Booking', path: '/inspection' },
     { name: 'About', path: '/about' },
   ];
 
