@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
-import { Calendar, Clock, MapPin, User, Phone, Mail, FileText, ShieldCheck, CheckCircle, AlertCircle, Home, Wrench, Droplets, Zap } from 'lucide-react';
+import { Calendar, Clock, MapPin, User, Phone, Mail, FileText, ShieldCheck, CheckCircle, AlertCircle, Home, Wrench, Droplets, Zap, Share2, Download, CreditCard } from 'lucide-react';
+import toastNotifications from '../utils/toastNotifications';
 
 // Yup validation schema
 const validationSchema = Yup.object({
@@ -43,6 +44,153 @@ const InspectionPage = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [error, setError] = useState('');
 
+  // Handle form validation with toast notifications
+  const handleFormValidation = (values, errors) => {
+    if (errors && Object.keys(errors).length > 0) {
+      const firstError = Object.values(errors)[0];
+      toastNotifications.formValidationError(errors);
+      return false;
+    }
+    return true;
+  };
+
+  // Handle booking cancellation
+  const handleCancelBooking = async (bookingId) => {
+    const loadingToast = toastNotifications.showLoading('Cancelling booking...');
+    
+    try {
+      await axios.delete(`http://localhost:5000/api/inspection/book/${bookingId}`);
+      toastNotifications.dismiss(loadingToast);
+      toastNotifications.bookingCancelled(bookingId);
+      
+      // Reset form
+      setIsSubmitted(false);
+      localStorage.removeItem('lastBooking');
+    } catch (err) {
+      toastNotifications.dismiss(loadingToast);
+      toastNotifications.showError('Failed to cancel booking. Please try again.');
+      console.error('Cancel booking error:', err);
+    }
+  };
+
+  // Handle booking reschedule
+  const handleRescheduleBooking = async (bookingId, newDate, newTime) => {
+    const loadingToast = toastNotifications.showLoading('Rescheduling booking...');
+    
+    try {
+      const response = await axios.put(`http://localhost:5000/api/inspection/book/${bookingId}`, {
+        preferredDate: newDate,
+        preferredTime: newTime
+      });
+      
+      toastNotifications.dismiss(loadingToast);
+      toastNotifications.bookingUpdated(bookingId);
+      
+      // Update stored booking details
+      localStorage.setItem('lastBooking', JSON.stringify(response.data.inspection));
+    } catch (err) {
+      toastNotifications.dismiss(loadingToast);
+      toastNotifications.showError('Failed to reschedule booking. Please try again.');
+      console.error('Reschedule booking error:', err);
+    }
+  };
+
+  // Handle sharing booking details
+  const handleShareBooking = (bookingDetails) => {
+    const shareText = `
+Property Inspection Booking Details:
+Booking ID: ${bookingDetails.id || 'Pending'}
+Date: ${bookingDetails.preferredDate}
+Time: ${bookingDetails.preferredTime}
+Property: ${bookingDetails.propertyAddress}
+Type: ${bookingDetails.inspectionType}
+Contact: ${bookingDetails.name} | ${bookingDetails.phone}
+    `.trim();
+
+    if (navigator.share) {
+      navigator.share({
+        title: 'Property Inspection Booking',
+        text: shareText
+      }).catch(() => {
+        navigator.clipboard.writeText(shareText);
+        toastNotifications.dataShared('Booking details');
+      });
+    } else {
+      navigator.clipboard.writeText(shareText);
+      toastNotifications.dataShared('Booking details');
+    }
+  };
+
+  // Handle downloading booking details
+  const handleDownloadBooking = (bookingDetails) => {
+    const bookingData = [
+      ['Field', 'Value'],
+      ['Booking ID', bookingDetails.id || 'Pending'],
+      ['Name', bookingDetails.name],
+      ['Phone', bookingDetails.phone],
+      ['Email', bookingDetails.email],
+      ['Property Type', bookingDetails.propertyType],
+      ['Property Address', bookingDetails.propertyAddress],
+      ['Preferred Date', bookingDetails.preferredDate],
+      ['Preferred Time', bookingDetails.preferredTime],
+      ['Inspection Type', bookingDetails.inspectionType],
+      ['Message', bookingDetails.message || 'N/A']
+    ];
+    
+    const csvContent = bookingData.map(row => row.join(',')).join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `booking-${bookingDetails.id || 'details'}-${Date.now()}.csv`;
+    a.click();
+    window.URL.revokeObjectURL(url);
+    
+    toastNotifications.dataDownloaded('Booking details');
+  };
+
+  // Handle payment processing
+  const handlePayment = async (bookingId, amount) => {
+    const loadingToast = toastNotifications.showLoading('Processing payment...');
+    
+    try {
+      // Simulate payment processing
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Simulate payment success/failure (90% success rate)
+      const isSuccess = Math.random() > 0.1;
+      
+      if (isSuccess) {
+        toastNotifications.dismiss(loadingToast);
+        toastNotifications.paymentSuccessful();
+        
+        // Update booking status to paid
+        const response = await axios.put(`http://localhost:5000/api/inspection/book/${bookingId}/payment`, {
+          status: 'paid',
+          amount: amount,
+          paymentMethod: 'online'
+        });
+        
+        // Update stored booking details
+        localStorage.setItem('lastBooking', JSON.stringify(response.data.inspection));
+        
+        return true;
+      } else {
+        throw new Error('Payment declined by bank');
+      }
+    } catch (err) {
+      toastNotifications.dismiss(loadingToast);
+      toastNotifications.paymentFailed(err);
+      return false;
+    }
+  };
+
+  // Handle payment retry
+  const handlePaymentRetry = async (bookingId, amount) => {
+    toastNotifications.showInfo('Retrying payment...');
+    return await handlePayment(bookingId, amount);
+  };
+
   const initialValues = {
     name: '',
     phone: '',
@@ -58,6 +206,9 @@ const InspectionPage = () => {
   const handleSubmit = async (values, { setSubmitting }) => {
     setError('');
     
+    // Show loading toast
+    const loadingToast = toastNotifications.showLoading('Creating your booking...');
+    
     try {
       const response = await axios.post('http://localhost:5000/api/inspection/book', values, {
         headers: {
@@ -66,11 +217,29 @@ const InspectionPage = () => {
       });
       
       if (response.status === 201) {
+        // Dismiss loading toast and show success
+        toastNotifications.dismiss(loadingToast);
+        toastNotifications.bookingCreated(response.data.inspection.id || 'INS-' + Date.now());
+        
         setIsSubmitted(true);
         // Store booking details for confirmation page
         localStorage.setItem('lastBooking', JSON.stringify(response.data.inspection));
       }
     } catch (err) {
+      // Dismiss loading toast and show error
+      toastNotifications.dismiss(loadingToast);
+      
+      // Handle different types of errors
+      if (err.code === 'NETWORK_ERROR' || !err.response) {
+        toastNotifications.networkError();
+      } else if (err.response?.status === 401) {
+        toastNotifications.authenticationError();
+      } else if (err.response?.status === 409) {
+        toastNotifications.slotUnavailable(values.preferredDate, values.preferredTime);
+      } else {
+        toastNotifications.bookingFailed(err);
+      }
+      
       setError(err.response?.data?.message || 'Failed to book inspection. Please try again.');
       console.error('Booking error:', err);
     } finally {
@@ -118,12 +287,52 @@ const InspectionPage = () => {
                 </div>
               </div>
             </div>
-            <button 
-              onClick={() => window.location.href = '/'}
-              className="bg-primary text-white px-8 py-3 rounded-xl font-bold hover:bg-primary/90 transition-all"
-            >
-              Back to Home
-            </button>
+            
+            {/* Action Buttons */}
+            <div className="flex flex-wrap gap-3 justify-center">
+              <button 
+                onClick={() => window.location.href = '/'}
+                className="bg-primary text-white px-6 py-3 rounded-xl font-bold hover:bg-primary/90 transition-all"
+              >
+                Back to Home
+              </button>
+              
+              <button
+                onClick={() => handleShareBooking(bookingDetails)}
+                className="bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 transition-all flex items-center gap-2"
+              >
+                <Share2 size={18} />
+                Share
+              </button>
+              
+              <button
+                onClick={() => handleDownloadBooking(bookingDetails)}
+                className="bg-green-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-green-700 transition-all flex items-center gap-2"
+              >
+                <Download size={18} />
+                Download
+              </button>
+              
+              {bookingDetails.id && (
+                <>
+                  {bookingDetails.status !== 'paid' && (
+                    <button
+                      onClick={() => handlePayment(bookingDetails.id, bookingDetails.inspectionType === 'premium' ? 5000 : bookingDetails.inspectionType === 'comprehensive' ? 8000 : 3000)}
+                      className="bg-purple-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-purple-700 transition-all flex items-center gap-2"
+                    >
+                      <CreditCard size={18} />
+                      Pay Now
+                    </button>
+                  )}
+                  <button
+                    onClick={() => handleCancelBooking(bookingDetails.id)}
+                    className="bg-red-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-red-700 transition-all"
+                  >
+                    Cancel Booking
+                  </button>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -167,6 +376,8 @@ const InspectionPage = () => {
                 initialValues={initialValues}
                 validationSchema={validationSchema}
                 onSubmit={handleSubmit}
+                validateOnBlur={false}
+                validateOnChange={false}
               >
                 {({ isSubmitting, errors, touched }) => (
                   <Form className="space-y-8">

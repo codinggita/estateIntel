@@ -4,6 +4,7 @@ import { Routes, Route, Navigate, useLocation, useNavigate } from "react-router-
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { auth } from "./firebase";
 import { ThemeProvider } from "./context/ThemeContext";
+import { Toaster } from "react-hot-toast";
 
 // Layout and Page Components
 import Layout from "./components/Layout";
@@ -165,8 +166,45 @@ function App() {
           user ? <Navigate to="/" replace /> : <Navigate to="/login" replace />
         } />
       </Routes>
+      
+      {/* Toast Container */}
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 4000,
+          style: {
+            background: '#374151',
+            color: '#ffffff',
+            borderRadius: '8px',
+            fontSize: '14px',
+            fontWeight: '500',
+            padding: '12px 16px',
+            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
+          },
+          success: {
+            duration: 4000,
+            iconTheme: {
+              primary: '#ffffff',
+              secondary: '#10b981',
+            },
+          },
+          error: {
+            duration: 5000,
+            iconTheme: {
+              primary: '#ffffff',
+              secondary: '#ef4444',
+            },
+          },
+          loading: {
+            iconTheme: {
+              primary: '#ffffff',
+              secondary: '#3b82f6',
+            },
+          },
+        }}
+      />
     </ThemeProvider>
   );
-}
+};
 
 export default App;
