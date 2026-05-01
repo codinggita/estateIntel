@@ -9,6 +9,7 @@ import ResourcesPage from "./components/ResourcesPage";
 import AboutPage from "./components/AboutPage";
 import InsightsPage from "./components/InsightsPage";
 import ReportsPage from "./components/ReportsPage";
+import InspectionPage from "./components/InspectionPage";
 import LandingPage from "./components/LandingPage";
 import { ThemeProvider } from "./context/ThemeContext";
 
@@ -82,6 +83,7 @@ function App() {
           <Route path="/resources" element={<ProtectedRoute user={user}><ResourcesPage /></ProtectedRoute>} />
           <Route path="/insights" element={<ProtectedRoute user={user}><InsightsPage /></ProtectedRoute>} />
           <Route path="/reports" element={<ProtectedRoute user={user}><ReportsPage /></ProtectedRoute>} />
+          <Route path="/inspection" element={<ProtectedRoute user={user}><InspectionPage /></ProtectedRoute>} />
           <Route path="/about" element={<ProtectedRoute user={user}><AboutPage /></ProtectedRoute>} />
         </Routes>
       </div>

@@ -1,7 +1,19 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Map, ShieldCheck, Search } from 'lucide-react';
 
-const HeroSection = () => (
+const HeroSection = () => {
+  const navigate = useNavigate();
+
+  const handleGetNeighborhoodReport = () => {
+    navigate('/reports');
+  };
+
+  const handleBookInspection = () => {
+    navigate('/inspection');
+  };
+
+  return (
   <>
     <section className="pt-32 pb-20 md:pt-48 md:pb-32 px-6">
       <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
@@ -17,11 +29,17 @@ const HeroSection = () => (
             Before you invest crores, know what you're really buying. Get standardized neighborhood reports and pre-purchase property inspections — all in one trusted platform.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 pt-4">
-            <button className="bg-indigo-600 text-white font-bold px-8 py-4 rounded-xl flex items-center justify-center gap-3 hover:bg-indigo-700 hover:shadow-2xl hover:shadow-indigo-200 transition-all active:scale-95 group">
+            <button 
+              onClick={handleGetNeighborhoodReport}
+              className="bg-indigo-600 text-white font-bold px-8 py-4 rounded-xl flex items-center justify-center gap-3 hover:bg-indigo-700 hover:shadow-2xl hover:shadow-indigo-200 transition-all active:scale-95 group"
+            >
               <Map size={20} />
               Get Neighborhood Report
             </button>
-            <button className="bg-white text-slate-900 border-2 border-slate-200 font-bold px-8 py-4 rounded-xl flex items-center justify-center gap-3 hover:border-slate-300 hover:bg-slate-50 transition-all active:scale-95">
+            <button 
+              onClick={handleBookInspection}
+              className="bg-white text-slate-900 border-2 border-slate-200 font-bold px-8 py-4 rounded-xl flex items-center justify-center gap-3 hover:border-slate-300 hover:bg-slate-50 transition-all active:scale-95"
+            >
               Book Inspection →
             </button>
           </div>
@@ -57,7 +75,12 @@ const HeroSection = () => (
             </div>
             <h3 className="text-3xl font-black mb-4 text-slate-900">Neighborhood Intel</h3>
             <p className="text-slate-500 text-lg leading-relaxed mb-8">Analyze local hospitals, schools, and safety metrics effortlessly.</p>
-            <button className="w-full py-5 bg-slate-900 text-white font-black rounded-2xl">Get Report</button>
+            <button 
+              onClick={handleGetNeighborhoodReport}
+              className="w-full py-5 bg-slate-900 text-white font-black rounded-2xl"
+            >
+              Get Report
+            </button>
           </div>
           <div className="bg-white p-12 rounded-[3.5rem] shadow-2xl shadow-blue-100/50 border border-slate-100 text-left group hover:-translate-y-2 transition-all duration-500">
             <div className="w-20 h-20 bg-blue-50 text-blue-600 rounded-3xl mb-8 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-all duration-500">
@@ -65,12 +88,18 @@ const HeroSection = () => (
             </div>
             <h3 className="text-3xl font-black mb-4 text-slate-900">Property Audit</h3>
             <p className="text-slate-500 text-lg leading-relaxed mb-8">Professional structural, electrical, and plumbing inspections.</p>
-            <button className="w-full py-5 bg-indigo-600 text-white font-black rounded-2xl shadow-xl shadow-indigo-100">Book Audit</button>
+            <button 
+              onClick={handleBookInspection}
+              className="w-full py-5 bg-indigo-600 text-white font-black rounded-2xl shadow-xl shadow-indigo-100"
+            >
+              Book Audit
+            </button>
           </div>
         </div>
       </div>
     </section>
   </>
-);
+  );
+};
 
 export default HeroSection;
