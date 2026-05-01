@@ -1,527 +1,733 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { jsPDF } from 'jspdf';
-import html2canvas from 'html2canvas';
+import React, { useState } from 'react';
+import { motion } from 'framer-motion';
+import { useTheme } from '../context/ThemeContext';
+import { Sun, Moon } from 'lucide-react';
 import { 
-  Search, 
-  Download, 
-  Loader2, 
-  CircleCheck, 
-  Star, 
-  TrendingUp, 
-  ShieldCheck, 
-  Navigation as NavIcon, 
-  DollarSign, 
-  Wind,
-  Check,
-  FileText,
-  Award,
-  Stethoscope,
-  Construction,
-  ShieldAlert,
-  X
+  Search, MapPin, TrendingUp, FileText, Download, Share2, Filter, X,
+  AlertTriangle, CheckCircle, AlertCircle, Activity, BarChart3, PieChart,
+  Users, Building, Zap, Shield, Droplets, Wind, Thermometer,
+  TreePine, Home, School, Hospital, Car, Train, Plane, DollarSign,
+  TrendingDown, Calendar, Clock, Award, Target, Trophy, Menu,
+  Settings, LogOut, HelpCircle, Bookmark, Brain, Briefcase, LayoutDashboard,
+  Printer, Layout, BarChart2, PieChartIcon, TrendingUpIcon, AlertCircleIcon,
+  ChevronRight, ArrowUp, ArrowDown, Minus
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line, Area, AreaChart, PieChart as RechartsPieChart, Cell, RadialBarChart, RadialBar } from 'recharts';
+import Button from './ui/Button';
+import { generatePDF, generateMultiPagePDF, generateSummaryPDF, printReport } from '../utils/pdfExport';
 
 const ReportsPage = () => {
-  const [loading, setLoading] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [generatingReport, setGeneratingReport] = useState(false);
-  const [report, setReport] = useState(null);
-  const [progress, setProgress] = useState("");
+  const navigate = useNavigate();
+  const { theme, toggleTheme } = useTheme();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedLocation, setSelectedLocation] = useState(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [reportData, setReportData] = useState(null);
 
-  const handleGenerateReport = async (location = searchQuery) => {
-    if (!location) return;
-    setLoading(true);
-    try {
-      // Re-using the intelligence engine endpoint
-      const response = await axios.get(`http://localhost:5000/api/insights/report/${location}`);
-      setReport(response.data);
-    } catch (error) {
-       console.error("Report generation failed");
-    } finally {
-      setLoading(false);
-    }
-  };
+  // Mock data for localities
+  const localities = [
+    { id: 1, name: 'Indiranagar', city: 'Bengaluru', tier: 'Tier 1', price: 14500, growth: 8.5 },
+    { id: 2, name: 'Whitefield', city: 'Bengaluru', tier: 'Tier 1', price: 12800, growth: 12.3 },
+    { id: 3, name: 'Koramangala', city: 'Bengaluru', tier: 'Tier 1', price: 13500, growth: 9.8 },
+    { id: 4, name: 'HSR Layout', city: 'Bengaluru', tier: 'Tier 1', price: 11200, growth: 10.2 },
+    { id: 5, name: 'Electronic City', city: 'Bengaluru', tier: 'Tier 1', price: 9800, growth: 11.5 },
+    { id: 6, name: 'Gachibowli', city: 'Hyderabad', tier: 'Tier 1', price: 8500, growth: 14.2 },
+    { id: 7, name: 'Bandra West', city: 'Mumbai', tier: 'Tier 1', price: 28000, growth: 6.8 },
+    { id: 8, name: 'Jubilee Hills', city: 'Hyderabad', tier: 'Tier 1', price: 12000, growth: 9.5 }
+  ];
 
-  const handleSearchSubmit = (e) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      handleGenerateReport(searchQuery);
-    }
-  };
+  const filteredLocalities = localities.filter(locality =>
+    locality.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    locality.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    locality.tier.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
-  const handleDownloadReport = async () => {
-    const pages = [];
-    for (let i = 0; i <= 4; i++) {
-      pages.push(document.getElementById(`pdf-layout-${i}`));
-    }
+  const handleGenerateReport = async (locality) => {
+    setSelectedLocation(locality);
+    setIsGenerating(true);
     
-    if (pages.some(p => !p)) {
-       alert("Synchronizing report modules. Please try again in a moment.");
-       return;
-    }
+    // Simulate AI report generation
+    await new Promise(resolve => setTimeout(resolve, 2000));
     
-    setGeneratingReport(true);
-    const pdf = new jsPDF('p', 'mm', 'a4');
-    
-    try {
-      const pageTitles = [
-        "Phase 01: Professional Cover",
-        "Phase 02: Executive Briefing & Core Scores",
-        "Phase 03: Environmental & Health Audit",
-        "Phase 04: Market Dynamics & Infrastructure",
-        "Phase 05: Investment Strategy & Visuals"
-      ];
-
-      for (let i = 0; i < pages.length; i++) {
-        setProgress(`Generating ${pageTitles[i]}...`);
-        if (i > 0) pdf.addPage();
-        
-        console.log(`[PDF Engine] Capturing Page ${i+1}: ${pageTitles[i]}`);
-        const canvas = await html2canvas(pages[i], { 
-          scale: 2, 
-          useCORS: true, 
-          allowTaint: true,
-          backgroundColor: "#ffffff"
-        });
-        console.log(`[PDF Engine] Page ${i+1} captured successfully.`);
-
-        // Add to PDF with high-quality PNG to avoid artifacting
-        const imgData = canvas.toDataURL('image/png');
-        pdf.addImage(imgData, 'PNG', 0, 0, 210, 297, undefined, 'FAST');
+    // Generate mock report data based on selected locality
+    const mockReportData = {
+      locality: locality.name,
+      city: locality.city,
+      tier: locality.tier,
+      updated: '2h ago',
+      aqi: {
+        score: 64,
+        status: 'MODERATE',
+        pollutants: [
+          { name: 'PM2.5', value: 45, color: '#10B981' },
+          { name: 'PM10', value: 62, color: '#10B981' },
+          { name: 'NO2', value: 28, color: '#10B981' },
+          { name: 'SO2', value: 18, color: '#10B981' },
+          { name: 'CO', value: 0.8, color: '#10B981' }
+        ]
+      },
+      safety: {
+        score: 8.9,
+        status: 'VERY SAFE',
+        metrics: [
+          { label: 'Night patrol frequency', value: 'High' },
+          { label: 'Street lighting', value: '92%' },
+          { label: 'Incident Rate (YoY)', value: '-12%' },
+          { label: 'Women safety score', value: '8.7/10' },
+          { label: 'Emergency response', value: 'Excellent' }
+        ]
+      },
+      marketComparison: [
+        { metric: 'Avg Rental Yield', indiranagar: '4.2%', koramangala: '3.8%', hsr: '3.5%' },
+        { metric: 'Property Appreciation', indiranagar: '+8.5%', koramangala: '+9.8%', hsr: '+10.2%' },
+        { metric: 'Cap Rate', indiranagar: '3.8%', koramangala: '4.2%', hsr: '3.5%' },
+        { metric: 'Walkability Index', indiranagar: '78', koramangala: '72', hsr: '85' },
+        { metric: 'Green Cover %', indiranagar: '15', koramangala: '18', hsr: '22' },
+        { metric: 'Livability Score', indiranagar: '82', koramangala: '79', hsr: '81' },
+        { metric: 'Median Property Price', indiranagar: '₹2.8Cr', koramangala: '₹3.1Cr', hsr: '₹2.4Cr' },
+        { metric: 'Price per Sq Ft', indiranagar: '₹14,500', koramangala: '₹13,500', hsr: '₹11,200' },
+        { metric: 'Vacancy Rate', indiranagar: '3.2%', koramangala: '4.5%', hsr: '3.8%' }
+      ],
+      infrastructure: [
+        { metric: 'Road Maintenance', score: 85 },
+        { metric: 'Public Transport Access', score: 92 },
+        { metric: 'Internet Connectivity', score: 95 },
+        { metric: 'Power Reliability', score: 88 },
+        { metric: 'Metro Connectivity', score: 89 },
+        { metric: 'EV Charging Availability', score: 72 }
+      ],
+      waterUtility: {
+        connectivity: 'BWSSB Supply Connectivity',
+        metrics: [
+          { label: 'Avg Ground Water Level', value: 'Normal' },
+          { label: 'Water Quality Score', value: '8.2/10' },
+          { label: 'Power Outage Frequency', value: '2/month' },
+          { label: 'Flood Risk', value: 'Low' },
+          { label: 'Rainwater Harvesting', value: '45%' },
+          { label: 'Sewage Infrastructure', value: 'Good' }
+        ]
+      },
+      connectivity: {
+        metrics: [
+          { label: 'Distance to Airport', value: '45 km' },
+          { label: 'Metro Accessibility', value: '5 min walk' },
+          { label: 'Highway Connectivity', value: 'Excellent' },
+          { label: 'Average Commute Time', value: '25 min' },
+          { label: 'Traffic Congestion', value: 'Moderate' },
+          { label: 'Public Transport Score', value: '85/100' }
+        ]
+      },
+      healthcareEducation: {
+        metrics: [
+          { label: 'Nearby Hospitals', value: '5' },
+          { label: 'School Ratings', value: '4.2/5' },
+          { label: 'College Accessibility', value: 'Excellent' },
+          { label: 'Healthcare Quality', value: '8.5/10' },
+          { label: 'Pharmacy Density', value: 'High' }
+        ]
       }
+    };
+    
+    setReportData(mockReportData);
+    setIsGenerating(false);
+  };
 
-      setProgress("Finalizing Official Record...");
-      pdf.save(`EI_Report_${report.locationName.replace(/\s+/g, '_')}_${new Date().getTime()}.pdf`);
-    } catch (e) {
-       console.error("PDF Final Dossier Generation Failed:", e);
-       alert(`Dossier Export Failed: ${e.message}. Please ensure the page is fully loaded and try again.`);
-    } finally {
-      setGeneratingReport(false);
-      setProgress("");
+  // PDF Export Handlers
+  const handleDownloadFullPDF = async () => {
+    try {
+      await generateMultiPagePDF('report-content', `${reportData.locality}_Intelligence_Report_Full.pdf`);
+    } catch (error) {
+      console.error('Error generating full PDF:', error);
+      alert('Failed to generate PDF. Please try again.');
     }
   };
 
-  const ReportHeader = ({ location }) => (
-    <div className="flex justify-between items-center border-b border-slate-200 pb-4 mb-10">
-      <div className="flex items-center gap-2">
-        <div className="w-8 h-8 bg-indigo-600 flex items-center justify-center text-white font-black text-xs">EI</div>
-        <span className="text-sm font-black text-slate-900 tracking-tighter uppercase">ESTATEINTEL</span>
-      </div>
-      <div className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">
-        Area Intelligence Report | {location}
-      </div>
-    </div>
-  );
+  const handleShareReport = async () => {
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: `${reportData.locality} Intelligence Report`,
+          text: 'Comprehensive data analysis for investment and livability assessment',
+          url: window.location.href
+        });
+      } else {
+        await navigator.clipboard.writeText(window.location.href);
+        alert('Report link copied to clipboard!');
+      }
+    } catch (error) {
+      console.error('Error sharing report:', error);
+    }
+  };
 
-  const ReportFooter = ({ pageNum, totalPages }) => (
-    <div className="mt-auto pt-6 border-t border-slate-100 flex justify-between items-center text-[9px] font-black text-slate-400 uppercase tracking-[0.4em]">
-      <div>Institutional Property Intelligence Dossier</div>
-      <div>Page {pageNum} of {totalPages}</div>
-      <div>{new Date().toLocaleDateString('en-GB')}</div>
-    </div>
-  );
+  // Render search hero section
+ const renderSearchHero = () => (
+  <div
+    className={`min-h-screen flex items-center justify-center px-6 transition-colors duration-300 ${
+      theme === "dark"
+        ? "bg-zinc-950"
+        : "bg-gradient-to-br from-blue-50 via-white to-indigo-50"
+    }`}
+  >
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
+      className="max-w-4xl w-full"
+    >
+      <div className="text-center mb-12">
+        <motion.div
+          initial={{ scale: 0.9 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 0.5 }}
+          className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium mb-6 ${
+            theme === "dark"
+              ? "bg-blue-950 text-blue-300 border border-blue-900"
+              : "bg-blue-100 text-blue-700"
+          }`}
+        >
+          <Brain className="w-4 h-4" />
+          AI-Powered Intelligence
+        </motion.div>
 
-  return (
-    <div className="min-h-screen bg-bg font-sans selection:bg-primary/10 pb-32">
-      
-      {/* 🕵️ 1. REPORT HEADER & SEARCH SECTION */}
-      <div className="pt-32 pb-12 px-6 max-w-7xl mx-auto">
-        <div className="max-w-4xl mx-auto text-center mb-16">
-          <div className="inline-flex items-center gap-4 mb-8">
-             <div className="w-10 h-10 bg-slate-900 text-white flex items-center justify-center font-black text-sm">EI</div>
-             <span className="text-[12px] font-black text-slate-400 uppercase tracking-[0.4em]">Area Intelligence Service</span>
-          </div>
-          <h1 className="text-4xl md:text-5xl font-extrabold text-text mb-6 tracking-tight">
-            {report ? `Area Intelligence Report: ${report.locationName}` : "Market Intelligence Reports"}
-          </h1>
-          <p className="text-lg font-medium text-slate-500 mb-12 max-w-2xl mx-auto leading-relaxed">Professional-grade spatial analysis and investment dossiers for institutional-quality decision making.</p>
-          
-          <form onSubmit={handleSearchSubmit} className="relative max-w-2xl mx-auto">
-             <div className="flex items-center bg-card border-2 border-white/10 rounded-lg shadow-sm focus-within:border-primary transition-all">
-                <div className="pl-6 text-slate-400">
-                   <Search size={22} />
-                </div>
-                <input 
-                  type="text" 
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Analyze location (e.g. Navi Mumbai)..."
-                  className="flex-grow py-5 px-5 text-xl font-bold text-text outline-none placeholder:text-subtext/40 bg-transparent"
-                />
-                <button type="submit" disabled={loading} className="bg-primary text-white px-10 py-5 rounded-r-md font-bold uppercase tracking-widest text-xs hover:bg-primary/90 transition-all flex items-center gap-3">
-                   {loading ? <Loader2 className="animate-spin" size={18}/> : <TrendingUp size={18}/>}
-                   Generate
-                </button>
-             </div>
-          </form>
+        <h1
+          className={`text-5xl md:text-6xl font-bold mb-6 ${
+            theme === "dark" ? "text-white" : "text-gray-900"
+          }`}
+        >
+          <span className="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+            Real Estate Locality
+          </span>
+          <br />
+          Intelligence Reports
+        </h1>
+
+        <p
+          className={`text-xl mb-8 max-w-3xl mx-auto ${
+            theme === "dark" ? "text-zinc-400" : "text-gray-600"
+          }`}
+        >
+          Generate institutional-grade real estate analytics, investment
+          forecasts, infrastructure intelligence, and livability insights
+          instantly with AI-powered analysis.
+        </p>
+      </div>
+
+      {/* Search Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.2 }}
+        className={`rounded-2xl shadow-xl border p-8 transition-colors duration-300 ${
+          theme === "dark"
+            ? "bg-zinc-900 border-zinc-800"
+            : "bg-white border-gray-200"
+        }`}
+      >
+        <div className="relative mb-6">
+          <Search
+            className={`absolute left-4 top-1/2 -translate-y-1/2 ${
+              theme === "dark" ? "text-zinc-500" : "text-gray-400"
+            }`}
+            size={20}
+          />
+
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search locality, city, region, or PIN code..."
+            className={`w-full pl-12 pr-4 py-4 rounded-xl text-lg border focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200 ${
+              theme === "dark"
+                ? "bg-zinc-950 border-zinc-800 text-white placeholder:text-zinc-500"
+                : "bg-gray-50 border-gray-200 text-gray-900"
+            }`}
+          />
         </div>
 
-        <>
-        {loading && (
-          <div className="flex flex-col items-center py-20">
-             <div className="w-10 h-10 border-4 border-slate-200 border-t-slate-900 rounded-full animate-spin"></div>
-             <p className="mt-4 text-[10px] font-black text-slate-400 tracking-widest uppercase">Aggregating Global Spatial Data...</p>
-          </div>
-        )}
+        {/* Suggested Searches */}
+        <div className="mb-6">
+          <p
+            className={`text-sm mb-3 ${
+              theme === "dark" ? "text-zinc-400" : "text-gray-500"
+            }`}
+          >
+            Popular searches:
+          </p>
 
-        {report && !loading && (
-          <div className="animate-in fade-in slide-in-from-bottom-6 duration-700 max-w-5xl mx-auto">
-            
-            {/* 2. DOCUMENT NAVIGATION/ACTION BAR */}
-            <div className="flex justify-between items-center mb-8 px-4 border-b border-slate-200 pb-6">
-              <div className="flex items-center gap-4">
-                <FileText className="text-indigo-600" />
-                <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Dossier Preview: Ver 4.2</span>
-              </div>
-              <button 
-                onClick={handleDownloadReport}
-                disabled={generatingReport}
-                className="flex items-center gap-3 bg-[#0F172A] text-white px-8 py-3 rounded-sm font-bold uppercase tracking-widest text-[10px] hover:bg-slate-800 transition-all active:scale-95 shadow-sm"
+          <div className="flex flex-wrap gap-2">
+            {[
+              "Indiranagar",
+              "Whitefield",
+              "Koramangala",
+              "HSR Layout",
+              "Gachibowli",
+              "Bandra West",
+            ].map((suggestion) => (
+              <button
+                key={suggestion}
+                onClick={() => setSearchQuery(suggestion)}
+                className={`px-4 py-2 rounded-lg transition-colors duration-200 ${
+                  theme === "dark"
+                    ? "bg-zinc-800 text-zinc-200 hover:bg-zinc-700"
+                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                }`}
               >
-                {generatingReport ? <Loader2 className="animate-spin" size={14}/> : <Download size={14} />}
-                {generatingReport ? "Syncing..." : "Export as PDF"}
+                {suggestion}
               </button>
-            </div>
+            ))}
+          </div>
+        </div>
 
-            {/* 3. THE REPORT DOCUMENT (CONSULTANCY PREVIEW) */}
-            <div className="bg-card border border-white/10 shadow-sm mb-32 overflow-hidden selection:bg-primary/5">
-               
-               {/* SECTION 01: STRATEGIC SUMMARY */}
-               <div className="p-16 md:p-20 border-b border-slate-100 flex flex-col justify-between min-h-[500px]">
-                  <div>
-                    <div className="w-12 h-[3px] bg-indigo-600 mb-10"></div>
-                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-[0.4em] mb-4 block">Report Dossier Intelligence</span>
-                    <h2 className="text-3xl font-bold text-text tracking-tight mb-16 uppercase">Section 01 — Strategic Summary</h2>
-                    <div className="border-l-[3px] border-primary pl-10 py-2">
-                       <p className="text-2xl font-medium text-text leading-[1.6]">
-                         {report.aiSummary}
-                       </p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex gap-16 mt-20 pt-12 border-t border-white/5">
-                    <div>
-                      <div className="text-[9px] font-bold text-subtext uppercase tracking-widest mb-2">Primary Subject</div>
-                      <div className="text-xl font-bold text-text">{report.locationName}</div>
-                    </div>
-                    <div>
-                      <div className="text-[9px] font-bold text-subtext uppercase tracking-widest mb-2">Confidence Level</div>
-                      <div className="text-xl font-bold text-subtext">98.4% System Integrity</div>
-                    </div>
-                  </div>
-               </div>
+        {/* Search Results */}
+        {searchQuery && (
+          <div className="mb-6">
+            <p
+              className={`text-sm mb-3 ${
+                theme === "dark" ? "text-zinc-400" : "text-gray-500"
+              }`}
+            >
+              Search results:
+            </p>
 
-               {/* SECTION 02: AREA CHARACTER ANALYSIS */}
-               <div className="p-16 md:p-20 border-b border-white/5">
-                  <div className="mb-24">
-                    <h3 className="text-[10px] font-bold text-subtext uppercase tracking-[0.4em] mb-8">Section 02 — Area Character Analysis</h3>
-                    <p className="text-2xl font-bold text-text leading-[1.5] mb-12 max-w-2xl">
-                      {report.knownFor}
-                    </p>
-                    <div className="grid grid-cols-2 gap-10">
-                       <div className="border border-white/5 p-10 bg-bg/30">
-                          <h4 className="text-xs font-bold text-primary uppercase tracking-widest mb-6 border-b border-white/5 pb-4">Core Strengths</h4>
-                          <ul className="space-y-5">
-                             {report.strengths.map((s, i) => (
-                               <li key={i} className="flex items-start gap-4 text-sm font-medium text-text/80 leading-relaxed">
-                                  <div className="mt-1.5 w-1.5 h-1.5 bg-primary shrink-0"></div>
-                                  <span>{s}</span>
-                               </li>
-                             ))}
-                          </ul>
-                       </div>
-                       <div className="border border-white/5 p-10 bg-bg/30">
-                          <h4 className="text-xs font-bold text-subtext uppercase tracking-widest mb-6 border-b border-white/5 pb-4">Risk Factors</h4>
-                          <ul className="space-y-5">
-                             {report.weaknesses.map((w, i) => (
-                               <li key={i} className="flex items-start gap-4 text-sm font-medium text-text/80 leading-relaxed">
-                                  <div className="mt-1.5 w-1.5 h-1.5 bg-subtext shrink-0"></div>
-                                  <span>{w}</span>
-                               </li>
-                             ))}
-                          </ul>
-                       </div>
-                    </div>
-                  </div>
-               </div>
-
-               {/* SECTION 03: LIVING EXPERIENCE AUDIT */}
-               <div className="p-16 md:p-20 border-b border-white/5 bg-bg/50">
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-24 items-start">
+            <div className="space-y-2 max-h-60 overflow-y-auto">
+              {filteredLocalities.map((locality) => (
+                <div
+                  key={locality.id}
+                  onClick={() => handleGenerateReport(locality)}
+                  className={`p-4 rounded-lg cursor-pointer transition-colors duration-200 ${
+                    theme === "dark"
+                      ? "bg-zinc-800 hover:bg-zinc-700"
+                      : "bg-gray-50 hover:bg-gray-100"
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
                     <div>
-                      <h3 className="text-[10px] font-bold text-subtext uppercase tracking-widest mb-8">Section 03 — Living Experience Audit</h3>
-                      <p className="text-2xl font-bold text-text leading-[1.4] mb-8">
-                        Analytical assessment of daily operational stability and lifestyle metrics.
-                      </p>
-                      <div className="text-base font-medium text-subtext leading-[1.7] mb-12 max-w-lg">
-                        {report.dailyLife}
+                      <div
+                        className={`font-semibold ${
+                          theme === "dark"
+                            ? "text-white"
+                            : "text-gray-900"
+                        }`}
+                      >
+                        {locality.name}
                       </div>
-                      <div className="flex gap-4">
-                         <div className="w-1.5 h-1.5 bg-primary mt-2"></div>
-                         <span className="text-[10px] font-bold text-text uppercase tracking-widest">Subject Asset Classification: Preferred Residential</span>
+
+                      <div
+                        className={`text-sm ${
+                          theme === "dark"
+                            ? "text-zinc-400"
+                            : "text-gray-600"
+                        }`}
+                      >
+                        {locality.city}
                       </div>
                     </div>
-                    <div className="border border-white/10 p-12 bg-card">
-                       <h4 className="text-[10px] font-bold text-subtext uppercase mb-12 border-b border-white/5 pb-4">Analysis Integrity Matrix</h4>
-                       <div className="space-y-10">
-                          {Object.entries(report.scores).map(([key, val]) => (
-                            <div key={key}>
-                               <div className="flex justify-between items-end mb-4">
-                                  <span className="text-[9px] font-bold text-text uppercase tracking-[0.2em]">{key} Matrix</span>
-                                  <span className="text-xl font-bold text-text">{val}<span className="text-[10px] text-subtext ml-1">/ 10</span></span>
-                               </div>
-                               <div className="h-[2px] bg-white/5">
-                                  <div className="h-full bg-primary" style={{ width: `${val * 10}%` }}></div>
-                               </div>
-                            </div>
-                          ))}
-                       </div>
+
+                    <div className="text-right">
+                      <div
+                        className={`text-sm font-medium ${
+                          theme === "dark"
+                            ? "text-white"
+                            : "text-gray-900"
+                        }`}
+                      >
+                        ₹{locality.price.toLocaleString()}/sqft
+                      </div>
+
+                      <div className="text-xs text-green-500">
+                        +{locality.growth}% growth
+                      </div>
                     </div>
                   </div>
-               </div>
-
-               {/* SECTION 04: CAPITAL & GROWTH PROJECTION */}
-               <div className="p-16 md:p-20 border-b border-white/5">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-16 mb-20">
-                     <div className="md:col-span-2">
-                        <h3 className="text-[10px] font-bold text-subtext uppercase tracking-widest mb-8">Section 04 — Capital & Growth Projection</h3>
-                        <p className="text-3xl font-bold text-text mb-8 tracking-tight uppercase">Development Impact Audit</p>
-                        <div className="text-lg font-medium text-subtext leading-[1.6]">
-                          {report.futureOutlook}
-                        </div>
-                     </div>
-                     <div className="border border-white/5 p-8 flex flex-col justify-between bg-bg/50">
-                        <div className="text-[9px] font-bold text-subtext uppercase mb-2">Primary Investment Strategy</div>
-                        <div className="text-xl font-bold uppercase text-text">{report.investmentPerspective.strategy}</div>
-                        <div className="mt-8 pt-8 border-t border-white/10">
-                           <div className="text-[9px] font-bold text-subtext uppercase mb-1">Market Risk Profile</div>
-                           <div className="text-sm font-bold text-primary uppercase">{report.investmentPerspective.risk} Exposure</div>
-                        </div>
-                     </div>
-                  </div>
-                  
-                  {/* SECTION 05: FINAL STRATEGIC VERDICT */}
-                  <div className="bg-slate-900 text-white p-20 text-center relative overflow-hidden">
-                    <span className="text-[10px] font-bold uppercase tracking-[0.6em] mb-6 block text-white/40">Official Decision Protocol</span>
-                    <h4 className="text-6xl font-bold tracking-widest mb-10 uppercase">{report.finalVerdict.recommendation}</h4>
-                    <div className="max-w-2xl mx-auto border-t border-white/10 pt-10 mb-12">
-                       <p className="text-xl font-medium tracking-tight text-white/70 leading-relaxed">“{report.finalVerdict.insight}”</p>
-                    </div>
-                    <div className="inline-block px-10 py-3 border border-white/10 text-[9px] font-bold uppercase tracking-[0.4em] text-primary">
-                       Institutional Certificate Issued
-                    </div>
-                  </div>
-               </div>
-
-               {/* DOCUMENT FOOTER ADVISORY */}
-               <div className="p-10 bg-slate-50/50 flex flex-wrap justify-between items-center gap-6">
-                  <div className="flex gap-3">
-                    {report.tags.map(tag => (
-                      <span key={tag} className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">{tag}</span>
-                    ))}
-                  </div>
-                  <div className="text-[8px] font-bold text-slate-300 uppercase tracking-widest italic">Electronic Audit Verified Record EI-{report.locationName.substring(0,3).toUpperCase()}</div>
-               </div>
-            </div>
-
-            {/* 4. FINAL CTA (DOCUMENT FOOTER) */}
-            <div className="text-center pb-20">
-               <p className="text-xs font-black text-slate-400 uppercase tracking-[0.5em] mb-10 italic">Term of Analysis: Institutional Finality Verified</p>
-               <button 
-                onClick={handleDownloadReport}
-                disabled={generatingReport}
-                className="inline-flex items-center gap-4 px-12 py-5 bg-[#0F172A] text-white rounded-sm font-bold uppercase tracking-widest text-[11px] hover:bg-slate-800 transition-all shadow-lg active:scale-95"
-               >
-                 <Download size={18} />
-                 Export Full Executive Dossier
-               </button>
+                </div>
+              ))}
             </div>
           </div>
         )}
 
-            {/* 
-              📄 PDF GENERATION CONTEXT (OFF-SCREEN)
-              Consultancy-Grade Institutional Layout
-            */}
-            {report && (
-          <div style={{ position: 'absolute', left: '-9999px', top: '0', visibility: 'visible !important' }}>
-             
-             {/* PAGE 1: PROFESSIONAL COVER */}
-             <div id="pdf-layout-0" className="bg-white w-[210mm] h-[297mm] p-[40mm] flex flex-col justify-between relative overflow-hidden">
-                <div className="absolute top-[-10%] right-[-10%] w-[600px] h-[600px] bg-slate-50 rounded-full blur-3xl opacity-50"></div>
-                
-                <div className="relative z-10">
-                  <div className="flex items-center gap-4 mb-24">
-                     <div className="w-12 h-12 bg-indigo-600 flex items-center justify-center text-white font-black text-2xl">EI</div>
-                     <div className="text-2xl font-black text-slate-900 tracking-tighter uppercase">EstateIntel</div>
-                  </div>
-                </div>
+        {/* Generate Button */}
+        <Button
+          onClick={() => {
+            const selected = filteredLocalities[0];
 
-                <div className="relative z-10 flex-grow flex flex-col justify-center">
-                   <div className="w-16 h-1 bg-indigo-600 mb-12"></div>
-                   <h1 className="text-[4.5rem] font-extrabold text-[#0F172A] leading-[1] mb-8 tracking-tight uppercase">
-                      Area Intelligence<br/>Report Dossier.
-                   </h1>
-                   <div className="text-3xl font-medium text-slate-500 mb-16 tracking-tight">Location Context: <span className="text-[#0F172A] font-bold">{report.locationName}</span></div>
-                   
-                   <div className="grid grid-cols-2 gap-16 border-t border-slate-100 pt-16">
-                      <div>
-                         <div className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.4em] mb-3">Service Line</div>
-                         <div className="text-base font-bold text-[#0F172A]">AI-Powered Strategic Consultation</div>
-                      </div>
-                      <div>
-                         <div className="text-[9px] font-bold text-slate-400 uppercase tracking-[0.4em] mb-3">Institutional Dossier ID</div>
-                         <div className="text-base font-bold text-[#0F172A]">EI-{report.locationName.substring(0,3).toUpperCase()}-2024-SYS</div>
-                      </div>
-                   </div>
-                </div>
+            if (selected) {
+              handleGenerateReport(selected);
+            }
+          }}
+          disabled={!searchQuery || filteredLocalities.length === 0}
+          className="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Generate Intelligence Report
+        </Button>
+      </motion.div>
+    </motion.div>
+  </div>
+);
 
-                <footer className="relative z-10 flex justify-between items-end border-t border-slate-900 pt-10">
-                   <div>
-                      <div className="text-sm font-black text-slate-900 uppercase tracking-widest">Institutional AI Intelligence</div>
-                      <div className="text-[10px] font-bold text-slate-400 mt-1 uppercase italic">Confidential Expert Verdict</div>
-                   </div>
-                   <div className="text-right">
-                      <div className="text-[10px] font-black text-slate-900 uppercase tracking-widest">{new Date().toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}</div>
-                   </div>
-                </footer>
-             </div>
-
-             {/* PAGE 2: SUMMARY & CHARACTER */}
-             <div id="pdf-layout-1" className="bg-white w-[210mm] h-[297mm] p-[30mm] flex flex-col font-sans text-left">
-                <ReportHeader location={report.locationName} />
-                
-                <div className="mb-20">
-                  <h2 className="text-xs font-bold text-slate-400 uppercase tracking-[0.4em] mb-10 border-b border-slate-100 pb-4 italic">SECTION 01 — STRATEGIC SUMMARY</h2>
-                  <div className="border-l-[3px] border-indigo-600 pl-10 py-2">
-                     <p className="text-2xl font-medium text-[#0F172A] leading-[1.6]">
-                       {report.aiSummary}
-                     </p>
-                  </div>
-                </div>
-
-                <div className="mb-12">
-                  <h2 className="text-xs font-bold text-slate-400 uppercase tracking-[0.4em] mb-10 border-b border-slate-100 pb-4 italic">SECTION 02 — MARKET RECOGNITION</h2>
-                  <div className="mb-12">
-                     <p className="text-xl font-bold text-[#0F172A] leading-[1.5] mb-12">
-                       {report.knownFor}
-                     </p>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-12 pt-8 border-t border-slate-50">
-                     <div>
-                        <div className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest mb-6 underline underline-offset-8">Competitive Advantages</div>
-                        {report.strengths.map((s, i) => (
-                           <div key={i} className="flex items-start gap-4 mb-5 text-[11px] font-medium text-slate-600 leading-relaxed">
-                              <div className="w-1.5 h-1.5 bg-indigo-600 mt-1.5 shrink-0"></div>
-                              <span>{s}</span>
-                           </div>
-                        ))}
-                     </div>
-                     <div>
-                        <div className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-6 underline underline-offset-8">Identified Risk Factors</div>
-                        {report.weaknesses.map((w, i) => (
-                           <div key={i} className="flex items-start gap-4 mb-5 text-[11px] font-medium text-slate-500 leading-relaxed">
-                              <div className="w-1.5 h-1.5 bg-slate-300 mt-1.5 shrink-0"></div>
-                              <span>{w}</span>
-                           </div>
-                        ))}
-                     </div>
-                  </div>
-                </div>
-
-                <ReportFooter pageNum={2} totalPages={5} />
-             </div>
-
-             {/* PAGE 3: LIFESTYLE & INFRASTRUCTURE */}
-             <div id="pdf-layout-2" className="bg-white w-[210mm] h-[297mm] p-[30mm] flex flex-col font-sans text-left">
-                <ReportHeader location={report.locationName} />
-
-                <div className="mb-20">
-                  <h2 className="text-xs font-bold text-slate-400 uppercase tracking-[0.4em] mb-10 border-b border-slate-100 pb-4 italic">SECTION 03 — LIVING EXPERIENCE AUDIT</h2>
-                  <div className="max-w-2xl mb-12">
-                     <p className="text-lg font-bold text-[#0F172A] leading-relaxed">
-                        Assessments of resident mobility, amenity access, and social stability within the context of private and tertiary infrastructure.
-                     </p>
-                  </div>
-                  <div className="bg-slate-50/50 p-12 border border-slate-100">
-                     <p className="text-base font-medium text-slate-600 leading-[1.8]">"{report.dailyLife}"</p>
-                  </div>
-                </div>
-
-                <div className="mb-12">
-                  <h2 className="text-xs font-bold text-slate-400 uppercase tracking-[0.4em] mb-10 border-b border-slate-100 pb-4 italic">SECTION 04 — ANALYSIS INTEGRITY SCORES</h2>
-                  <div className="space-y-10 pt-10">
-                     {Object.entries(report.scores).map(([k,v]) => (
-                       <div key={k} className="flex items-center gap-12">
-                          <div className="text-[10px] font-bold text-slate-400 uppercase w-40 tracking-widest">{k} Matrix</div>
-                          <div className="flex-grow h-[2px] bg-slate-100">
-                             <div className="h-full bg-[#0F172A]" style={{ width: `${v*10}%` }}></div>
-                          </div>
-                          <div className="text-xl font-bold text-[#0F172A] w-16 text-right">{v} <span className="text-[9px] text-slate-300">/ 10</span></div>
-                       </div>
-                     ))}
-                  </div>
-                </div>
-
-                <ReportFooter pageNum={3} totalPages={5} />
-             </div>
-
-             {/* PAGE 4: INVESTMENT & GROWTH */}
-             <div id="pdf-layout-3" className="bg-white w-[210mm] h-[297mm] p-[30mm] flex flex-col font-sans text-left">
-                <ReportHeader location={report.locationName} />
-
-                <div className="mb-20">
-                  <h2 className="text-xs font-bold text-slate-400 uppercase tracking-[0.4em] mb-10 border-b border-slate-100 pb-4 italic">SECTION 05 — INVESTMENT PERSPECTIVE</h2>
-                  <div className="grid grid-cols-2 gap-12">
-                     <div className="border border-slate-100 p-12 flex flex-col justify-center">
-                        <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-4">Recommended Strategy</div>
-                        <div className="text-2xl font-bold text-[#0F172A] mb-8">{report.investmentPerspective.strategy}</div>
-                        <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Risk Exposure Grade: {report.investmentPerspective.risk}</div>
-                     </div>
-                     <div className="bg-slate-50 p-12 border border-slate-100">
-                        <h4 className="text-[9px] font-bold text-slate-400 uppercase mb-6 border-b border-slate-200 pb-2">Internal Valuation Commentary</h4>
-                        <p className="text-[11px] font-medium text-slate-600 leading-relaxed italic">"{report.investmentPerspective.value}"</p>
-                     </div>
-                  </div>
-                </div>
-
-                <div className="mb-12">
-                  <h2 className="text-xs font-bold text-slate-400 uppercase tracking-[0.4em] mb-10 border-b border-slate-100 pb-4 italic">SECTION 06 — FUTURE OUTLOOK</h2>
-                  <div className="p-12 border-l-[3px] border-indigo-600 bg-slate-50/50">
-                     <p className="text-lg font-bold text-[#0F172A] tracking-tight leading-relaxed">“{report.futureOutlook}”</p>
-                  </div>
-                </div>
-
-                <ReportFooter pageNum={4} totalPages={5} />
-             </div>
-
-             {/* PAGE 5: VERDICT & RECOMMENDATION */}
-             <div id="pdf-layout-4" className="bg-white w-[210mm] h-[297mm] p-[30mm] flex flex-col font-sans text-left">
-                <ReportHeader location={report.locationName} />
-
-                <div className="mt-auto">
-                  <h2 className="text-xs font-bold text-slate-400 uppercase tracking-[0.4em] mb-10 border-b border-slate-100 pb-4 italic">SECTION 07 — FINAL STRATEGIC VERDICT</h2>
-                  <div className="bg-[#0F172A] text-white p-20 text-center relative overflow-hidden">
-                     <div className="relative z-10">
-                        <div className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.6em] mb-10">Institutional Acquisition Protocol</div>
-                        <h3 className="text-7xl font-bold tracking-[0.2em] uppercase mb-12 leading-none">{report.finalVerdict.recommendation}</h3>
-                        <div className="max-w-xl mx-auto p-12 border-t border-white/10 mb-12">
-                           <p className="text-xl font-medium tracking-tight leading-snug text-slate-300">“{report.finalVerdict.insight}”</p>
-                        </div>
-                        <div className="inline-block px-10 py-3 border border-slate-700 text-[9px] font-bold uppercase tracking-[0.5em] text-indigo-400 italic">SYSTEM-CERTIFIED FINALITY</div>
-                     </div>
-                  </div>
-                </div>
-
-                <ReportFooter pageNum={5} totalPages={5} />
-             </div>
-
+  return (
+    <div className={`min-h-screen ${theme === 'dark' ? 'bg-zinc-900' : 'bg-[#F5F7FA]'}`}>
+      {/* MAIN CONTENT */}
+      <div className="w-full pt-20">
+        {isGenerating ? (
+          <div className="min-h-screen flex items-center justify-center">
+            <div className="text-center">
+              <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+              <p className={`text-lg ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>Generating Intelligence Report...</p>
+              <p className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'} mt-2`}>This may take a few moments</p>
+            </div>
           </div>
+        ) : !reportData ? (
+          renderSearchHero()
+        ) : (
+          <div id="report-content" className="max-w-7xl mx-auto px-8 py-8">
+          {/* HEADER */}
+          <div className="mb-8">
+            <div className={`text-sm ${theme === 'dark' ? 'text-gray-400' : 'text-gray-500'} mb-2`}>LOCALITY INTELLIGENCE REPORT</div>
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h1 className={`text-4xl font-bold ${theme === 'dark' ? 'text-white' : 'text-gray-900'} mb-2`}>{reportData.locality}, {reportData.city}</h1>
+                <p className={`text-lg ${theme === 'dark' ? 'text-gray-300' : 'text-gray-600'}`}>Comprehensive data analysis for investment and livability assessment.</p>
+              </div>
+              <div className="flex gap-3">
+                <div className="px-4 py-2 bg-green-100 text-green-700 rounded-full text-sm font-medium">
+                  {reportData.tier}
+                </div>
+                <div className="px-4 py-2 bg-blue-100 text-blue-700 rounded-full text-sm font-medium">
+                  Updated {reportData.updated}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* CRITICAL ALERTS SECTION */}
+          <div className="bg-red-50 border border-red-200 rounded-2xl p-6 mb-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+              <AlertCircle className="w-6 h-6 text-red-600" />
+              Critical Alerts & Future Outlook
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="bg-white rounded-xl p-4 border border-red-100">
+                <div className="flex items-center gap-3 mb-3">
+                  <Train className="w-5 h-5 text-red-600" />
+                  <h3 className="font-semibold text-gray-900">Metro Phase Construction</h3>
+                </div>
+                <p className="text-sm text-gray-600 mb-2">Metro connectivity expansion improving accessibility</p>
+                <div className="text-sm font-medium text-red-600">+12% appreciation impact</div>
+              </div>
+              <div className="bg-white rounded-xl p-4 border border-red-100">
+                <div className="flex items-center gap-3 mb-3">
+                  <Building className="w-5 h-5 text-red-600" />
+                  <h3 className="font-semibold text-gray-900">Commercial Zoning</h3>
+                </div>
+                <p className="text-sm text-gray-600 mb-2">Mixed-use redevelopment and retail expansion</p>
+                <div className="text-sm font-medium text-red-600">+8% rental yield improvement</div>
+              </div>
+              <div className="bg-white rounded-xl p-4 border border-red-100">
+                <div className="flex items-center gap-3 mb-3">
+                  <Zap className="w-5 h-5 text-red-600" />
+                  <h3 className="font-semibold text-gray-900">Government Development</h3>
+                </div>
+                <p className="text-sm text-gray-600 mb-2">Road widening and smart city infrastructure</p>
+                <div className="text-sm font-medium text-red-600">+15% civic investment impact</div>
+              </div>
+            </div>
+          </div>
+
+          {/* ROW 1: AQI and Safety Score */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            {/* AQI Card */}
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">AIR QUALITY INDEX (AQI)</h2>
+              <div className="flex items-baseline gap-4 mb-4">
+                <div className="text-5xl font-bold text-gray-900">{reportData.aqi.score}</div>
+                <div className="text-lg text-gray-600">{reportData.aqi.status}</div>
+              </div>
+              <p className="text-sm text-gray-600 mb-6">Real-time and historical air quality trends.</p>
+              
+              <div className="h-48 mb-4">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={reportData.aqi.pollutants}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                    <XAxis dataKey="name" tick={{ fontSize: 12 }} />
+                    <YAxis tick={{ fontSize: 12 }} />
+                    <Tooltip />
+                    <Bar dataKey="value" fill="#10B981" radius={[8, 8, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+              
+              <div className="grid grid-cols-5 gap-2 text-xs">
+                {reportData.aqi.pollutants.map((pollutant, index) => (
+                  <div key={index} className="text-center">
+                    <div className="font-medium text-gray-900">{pollutant.value}</div>
+                    <div className="text-gray-500">{pollutant.name}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Safety Score Card */}
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Safety Score</h2>
+              <div className="flex items-center justify-center mb-6">
+                <div className="relative">
+                  <svg className="w-32 h-32">
+                    <circle
+                      cx="64"
+                      cy="64"
+                      r="56"
+                      stroke="#E5E7EB"
+                      strokeWidth="12"
+                      fill="none"
+                    />
+                    <circle
+                      cx="64"
+                      cy="64"
+                      r="56"
+                      stroke="#3B82F6"
+                      strokeWidth="12"
+                      fill="none"
+                      strokeDasharray={`${2 * Math.PI * 56}`}
+                      strokeDashoffset={`${2 * Math.PI * 56 * (1 - reportData.safety.score / 10)}`}
+                      className="transition-all duration-1000"
+                    />
+                  </svg>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center">
+                    <div className="text-3xl font-bold text-blue-600">{reportData.safety.score}</div>
+                    <div className="text-sm text-gray-600">{reportData.safety.status}</div>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="space-y-3">
+                {reportData.safety.metrics.map((metric, index) => (
+                  <div key={index} className="flex justify-between items-center py-2 border-b border-gray-100 last:border-0">
+                    <span className="text-sm text-gray-600">{metric.label}</span>
+                    <span className="text-sm font-medium text-gray-900">{metric.value}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* ROW 2: Market Comparison Table */}
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 mb-8">
+            <h2 className="text-xl font-bold text-gray-900 mb-4">Market Comparison: Nearby Nodes</h2>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-gray-200">
+                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">Metric</th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-blue-600">Indiranagar (Subject)</th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">Koramangala</th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-gray-600">HSR Layout</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {reportData.marketComparison.map((row, index) => (
+                    <tr key={index} className="border-b border-gray-100">
+                      <td className="py-3 px-4 text-sm text-gray-900">{row.metric}</td>
+                      <td className="py-3 px-4 text-sm font-medium text-blue-600">{row.indiranagar}</td>
+                      <td className="py-3 px-4 text-sm text-gray-600">{row.koramangala}</td>
+                            <td className="py-3 px-4 text-sm text-gray-600">{row.hsr}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          {/* ROW 3: Infrastructure and Water Utility */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            {/* Infrastructure Audit */}
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Infrastructure Audit</h2>
+              <div className="space-y-4">
+                {reportData.infrastructure.map((item, index) => (
+                  <div key={index}>
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-sm text-gray-600">{item.metric}</span>
+                      <span className="text-sm font-medium text-gray-900">{item.score}%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div
+                        className="bg-blue-600 h-2 rounded-full transition-all duration-500"
+                        style={{ width: `${item.score}%` }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-gray-500 italic mt-4">*Expert analysis based on municipal data and resident feedback</p>
+            </div>
+
+            {/* Water & Utility Resilience */}
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Water & Utility Resilience</h2>
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+                <div className="text-sm font-medium text-blue-700">{reportData.waterUtility.connectivity}</div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                {reportData.waterUtility.metrics.map((metric, index) => (
+                  <div key={index} className="bg-gray-50 rounded-lg p-3">
+                    <div className="text-xs text-gray-500 mb-1">{metric.label}</div>
+                    <div className="text-sm font-medium text-gray-900">{metric.value}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* ROW 4: Connectivity and Healthcare */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            {/* Connectivity Analysis */}
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Connectivity Analysis</h2>
+              <div className="space-y-3">
+                {reportData.connectivity.metrics.map((metric, index) => (
+                  <div key={index} className="flex justify-between items-center py-2 border-b border-gray-100 last:border-0">
+                    <span className="text-sm text-gray-600">{metric.label}</span>
+                    <span className="text-sm font-medium text-gray-900">{metric.value}</span>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-4 h-32 bg-gradient-to-r from-blue-50 to-green-50 rounded-lg flex items-center justify-center">
+                <div className="text-xs text-gray-500">Traffic Heatmap</div>
+              </div>
+            </div>
+
+            {/* Healthcare & Education */}
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Healthcare & Education Index</h2>
+              <div className="space-y-3">
+                {reportData.healthcareEducation.metrics.map((metric, index) => (
+                  <div key={index} className="flex justify-between items-center py-2 border-b border-gray-100 last:border-0">
+                    <span className="text-sm text-gray-600">{metric.label}</span>
+                    <span className="text-sm font-medium text-gray-900">{metric.value}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* ROW 5: Future Development and Real Estate Trends */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            {/* Future Development & Growth */}
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Future Development & Growth</h2>
+              <div className="space-y-3 mb-4">
+                <div className="flex items-center gap-3">
+                  <Train className="w-4 h-4 text-blue-600" />
+                  <span className="text-sm text-gray-600">Metro expansion</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Building className="w-4 h-4 text-blue-600" />
+                  <span className="text-sm text-gray-600">IT park projects</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Zap className="w-4 h-4 text-blue-600" />
+                  <span className="text-sm text-gray-600">Commercial hubs</span>
+                </div>
+              </div>
+              <div className="h-32 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg flex items-center justify-center">
+                <div className="text-xs text-gray-500">5-Year Appreciation Graph</div>
+              </div>
+            </div>
+
+            {/* Real Estate Trends */}
+            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Real Estate Trends</h2>
+              <div className="space-y-3 mb-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Property price trend</span>
+                  <TrendingUp className="w-4 h-4 text-green-600" />
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Rental trend</span>
+                  <TrendingUp className="w-4 h-4 text-green-600" />
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-gray-600">Demand vs supply</span>
+                  <Minus className="w-4 h-4 text-gray-600" />
+                </div>
+              </div>
+              <div className="h-32 bg-gradient-to-r from-blue-50 to-green-50 rounded-lg flex items-center justify-center">
+                <div className="text-xs text-gray-500">Trend Analysis Chart</div>
+              </div>
+            </div>
+          </div>
+
+          {/* ROW 6: Environment & Livability */}
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 mb-8">
+            <h2 className="text-xl font-bold text-gray-900 mb-4">Environment & Livability</h2>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+              {[
+                { label: 'Green spaces', value: 'High' },
+                { label: 'Noise pollution', value: 'Moderate' },
+                { label: 'Heat index', value: 'Normal' },
+                { label: 'Walkability', value: '78/100' },
+                { label: 'Cycling friendliness', value: 'Good' },
+                { label: 'Urban density', value: 'Medium' },
+                { label: 'Parks nearby', value: '8' }
+              ].map((item, index) => (
+                <div key={index} className="bg-gray-50 rounded-lg p-3 text-center">
+                  <div className="text-xs text-gray-500 mb-1">{item.label}</div>
+                  <div className="text-sm font-medium text-gray-900">{item.value}</div>
+                </div>
+              ))}
+            </div>
+            <div className="h-32 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg flex items-center justify-center">
+              <div className="text-xs text-gray-500">Livability Score Gauge</div>
+            </div>
+          </div>
+
+          {/* EXPERT COMMENTARY */}
+          <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 mb-8">
+            <h2 className="text-xl font-bold text-gray-900 mb-4">Expert Commentary</h2>
+            <div className="space-y-4 text-gray-700">
+              <p>
+                Indiranagar presents a compelling investment opportunity with strong fundamentals supporting both capital appreciation and rental yields. The area's strategic location, coupled with ongoing infrastructure development including the metro expansion, positions it for sustained growth over the next 3-5 years.
+              </p>
+              <p>
+                The locality benefits from excellent connectivity to major employment hubs, a robust social infrastructure with quality healthcare and educational institutions, and a vibrant commercial ecosystem. The mixed-use zoning policies and upcoming smart city initiatives further enhance the investment thesis.
+              </p>
+              <p>
+                While traffic congestion remains a concern during peak hours, the comprehensive infrastructure improvements and enhanced public transport connectivity are expected to mitigate these challenges. The area's established reputation as a premium residential-commercial hub continues to attract both end-users and investors, ensuring sustained demand and value appreciation.
+              </p>
+            </div>
+          </div>
+
+          {/* BOTTOM ACTION BAR */}
+          <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-white rounded-full shadow-lg border border-gray-200 px-6 py-3 flex items-center gap-4">
+            <button className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-full transition-colors duration-200">
+              Share Report
+            </button>
+            <button 
+              onClick={handleDownloadFullPDF}
+              className="px-6 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors duration-200"
+            >
+              Export Full PDF
+            </button>
+            <button className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-full transition-colors duration-200">
+              Download Analytics
+            </button>
+            <button className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-full transition-colors duration-200">
+              Generate AI Summary
+            </button>
+          </div>
+        </div>
         )}
-        </>
       </div>
+
+      {/* Mobile Sidebar Overlay */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
     </div>
   );
 };
