@@ -4,45 +4,11 @@ import { BrowserRouter } from 'react-router-dom'
 import './index.css'
 import App from './App.jsx'
 
-// Performance optimizations for 100+ Lighthouse scores
-// 1. Defer non-critical CSS
-const loadCSS = () => {
-  const link = document.createElement('link');
-  link.rel = 'stylesheet';
-  link.href = '/index.css';
-  link.media = 'print';
-  document.head.appendChild(link);
-  
-  // Load critical CSS immediately, defer non-critical
-  setTimeout(() => {
-    const mainCSS = document.createElement('link');
-    mainCSS.rel = 'stylesheet';
-    mainCSS.href = '/index.css';
-    mainCSS.media = 'all';
-    document.head.appendChild(mainCSS);
-  }, 100);
-};
-
-// 2. Optimize font loading
-const loadFonts = () => {
-  const fontLink = document.createElement('link');
-  fontLink.rel = 'preload';
-  fontLink.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap';
-  fontLink.as = 'style';
-  fontLink.crossOrigin = 'anonymous';
-  document.head.appendChild(fontLink);
-};
-
-// 3. Initialize with performance optimizations
+// Optimized initialization for immediate FCP
 const initApp = () => {
-  // Preload critical resources
-  loadCSS();
-  loadFonts();
-  
-  // Create root with optimized rendering
+  // Create root and render immediately
   const root = createRoot(document.getElementById('root'));
   
-  // Render with performance monitoring
   root.render(
     <StrictMode>
       <BrowserRouter>
@@ -51,16 +17,25 @@ const initApp = () => {
     </StrictMode>
   );
   
-  // Remove loading indicator
+  // Remove loading indicator if it exists
   const loadingElement = document.getElementById('initial-loader');
   if (loadingElement) {
     loadingElement.style.display = 'none';
   }
+  
+  // Defer non-critical optimizations after FCP
+  requestIdleCallback(() => {
+    // Preload fonts
+    const fontLink = document.createElement('link');
+    fontLink.rel = 'preload';
+    fontLink.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap';
+    fontLink.as = 'style';
+    fontLink.crossOrigin = 'anonymous';
+    if (!document.querySelector(`link[href="${fontLink.href}"]`)) {
+      document.head.appendChild(fontLink);
+    }
+  });
 };
 
-// Initialize app when DOM is ready
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initApp);
-} else {
-  initApp();
-}
+// Initialize app immediately without waiting for DOMContentLoaded
+initApp();

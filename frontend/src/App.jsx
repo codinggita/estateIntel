@@ -28,77 +28,81 @@ const TermsPage = lazy(() => import("./components/TermsPage"));
 const EthicsPage = lazy(() => import("./components/EthicsPage"));
 const CareersPage = lazy(() => import("./components/CareersPage"));
 
-// Performance monitoring component with optimization
+// Performance monitoring component - optimized to NOT block initial render
 const PerformanceMonitor = ({ children }) => {
   useEffect(() => {
-    // Monitor Core Web Vitals for 100+ Lighthouse scores
-    if ('PerformanceObserver' in window) {
-      const observer = new PerformanceObserver((list) => {
-        for (const entry of list.getEntries()) {
-          // Track LCP (Largest Contentful Paint)
-          if (entry.entryType === 'largest-contentful-paint') {
-            // Send to analytics for performance tracking
-            if (navigator.sendBeacon) {
-              navigator.sendBeacon('/api/vitals', JSON.stringify({
-                metric: 'LCP',
-                value: entry.startTime,
-                url: window.location.href
-              }));
+    // Defer performance monitoring to prevent blocking FCP
+    const timeoutId = setTimeout(() => {
+      try {
+        // Monitor Core Web Vitals for 100+ Lighthouse scores
+        if ('PerformanceObserver' in window) {
+          const observer = new PerformanceObserver((list) => {
+            for (const entry of list.getEntries()) {
+              // Track LCP (Largest Contentful Paint)
+              if (entry.entryType === 'largest-contentful-paint') {
+                // Send to analytics for performance tracking
+                if (navigator.sendBeacon) {
+                  navigator.sendBeacon('/api/vitals', JSON.stringify({
+                    metric: 'LCP',
+                    value: entry.startTime,
+                    url: window.location.href
+                  }));
+                }
+              }
+              
+              // Track FID (First Input Delay)
+              if (entry.entryType === 'first-input') {
+                if (navigator.sendBeacon) {
+                  navigator.sendBeacon('/api/vitals', JSON.stringify({
+                    metric: 'FID',
+                    value: entry.processingStart - entry.startTime,
+                    url: window.location.href
+                  }));
+                }
+              }
+              
+              // Track CLS (Cumulative Layout Shift)
+              if (entry.entryType === 'layout-shift') {
+                if (navigator.sendBeacon) {
+                  navigator.sendBeacon('/api/vitals', JSON.stringify({
+                    metric: 'CLS',
+                    value: entry.value,
+                    url: window.location.href
+                  }));
+                }
+              }
             }
-          }
+          });
           
-          // Track FID (First Input Delay)
-          if (entry.entryType === 'first-input') {
-            if (navigator.sendBeacon) {
-              navigator.sendBeacon('/api/vitals', JSON.stringify({
-                metric: 'FID',
-                value: entry.processingStart - entry.startTime,
-                url: window.location.href
-              }));
-            }
-          }
+          // Observe critical performance metrics
+          observer.observe({ 
+            entryTypes: ['largest-contentful-paint', 'first-input', 'layout-shift'],
+            buffered: true 
+          });
           
-          // Track CLS (Cumulative Layout Shift)
-          if (entry.entryType === 'layout-shift') {
-            if (navigator.sendBeacon) {
-              navigator.sendBeacon('/api/vitals', JSON.stringify({
-                metric: 'CLS',
-                value: entry.value,
-                url: window.location.href
-              }));
-            }
-          }
+          // Preload critical resources for better LCP (deferred)
+          requestIdleCallback(() => {
+            const criticalResources = [
+              'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap'
+            ];
+            
+            criticalResources.forEach(resource => {
+              if (!document.querySelector(`link[href="${resource}"]`)) {
+                const link = document.createElement('link');
+                link.rel = 'preload';
+                link.href = resource;
+                link.as = 'style';
+                document.head.appendChild(link);
+              }
+            });
+          });
         }
-      });
-      
-      // Observe critical performance metrics
-      observer.observe({ 
-        entryTypes: ['largest-contentful-paint', 'first-input', 'layout-shift'],
-        buffered: true 
-      });
-      
-      // Preload critical resources for better LCP
-      const criticalResources = [
-        '/src/main.jsx',
-        '/vite.svg',
-        'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap'
-      ];
-      
-      criticalResources.forEach(resource => {
-        const link = document.createElement('link');
-        link.rel = 'preload';
-        link.href = resource;
-        if (resource.includes('.css')) {
-          link.as = 'style';
-        } else if (resource.includes('.jsx')) {
-          link.as = 'script';
-        } else if (resource.includes('.svg')) {
-          link.as = 'image';
-          link.type = 'image/svg+xml';
-        }
-        document.head.appendChild(link);
-      });
-    }
+      } catch (error) {
+        logger.error('Performance monitoring error:', error);
+      }
+    }, 1000); // Defer by 1 second to ensure FCP is not blocked
+    
+    return () => clearTimeout(timeoutId);
   }, []);
   
   return children;
@@ -113,56 +117,97 @@ function App() {
   // Memoize user data for performance
   const userData = useMemo(() => user, [user]);
   
-  // Optimized initialization with error handling
+  // Combined authentication initialization to prevent race conditions
   useEffect(() => {
-    try {
-      document.title = "EstateIntel - Smart Property Decisions";
-      
-      // Clean URL hash
-      if (window.location.hash) {
-        window.history.replaceState(null, null, window.location.pathname);
-      }
+    let isMounted = true;
+    let unsubscribe = null;
+    let loadingTimeout = null;
+    
+    async function initializeAuth() {
+      try {
+        // Set initial page title immediately
+        document.title = "EstateIntel - Smart Property Decisions";
+        
+        // Clean URL hash
+        if (window.location.hash) {
+          window.history.replaceState(null, null, window.location.pathname);
+        }
 
-      // Check localStorage first for immediate authentication
-      const storedUser = localStorage.getItem('user');
-      
-      if (storedUser) {
-        try {
-          const userData = JSON.parse(storedUser);
-          setUser(userData);
-        } catch (error) {
-          logger.error('Error parsing stored user data:', error);
-          localStorage.removeItem('user');
+        // Check localStorage first for immediate authentication
+        const storedUser = localStorage.getItem('user');
+        let initialUser = null;
+        
+        if (storedUser) {
+          try {
+            initialUser = JSON.parse(storedUser);
+            if (isMounted) {
+              setUser(initialUser);
+            }
+          } catch (error) {
+            logger.error('Error parsing stored user data:', error);
+            localStorage.removeItem('user');
+          }
+        }
+        
+        // Set up Firebase auth listener
+        unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+          if (!isMounted) return;
+          
+          if (currentUser) {
+            const userData = {
+              uid: currentUser.uid,
+              email: currentUser.email,
+              name: currentUser.displayName || currentUser.email,
+              photoURL: currentUser.photoURL
+            };
+            setUser(userData);
+            localStorage.setItem('user', JSON.stringify(userData));
+          } else {
+            setUser(null);
+            localStorage.removeItem('user');
+          }
+          
+          // Always set loading to false after auth check
+          setIsLoading(false);
+          if (loadingTimeout) {
+            clearTimeout(loadingTimeout);
+            loadingTimeout = null;
+          }
+        });
+        
+        // If we have stored user data, set loading to false immediately
+        // to prevent blocking initial render
+        if (initialUser) {
+          setIsLoading(false);
+        } else {
+          // Set a timeout to prevent infinite loading
+          loadingTimeout = setTimeout(() => {
+            if (isMounted) {
+              setIsLoading(false);
+              logger.warn('Auth initialization timeout - proceeding without auth');
+            }
+          }, 2000); // 2 second timeout
+        }
+        
+      } catch (error) {
+        logger.error('App initialization error:', error);
+        if (isMounted) {
+          setIsLoading(false);
         }
       }
-      
-      setIsLoading(false);
-    } catch (error) {
-      logger.error('App initialization error:', error);
-      setIsLoading(false);
     }
-  }, []);
-
-  // Optimized auth state listener with cleanup
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      if (currentUser) {
-        const userData = {
-          uid: currentUser.uid,
-          email: currentUser.email,
-          name: currentUser.displayName || currentUser.email,
-          photoURL: currentUser.photoURL
-        };
-        setUser(userData);
-        localStorage.setItem('user', JSON.stringify(userData));
-      } else {
-        setUser(null);
-        localStorage.removeItem('user');
+    
+    initializeAuth();
+    
+    return () => {
+      isMounted = false;
+      if (unsubscribe) {
+        unsubscribe();
       }
-      setIsLoading(false);
-    });
-
-    return () => unsubscribe();
+      if (loadingTimeout) {
+        clearTimeout(loadingTimeout);
+      }
+    };
   }, []);
 
   // Optimized sign out function
@@ -177,13 +222,14 @@ function App() {
     }
   }, [navigate]);
 
-  // Loading state with accessibility
+  // Optimized loading state with immediate FCP
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900" role="status" aria-label="Loading application">
+      <div className="min-h-screen flex items-center justify-center bg-bg text-text" role="status" aria-label="Loading application">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto mb-4" aria-hidden="true"></div>
-          <p className="text-lg text-gray-600 dark:text-gray-300 mb-2">Loading EstateIntel...</p>
+          {/* Minimal loading indicator that renders immediately */}
+          <div className="w-8 h-8 border-2 border-primary/20 border-t-primary rounded-full animate-spin mx-auto mb-4" aria-hidden="true"></div>
+          <p className="text-sm text-subtext">Loading EstateIntel...</p>
           <div className="sr-only" aria-live="polite" aria-atomic="true">
             Please wait while we load the application
           </div>

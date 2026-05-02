@@ -48,7 +48,7 @@ const Settings = ({ user, onLogout }) => {
 
       showNotification('Profile updated successfully!');
     } catch (error) {
-      console.error('Error updating profile:', error);
+      logger.error('Error updating profile:', error);
       
       // Provide specific error messages for common issues
       let errorMessage = 'Failed to update profile';
@@ -72,7 +72,7 @@ const Settings = ({ user, onLogout }) => {
         onLogout();
       }
     } catch (error) {
-      console.error('Error signing out:', error);
+      logger.error('Error signing out:', error);
       showNotification('Failed to sign out', 'error');
     }
   };

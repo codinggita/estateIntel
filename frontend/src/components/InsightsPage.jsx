@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
+import logger from '../utils/logger';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import {
@@ -61,10 +62,21 @@ const InsightsPage = () => {
    const fetchCityData = async (city) => {
       setLoading(true);
       try {
-         const response = await axios.get(`http://localhost:5000/api/insights/${city}`);
+         const controller = new AbortController();
+         const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
+         
+         const response = await axios.get(`http://localhost:5000/api/insights/${city}`, {
+            signal: controller.signal
+         });
+         
+         clearTimeout(timeoutId);
          setData(response.data);
       } catch (error) {
-         console.error("Link broken");
+         if (error.name === 'AbortError') {
+            logger.warn('City data fetch timeout');
+         } else {
+            logger.error('City data fetch failed:', error.message);
+         }
       } finally {
          setLoading(false);
       }
@@ -80,11 +92,22 @@ const InsightsPage = () => {
    const handleGenerateReport = async (location = selectedCity) => {
       setGeneratingReport(true);
       try {
-         const response = await axios.get(`http://localhost:5000/api/insights/report/${location}`);
+         const controller = new AbortController();
+         const timeoutId = setTimeout(() => controller.abort(), 12000); // 12 second timeout
+         
+         const response = await axios.get(`http://localhost:5000/api/insights/report/${location}`, {
+            signal: controller.signal
+         });
+         
+         clearTimeout(timeoutId);
          setReport(response.data);
          setShowReport(true);
       } catch (error) {
-         console.error("Audit failure");
+         if (error.name === 'AbortError') {
+            logger.warn('Report generation timeout');
+         } else {
+            logger.error('Report generation failed:', error.message);
+         }
       } finally {
          setGeneratingReport(false);
       }
