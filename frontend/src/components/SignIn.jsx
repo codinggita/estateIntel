@@ -88,7 +88,8 @@ const SignIn = ({ onLogin }) => {
       setServerError('');
       try {
         const endpoint = view === 'login' ? '/api/user/login' : '/api/user/register';
-        const response = await axios.post(endpoint, values, {
+        const backendUrl = import.meta.env.VITE_API_URL || '';
+        const response = await axios.post(`${backendUrl}${endpoint}`, values, {
           headers: { 'Content-Type': 'application/json' }
         });
 

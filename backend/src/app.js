@@ -19,7 +19,8 @@ app.use(cors({
     'http://localhost:3000', 
     'http://localhost:5175',
     'https://estate-intel-z9o3.vercel.app',
-    'https://estateintel-5.onrender.com'
+    'https://estateintel-5.onrender.com',
+    'https://estateintel-data-6cfs.onrender.com'
   ],
   credentials: true 
 }));
