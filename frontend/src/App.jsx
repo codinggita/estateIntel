@@ -22,6 +22,11 @@ const AboutPage = lazy(() => import("./components/AboutPage"));
 const Sitemap = lazy(() => import("./components/Sitemap/Sitemap"));
 const PublicRoute = lazy(() => import("./components/PublicRoute"));
 const ProtectedRoute = lazy(() => import("./components/ProtectedRoute"));
+const ContactPage = lazy(() => import("./components/ContactPage"));
+const PrivacyPage = lazy(() => import("./components/PrivacyPage"));
+const TermsPage = lazy(() => import("./components/TermsPage"));
+const EthicsPage = lazy(() => import("./components/EthicsPage"));
+const CareersPage = lazy(() => import("./components/CareersPage"));
 
 // Performance monitoring component with optimization
 const PerformanceMonitor = ({ children }) => {
@@ -346,6 +351,86 @@ function App() {
                 />
               </Route>
               
+              {/* Contact page - standalone */}
+              <Route 
+                path="/contact" 
+                element={
+                  <PublicRoute user={userData}>
+                    <Suspense fallback={
+                      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                      </div>
+                    }>
+                      <ContactPage />
+                    </Suspense>
+                  </PublicRoute>
+                } 
+              />
+
+              {/* Privacy page - standalone */}
+              <Route 
+                path="/privacy" 
+                element={
+                  <PublicRoute user={userData}>
+                    <Suspense fallback={
+                      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                      </div>
+                    }>
+                      <PrivacyPage />
+                    </Suspense>
+                  </PublicRoute>
+                } 
+              />
+
+              {/* Terms page - standalone */}
+              <Route 
+                path="/terms" 
+                element={
+                  <PublicRoute user={userData}>
+                    <Suspense fallback={
+                      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                      </div>
+                    }>
+                      <TermsPage />
+                    </Suspense>
+                  </PublicRoute>
+                } 
+              />
+
+              {/* Ethics page - standalone */}
+              <Route 
+                path="/ethics" 
+                element={
+                  <PublicRoute user={userData}>
+                    <Suspense fallback={
+                      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                      </div>
+                    }>
+                      <EthicsPage />
+                    </Suspense>
+                  </PublicRoute>
+                } 
+              />
+
+              {/* Careers page - standalone */}
+              <Route 
+                path="/careers" 
+                element={
+                  <PublicRoute user={userData}>
+                    <Suspense fallback={
+                      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                      </div>
+                    }>
+                      <CareersPage />
+                    </Suspense>
+                  </PublicRoute>
+                } 
+              />
+
               {/* Sitemap */}
               <Route 
                 path="/sitemap" 
