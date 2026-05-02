@@ -8,11 +8,12 @@ const SEO = ({
   canonicalUrl, 
   ogImage, 
   ogType = 'website',
-  schemaMarkup = null 
+  schemaMarkup = null,
+  additionalSchemas = []
 }) => {
   const siteTitle = title ? `${title} | EstateIntel` : 'EstateIntel - Smart Property Decisions';
   const siteDescription = description || 'Discover premium real estate listings, buy property, rent apartments, and find luxury homes with EstateIntel. Your trusted platform for verified property listings and real estate investment opportunities.';
-  const siteKeywords = keywords || 'real estate, property listing, buy property, rent apartment, luxury homes, commercial property, flats for sale, real estate investment, affordable housing, property management, homes for sale, apartments for rent, verified property listings';
+  const siteKeywords = keywords || 'EstateIntel, real estate platform, buy property online, apartments for rent, flats for sale, luxury homes, commercial property, verified property listings, affordable housing, property investment, real estate near me, best property website, homes for sale, rental properties, real estate in Ahmedabad, Gujarat property listings, smart property decisions, real estate analytics, property investment platform, buy property, rent apartment, property management, real estate experts, verified listings, property search, real estate services, property portal';
   const siteUrl = canonicalUrl || 'https://estateintel-5.onrender.com';
   const siteImage = ogImage || 'https://estateintel-5.onrender.com/og-image.jpg';
 
@@ -59,6 +60,13 @@ const SEO = ({
           {JSON.stringify(schemaMarkup)}
         </script>
       )}
+      
+      {/* Additional Schemas */}
+      {additionalSchemas.map((schema, index) => (
+        <script key={index} type="application/ld+json">
+          {JSON.stringify(schema)}
+        </script>
+      ))}
     </Helmet>
   );
 };
