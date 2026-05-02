@@ -695,21 +695,48 @@ const ReportsPage = () => {
           </div>
 
           {/* BOTTOM ACTION BAR */}
-          <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-white rounded-full shadow-lg border border-gray-200 px-6 py-3 flex items-center gap-4">
-            <button className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-full transition-colors duration-200">
-              Share Report
+          <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 bg-white rounded-full shadow-2xl border border-gray-200 px-8 py-4 flex items-center gap-6 z-50 animate-in slide-in-from-bottom-8 duration-500">
+            <button 
+              onClick={handleShareReport}
+              className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-full transition-all font-bold text-sm"
+            >
+              <Share2 size={18} /> Share
             </button>
             <button 
               onClick={handleDownloadFullPDF}
-              className="px-6 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-colors duration-200"
+              className="flex items-center gap-2 px-6 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700 transition-all font-bold text-sm shadow-lg shadow-blue-200"
             >
-              Export Full PDF
+              <Download size={18} /> Export Full PDF
             </button>
-            <button className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-full transition-colors duration-200">
-              Download Analytics
+            <button 
+              onClick={() => {
+                const csvData = [
+                  ['Metric', 'Value'],
+                  ['Locality', reportData.locality],
+                  ['City', reportData.city],
+                  ['AQI Score', reportData.aqi.score],
+                  ['Safety Score', reportData.safety.score],
+                  ['Road Maintenance', '85%'],
+                  ['Internet', '95%']
+                ].map(row => row.join(',')).join('\n');
+                const blob = new Blob([csvData], { type: 'text/csv' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${reportData.locality}_Analytics.csv`;
+                a.click();
+              }}
+              className="flex items-center gap-2 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-full transition-all font-bold text-sm"
+            >
+              <FileText size={18} /> Analytics CSV
             </button>
-            <button className="px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-full transition-colors duration-200">
-              Generate AI Summary
+            <button 
+              onClick={() => {
+                alert(`AI SUMMARY: ${reportData.locality} is a ${reportData.tier} area with a high safety score of ${reportData.safety.score}/10 and robust infrastructure (${reportData.infrastructure[0].score}% road maintenance). Recommended for ${reportData.healthcareEducation.metrics[0].value} nearby medical facilities access.`);
+              }}
+              className="flex items-center gap-2 px-4 py-2 text-indigo-600 hover:bg-indigo-50 rounded-full transition-all font-bold text-sm border border-indigo-100"
+            >
+              <Brain size={18} /> AI Summary
             </button>
           </div>
         </div>

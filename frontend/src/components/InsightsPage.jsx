@@ -455,6 +455,39 @@ const InsightsPage = () => {
                         </section>
 
                         <div className="mt-auto pt-10 border-t-[10px] border-slate-900">
+                           <div className="flex flex-wrap justify-center gap-4 mb-10">
+                              <button 
+                                onClick={handleDownloadReport}
+                                className="flex items-center gap-2 px-8 py-4 bg-slate-900 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-indigo-600 transition-all active:scale-95"
+                              >
+                                 <Download size={16} /> Download
+                              </button>
+                              <button 
+                                onClick={() => {
+                                   if (navigator.share) {
+                                      navigator.share({ title: `Audit: ${report.fullName}`, text: `Check out this neighborhood audit for ${report.locationName}` });
+                                   } else {
+                                      navigator.clipboard.writeText(window.location.href);
+                                      alert('Link copied to clipboard!');
+                                   }
+                                }}
+                                className="flex items-center gap-2 px-8 py-4 bg-white border-2 border-slate-900 text-slate-900 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-50 transition-all active:scale-95"
+                              >
+                                 <Share2 size={16} /> Share Intel
+                              </button>
+                              <button 
+                                onClick={() => window.print()}
+                                className="flex items-center gap-2 px-8 py-4 bg-white border-2 border-slate-900 text-slate-900 rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-50 transition-all active:scale-95"
+                              >
+                                 <FileText size={16} /> Print Audit
+                              </button>
+                              <button 
+                                onClick={() => window.location.href = '/app/inspection'}
+                                className="flex items-center gap-2 px-8 py-4 bg-indigo-600 text-white rounded-2xl font-black text-[10px] uppercase tracking-widest hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-200 active:scale-95"
+                              >
+                                 <ArrowRightCircle size={16} /> Book Visit
+                              </button>
+                           </div>
                            <p className="text-[12px] font-bold text-slate-400 max-w-4xl italic leading-relaxed text-center">
                               Disclaimer: This dual-stream intelligence audit represents high-fidelity sentiment modeling data. All price forecasts are subject to market volatility. Approved for institutional asset review.
                            </p>

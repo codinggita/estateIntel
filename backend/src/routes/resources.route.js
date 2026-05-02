@@ -96,27 +96,27 @@ function buildOverpassQuery(lat, lng, radiusM, typeFilter, reqQuery = {}) {
     ],
   };
 
-  let tags = [];
+  let queryFilters = [];
   if (typeFilter === 'all') {
-    // Include ALL supported categories for a truly comprehensive "All Types" view
-    tags = Object.values(ALL_TAGS).flat();
+    queryFilters = Object.values(ALL_TAGS).flat();
   } else {
-    tags = ALL_TAGS[typeFilter] || [];
+    queryFilters = ALL_TAGS[typeFilter] || [];
   }
 
   // Add search keyword filter if provided
-  let lines = '';
+  let bodyContent = '';
   if (reqQuery && reqQuery.search && reqQuery.search.length > 2) {
     const s = reqQuery.search.replace(/["\\]/g, '');
-    // When searching, we query for the name within the radius across all types
-    lines = `  nwr(around:${radiusM},${lat},${lng})["name"~"${s}",i];`;
+    bodyContent = `nwr(around:${radiusM},${lat},${lng})["name"~"${s}",i];`;
   } else {
-    // Limit unique tags to avoid query bloat (Overpass has limits)
-    const uniqueTags = [...new Set(tags)];
-    lines = uniqueTags.map(t => `  ${t}(around:${radiusM},${lat},${lng});`).join('\n');
+    // Unique filters to avoid duplicates
+    const uniqueFilters = [...new Set(queryFilters)];
+    bodyContent = uniqueFilters.join('\n  ');
+    // Ensure each line has the (around:...) part
+    bodyContent = uniqueFilters.map(f => `${f}(around:${radiusM},${lat},${lng});`).join('\n  ');
   }
 
-  return `[out:json][timeout:60];\n(\n${lines}\n);\nout center tags;`;
+  return `[out:json][timeout:30];\n(\n  ${bodyContent}\n);\nout center tags;`;
 }
 
 router.get('/', async (req, res) => {
