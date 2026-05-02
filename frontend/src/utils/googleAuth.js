@@ -13,7 +13,7 @@ export const handleGoogleLogin = async () => {
     
     // Determine backend URL based on environment
     const backendUrl = import.meta.env.VITE_API_URL || 
-      (window.location.hostname === 'localhost' ? 'http://localhost:5000' : 'https://estateintel-backend.onrender.com');
+      (window.location.hostname === 'localhost' ? 'http://localhost:5000' : 'https://estateintel-2.onrender.com');
     
     console.log('🌐 Using backend URL:', backendUrl);
     

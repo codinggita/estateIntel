@@ -40,16 +40,23 @@ const SignIn = ({ onLogin }) => {
         // Store user data in localStorage immediately
         localStorage.setItem('user', JSON.stringify(result.user));
         console.log('💾 Google user data stored in localStorage:', result.user);
+        console.log('📊 Google user data structure:', Object.keys(result.user));
         
         // Call parent login handler
         onLogin(result.user);
         console.log('📞 Called onLogin handler for Google auth');
         
-        // Immediate redirect using window.location for production reliability
+        // Verify user is stored before redirect
         setTimeout(() => {
-          console.log('🚀 Redirecting to home page after Google auth...');
-          window.location.href = '/';
-        }, 100);
+          const storedUser = localStorage.getItem('user');
+          console.log('🔍 Google Auth Verification - User in localStorage:', !!storedUser);
+          if (storedUser) {
+            console.log('🚀 Redirecting to home page after Google auth...');
+            window.location.href = '/';
+          } else {
+            console.error('❌ Google user data not found in localStorage before redirect');
+          }
+        }, 200);
                 
         if (result.warning) {
           console.warn('⚠️ Warning:', result.warning);
@@ -99,16 +106,23 @@ const SignIn = ({ onLogin }) => {
         // Store user data in localStorage immediately
         localStorage.setItem('user', JSON.stringify(data.user));
         console.log('💾 User data stored in localStorage:', data.user);
+        console.log('📊 Response user data structure:', Object.keys(data.user));
         
         // Call parent login handler
         onLogin(data.user);
         console.log('📞 Called onLogin handler');
         
-        // Immediate redirect using window.location for production reliability
+        // Verify user is stored before redirect
         setTimeout(() => {
-          console.log('🚀 Redirecting to home page...');
-          window.location.href = '/';
-        }, 100);
+          const storedUser = localStorage.getItem('user');
+          console.log('🔍 Verification - User in localStorage:', !!storedUser);
+          if (storedUser) {
+            console.log('🚀 Redirecting to home page...');
+            window.location.href = '/';
+          } else {
+            console.error('❌ User data not found in localStorage before redirect');
+          }
+        }, 200);
       } catch (err) {
         setServerError(err.message);
       } finally {

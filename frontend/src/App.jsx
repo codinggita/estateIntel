@@ -45,11 +45,13 @@ function App() {
     // Check localStorage first for immediate authentication
     const storedUser = localStorage.getItem('user');
     console.log('🔍 App startup - Checking localStorage for user:', !!storedUser);
+    console.log('🌐 Current domain:', window.location.hostname);
     
     if (storedUser) {
       try {
         const userData = JSON.parse(storedUser);
         console.log('✅ User found in localStorage:', userData.email || userData.name || userData.fullName);
+        console.log('📊 User data structure:', Object.keys(userData));
         setUser(userData);
         setIsLoading(false);
         console.log('👤 User authenticated on startup:', !!userData);
