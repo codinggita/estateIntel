@@ -180,13 +180,13 @@ function App() {
         if (initialUser) {
           setIsLoading(false);
         } else {
-          // Set a timeout to prevent infinite loading
+          // Set a timeout to prevent infinite loading and ensure immediate FCP
           loadingTimeout = setTimeout(() => {
             if (isMounted) {
               setIsLoading(false);
               logger.warn('Auth initialization timeout - proceeding without auth');
             }
-          }, 2000); // 2 second timeout
+          }, 500); // 500ms timeout for faster FCP
         }
         
       } catch (error) {
@@ -222,18 +222,11 @@ function App() {
     }
   }, [navigate]);
 
-  // Optimized loading state with immediate FCP
+  // Ultra-minimal loading state for instant FCP
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-bg text-text" role="status" aria-label="Loading application">
-        <div className="text-center">
-          {/* Minimal loading indicator that renders immediately */}
-          <div className="w-8 h-8 border-2 border-primary/20 border-t-primary rounded-full animate-spin mx-auto mb-4" aria-hidden="true"></div>
-          <p className="text-sm text-subtext">Loading EstateIntel...</p>
-          <div className="sr-only" aria-live="polite" aria-atomic="true">
-            Please wait while we load the application
-          </div>
-        </div>
+        <div className="w-6 h-6 border-2 border-primary/30 border-t-primary rounded-full animate-spin" aria-hidden="true"></div>
       </div>
     );
   }
@@ -274,21 +267,19 @@ function App() {
                 } 
               />
 
-              {/* Home page - LandingPage with Layout */}
+              {/* Home page - LandingPage with Layout - Public */}
               <Route 
                 path="/" 
                 element={
-                  <ProtectedRoute user={userData}>
-                    <Suspense fallback={
-                      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-                      </div>
-                    }>
-                      <Layout user={userData} onSignOut={handleSignOut}>
-                        <LandingPage />
-                      </Layout>
-                    </Suspense>
-                  </ProtectedRoute>
+                  <Suspense fallback={
+                    <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
+                      <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                    </div>
+                  }>
+                    <Layout user={userData} onSignOut={handleSignOut}>
+                      <LandingPage />
+                    </Layout>
+                  </Suspense>
                 } 
               />
 

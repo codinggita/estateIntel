@@ -4,13 +4,6 @@ import { useTheme } from '../context/ThemeContext';
 import { Sun, Moon } from 'lucide-react';
 import { 
   Search, MapPin, TrendingUp, FileText, Download, Share2, Filter, X,
-  AlertTriangle, CheckCircle, AlertCircle, Activity, BarChart3, PieChart,
-  Users, Building, Zap, Shield, Droplets, Wind, Thermometer,
-  TreePine, Home, School, Hospital, Car, Train, Plane, DollarSign,
-  TrendingDown, Calendar, Clock, Award, Target, Trophy, Menu,
-  Settings, LogOut, HelpCircle, Bookmark, Brain, Briefcase, LayoutDashboard,
-  Printer, Layout, BarChart2, PieChartIcon, TrendingUpIcon, AlertCircleIcon,
-  ChevronRight, ArrowUp, ArrowDown, Minus
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line, Area, AreaChart, PieChart as RechartsPieChart, Cell, RadialBarChart, RadialBar } from 'recharts';
@@ -139,7 +132,7 @@ const ReportsPage = () => {
     try {
       await generateMultiPagePDF('report-content', `${reportData.locality}_Intelligence_Report_Full.pdf`);
     } catch (error) {
-      console.error('Error generating full PDF:', error);
+      logger.error('Error generating full PDF:', error);
       alert('Failed to generate PDF. Please try again.');
     }
   };
@@ -157,7 +150,7 @@ const ReportsPage = () => {
         alert('Report link copied to clipboard!');
       }
     } catch (error) {
-      console.error('Error sharing report:', error);
+      logger.error('Error sharing report:', error);
     }
   };
 

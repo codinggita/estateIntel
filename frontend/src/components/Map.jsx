@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useRef } from "react";
 import { GoogleMap, useJsApiLoader, Marker } from "@react-google-maps/api";
 import "./Map.css";
+import logger from "../utils/logger";
 
 const API_KEY = "AIzaSyCEW0bCq_jD9iZR5SIuWi9GXC8aZ-jiB_k";
 
@@ -58,7 +59,7 @@ const MapComponent = ({ resources = [], selectedResourceId = null, onMarkerClick
                 lng: pos.coords.longitude,
               });
             },
-            (error) => console.warn("Watch position error:", error),
+            (error) => logger.warn("Watch position error:", error),
             { enableHighAccuracy: true, maximumAge: 10000 }
           );
         }

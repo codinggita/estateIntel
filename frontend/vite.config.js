@@ -6,9 +6,7 @@ import { resolve } from 'path'
 export default defineConfig({
   plugins: [
     react({
-      // Enable Fast Refresh with HMR optimizations
-      fastRefresh: true,
-      // Enable React 18+ features
+      // Enable React 19+ features
       jsxRuntime: 'automatic'
     })
   ],
@@ -34,83 +32,16 @@ export default defineConfig({
     target: 'es2020',
     minify: 'esbuild',
     sourcemap: false,
-    cssCodeSplit: true,
     rollupOptions: {
       output: {
-        // Aggressive code splitting for optimal caching
-        manualChunks: (id) => {
-          // Vendor chunks - avoid circular dependencies
-          if (id.includes('node_modules')) {
-            if (id.includes('react') && !id.includes('react-router')) {
-              return 'react-vendor'
-            }
-            if (id.includes('react-router')) {
-              return 'router-vendor'
-            }
-            if (id.includes('firebase')) {
-              return 'firebase-vendor'
-            }
-            if (id.includes('framer-motion')) {
-              return 'animation-vendor'
-            }
-            if (id.includes('recharts')) {
-              return 'charts-vendor'
-            }
-            if (id.includes('leaflet')) {
-              return 'maps-vendor'
-            }
-            if (id.includes('lucide')) {
-              return 'icons-vendor'
-            }
-            return 'vendor'
-          }
-          
-          // Feature-based chunks
-          if (id.includes('components/Reports')) {
-            return 'reports'
-          }
-          if (id.includes('components/Map')) {
-            return 'maps'
-          }
-          if (id.includes('components/Insights')) {
-            return 'insights'
-          }
-          if (id.includes('components/Inspection')) {
-            return 'inspection'
-          }
-          if (id.includes('components/Resources')) {
-            return 'resources'
-          }
-          if (id.includes('components/landing')) {
-            return 'landing'
-          }
-        },
-        format: 'es',
-        entryFileNames: 'assets/[name].[hash].js',
-        chunkFileNames: 'assets/[name].[hash].js',
-        assetFileNames: 'assets/[name].[hash].[ext]'
-      },
-      // Optimize bundle size
-      treeshake: true,
-      chunkSizeWarningLimit: 250,
-      // Enable compression
-      reportCompressedSize: true,
-      // Advanced performance optimizations
-      minify: 'terser',
-      terserOptions: {
-        compress: {
-          drop_console: true,
-          drop_debugger: true,
-          pure_funcs: ['console.log', 'console.error', 'console.warn']
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom'],
+          'router-vendor': ['react-router-dom'],
+          'ui-vendor': ['framer-motion', 'lucide-react']
         }
       }
     },
-    // Optimize assets
-    assetsInlineLimit: 4096,
-    // Enable module preloading
-    modulePreload: {
-      polyfill: true
-    }
+    chunkSizeWarningLimit: 500
   },
   // Optimize dependencies
   optimizeDeps: {
