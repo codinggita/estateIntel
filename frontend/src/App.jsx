@@ -30,41 +30,48 @@ const PublicRoute = ({ user, children }) => {
 
 function App() {
   const [user, setUser] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   const location = useLocation();
   const navigate = useNavigate();
 
+  // Initialize user from localStorage on app startup
   useEffect(() => {
     document.title = "EstateIntel - Smart Property Decisions";
     if (window.location.hash) {
       window.history.replaceState(null, null, window.location.pathname);
     }
 
-    // Listen to authentication state changes
+    // Check localStorage first for immediate authentication
+    const storedUser = localStorage.getItem('user');
+    console.log('🔍 App startup - Checking localStorage for user:', !!storedUser);
+    
+    if (storedUser) {
+      try {
+        const userData = JSON.parse(storedUser);
+        console.log('✅ User found in localStorage:', userData.email || userData.name);
+        setUser(userData);
+        setIsLoading(false);
+      } catch (error) {
+        console.error('❌ Error parsing stored user data:', error);
+        localStorage.removeItem('user');
+        setIsLoading(false);
+      }
+    } else {
+      setIsLoading(false);
+    }
+  }, []);
+
+  // Listen to Firebase auth changes (for Google auth)
+  useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      const currentPath = window.location.pathname;
-      console.log('🔍 onAuthStateChanged - Current path:', currentPath, 'User:', firebaseUser?.displayName);
+      console.log('� Firebase auth state changed:', firebaseUser?.email);
       
       if (firebaseUser) {
-        // Check if we already have user data from Google login
+        // Firebase user is authenticated, check if we have stored user data
         const storedUser = localStorage.getItem('user');
         
-        if (storedUser) {
-          try {
-            const userData = JSON.parse(storedUser);
-            setUser(userData);
-            console.log('👤 User is signed in (from localStorage):', userData.name);
-            
-            // Only redirect if user is on auth pages
-            if (currentPath === '/login' || currentPath === '/signup') {
-              console.log('🚀 Redirecting to home from auth page:', currentPath);
-              navigate('/');
-            }
-          } catch (error) {
-            console.error('❌ Error parsing stored user data:', error);
-            localStorage.removeItem('user');
-          }
-        } else {
-          // Create user data from Firebase
+        if (!storedUser) {
+          // Create user data from Firebase for Google auth
           const userData = {
             uid: firebaseUser.uid,
             name: firebaseUser.displayName,
@@ -72,32 +79,40 @@ function App() {
             photo: firebaseUser.photoURL,
             emailVerified: firebaseUser.emailVerified
           };
-          setUser(userData);
           localStorage.setItem('user', JSON.stringify(userData));
-          console.log('👤 User is signed in (from Firebase):', firebaseUser.displayName);
-          
-          // Only redirect if user is on auth pages
-          if (currentPath === '/login' || currentPath === '/signup') {
-            console.log('🚀 Redirecting to home from auth page:', currentPath);
-            navigate('/');
-          }
+          setUser(userData);
+          console.log('✅ Firebase user created and stored:', userData.email);
         }
       } else {
-        // User is signed out
-        setUser(null);
-        localStorage.removeItem('user');
-        console.log('👤 User is signed out');
-        
-        // Only redirect to login if on protected routes
-        if (currentPath !== '/login' && currentPath !== '/signup') {
-          console.log('🚀 Redirecting to login from:', currentPath);
-          navigate('/login');
-        }
+        // Firebase user signed out, but don't clear localStorage if user logged in via email/password
+        console.log('📝 Firebase user signed out, keeping localStorage auth if present');
       }
     });
 
     return () => unsubscribe();
-  }, [location.pathname]);
+  }, []);
+
+  // Handle redirects based on authentication state
+  useEffect(() => {
+    if (isLoading) return; // Don't redirect while loading
+    
+    const currentPath = window.location.pathname;
+    console.log('� Auth redirect check - Path:', currentPath, 'User:', !!user);
+    
+    if (user) {
+      // User is authenticated
+      if (currentPath === '/login' || currentPath === '/signup') {
+        console.log('� Redirecting authenticated user from auth page to home');
+        navigate('/', { replace: true });
+      }
+    } else {
+      // User is not authenticated
+      if (currentPath !== '/login' && currentPath !== '/signup' && currentPath !== '/') {
+        console.log('🚀 Redirecting unauthenticated user to login');
+        navigate('/login', { replace: true });
+      }
+    }
+  }, [user, isLoading, location.pathname]);
 
   const handleLogin = (userData) => {
     localStorage.setItem('user', JSON.stringify(userData));

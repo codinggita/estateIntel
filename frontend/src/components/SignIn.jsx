@@ -37,12 +37,23 @@ const SignIn = ({ onLogin }) => {
       if (result.success) {
         console.log('✅ Google authentication successful:', result.user);
         
+        // Store user data in localStorage
+        localStorage.setItem('user', JSON.stringify(result.user));
+        console.log('💾 Google user data stored in localStorage:', result.user);
+        
         // Call parent login handler
         onLogin(result.user);
+        console.log('📞 Called onLogin handler for Google auth, waiting for redirect...');
         
-        // Let the App component handle the redirect via onAuthStateChanged
-        // This prevents race conditions
-        console.log('� User data sent to parent, waiting for redirect...');
+        // React Router will handle the redirect via App.jsx useEffect
+        // Add a small delay to ensure state is updated before potential manual redirect
+        setTimeout(() => {
+          const currentPath = window.location.pathname;
+          if (currentPath === '/login' || currentPath === '/signup') {
+            console.log('🚀 Manual redirect fallback for Google auth - navigating to home');
+            navigate('/', { replace: true });
+          }
+        }, 200);
                 
         if (result.warning) {
           console.warn('⚠️ Warning:', result.warning);
@@ -88,8 +99,23 @@ const SignIn = ({ onLogin }) => {
           throw new Error(data.message || 'Something went wrong');
         }
 
+        // Store user data in localStorage
+        localStorage.setItem('user', JSON.stringify(data.user));
+        console.log('💾 User data stored in localStorage:', data.user);
+        
+        // Call parent login handler
         onLogin(data.user);
-        navigate('/');
+        console.log('📞 Called onLogin handler, waiting for redirect...');
+        
+        // React Router will handle the redirect via App.jsx useEffect
+        // Add a small delay to ensure state is updated before potential manual redirect
+        setTimeout(() => {
+          const currentPath = window.location.pathname;
+          if (currentPath === '/login' || currentPath === '/signup') {
+            console.log('🚀 Manual redirect fallback - navigating to home');
+            navigate('/', { replace: true });
+          }
+        }, 200);
       } catch (err) {
         setServerError(err.message);
       } finally {
