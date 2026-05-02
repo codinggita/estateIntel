@@ -14,5 +14,19 @@ export default defineConfig({
         proxyTimeout: 60000,
       }
     }
+  },
+  build: {
+    target: 'es2015',
+    rollupOptions: {
+      output: {
+        manualChunks: undefined,
+        format: 'es'
+      }
+    },
+    assetsDir: 'assets',
+    sourcemap: false
+  },
+  define: {
+    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development')
   }
 })

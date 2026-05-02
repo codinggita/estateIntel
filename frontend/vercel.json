@@ -13,6 +13,19 @@
     {
       "src": "/(.*)",
       "dest": "/index.html"
+    },
+    {
+      "src": "/assets/(.*)",
+      "headers": {
+        "Cache-Control": "public, max-age=31536000, immutable"
+      }
+    },
+    {
+      "src": "/(.*\\.(js|ts|jsx|tsx)$)",
+      "headers": {
+        "Content-Type": "application/javascript",
+        "Cache-Control": "public, max-age=31536000, immutable"
+      }
     }
   ],
   "env": {

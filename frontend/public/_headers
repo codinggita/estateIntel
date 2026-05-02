@@ -1,0 +1,30 @@
+# Fix MIME types for JavaScript modules
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: DENY
+  X-XSS-Protection: 1; mode=block
+
+# JavaScript files
+/*.js
+  Content-Type: application/javascript
+  Cache-Control: public, max-age=31536000, immutable
+
+# TypeScript files
+/*.ts
+  Content-Type: application/typescript
+  Cache-Control: public, max-age=31536000, immutable
+
+# JSX files
+/*.jsx
+  Content-Type: application/javascript
+  Cache-Control: public, max-age=31536000, immutable
+
+# TSX files
+/*.tsx
+  Content-Type: application/javascript
+  Cache-Control: public, max-age=31536000, immutable
+
+# Static assets
+/assets/*
+  Content-Type: application/javascript
+  Cache-Control: public, max-age=31536000, immutable
