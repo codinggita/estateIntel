@@ -52,25 +52,26 @@ function detectType(tags = {}, name = '') {
   const s = tags.shop || '';
   const l = tags.leisure || '';
   const b = tags.building || '';
+  const p = tags.public_transport || '';
 
   if (a === 'hospital' || a === 'clinic' || a === 'doctors' || a === 'pharmacy' || tags.healthcare) return 'hospital';
-  if (a === 'school' || a === 'kindergarten') return 'school';
+  if (a === 'school' || a === 'kindergarten' || a === 'preschool' || n.includes('school')) return 'school';
   if (a === 'university' || a === 'college' || n.includes('university') || n.includes('college') || b === 'university') return 'college';
   if (a === 'library') return 'library';
   if (a === 'police' || a === 'fire_station') return 'police';
-  if (a === 'marketplace' || a === 'shopping_centre' || s === 'supermarket' || s === 'mall' || n.includes('market')) return 'market';
+  if (a === 'marketplace' || a === 'shopping_centre' || s === 'supermarket' || s === 'mall' || s === 'department_store' || n.includes('market') || n.includes('mall')) return 'market';
   if (a === 'theatre' || a === 'cinema' || l === 'cinema' || n.includes('cinema') || n.includes('multiplex')) return 'theatre';
-  if (s === 'hairdresser' || s === 'beauty' || s === 'barber' || s === 'spa' || n.includes('salon')) return 'salon';
-  if (a === 'restaurant' || a === 'fast_food' || a === 'cafe' || n.includes('restaurant') || n.includes('cafe')) return 'restaurant';
-  if (a === 'train_station' || tags.railway === 'station' || n.includes('railway')) return 'railway';
-  if (a === 'bus_station' || tags.highway === 'bus_stop' || n.includes('bus station')) return 'bus';
-  if (a === 'place_of_worship' || tags.religion || tags.building === 'temple' || tags.building === 'mosque' || tags.building === 'church' || n.includes('temple') || n.includes('ashram') || n.includes('mandir') || n.includes('gurudwara')) return 'temple';
-  if (tags.natural === 'water' || tags.waterway) return 'water';
-  if (tags.landuse === 'landfill' || a === 'waste_disposal') return 'dumpyard';
+  if (s === 'hairdresser' || s === 'beauty' || s === 'barber' || s === 'spa' || n.includes('salon') || n.includes('spa')) return 'salon';
+  if (a === 'restaurant' || a === 'fast_food' || a === 'cafe' || a === 'food_court' || n.includes('restaurant') || n.includes('cafe')) return 'restaurant';
+  if (a === 'train_station' || tags.railway === 'station' || n.includes('railway') || n.includes('junction')) return 'railway';
+  if (a === 'bus_station' || tags.highway === 'bus_stop' || p === 'stop_area' || n.includes('bus station')) return 'bus';
+  if (a === 'place_of_worship' || tags.religion || tags.building === 'temple' || tags.building === 'mosque' || tags.building === 'church' || n.includes('temple') || n.includes('ashram') || n.includes('mandir') || n.includes('gurudwara') || n.includes('church') || n.includes('mosque')) return 'temple';
+  if (tags.natural === 'water' || tags.waterway || l === 'swimming_pool' || n.includes('lake') || n.includes('river') || n.includes('pond')) return 'water';
+  if (tags.landuse === 'landfill' || a === 'waste_disposal' || tags.disused === 'yes') return 'dumpyard';
   return 'unknown';
 }
 
-function buildOverpassQuery(lat, lng, radiusM, typeFilter) {
+function buildOverpassQuery(lat, lng, radiusM, typeFilter, reqQuery = {}) {
   const ALL_TAGS = {
     hospital: [`nwr["amenity"="hospital"]`, `nwr["amenity"="clinic"]`, `nwr["amenity"="doctors"]`],
     school:   [`nwr["amenity"="school"]`, `nwr["amenity"="kindergarten"]`],
@@ -97,15 +98,8 @@ function buildOverpassQuery(lat, lng, radiusM, typeFilter) {
 
   let tags = [];
   if (typeFilter === 'all') {
-    // Essential types for "all" search
-    tags = [
-      ...ALL_TAGS.hospital, 
-      ...ALL_TAGS.school, 
-      ...ALL_TAGS.police, 
-      ...ALL_TAGS.market, 
-      ...ALL_TAGS.restaurant,
-      ...ALL_TAGS.temple
-    ];
+    // Include ALL supported categories for a truly comprehensive "All Types" view
+    tags = Object.values(ALL_TAGS).flat();
   } else {
     tags = ALL_TAGS[typeFilter] || [];
   }
@@ -114,9 +108,12 @@ function buildOverpassQuery(lat, lng, radiusM, typeFilter) {
   let lines = '';
   if (reqQuery && reqQuery.search && reqQuery.search.length > 2) {
     const s = reqQuery.search.replace(/["\\]/g, '');
+    // When searching, we query for the name within the radius across all types
     lines = `  nwr(around:${radiusM},${lat},${lng})["name"~"${s}",i];`;
   } else {
-    lines = tags.map(t => `  ${t}(around:${radiusM},${lat},${lng});`).join('\n');
+    // Limit unique tags to avoid query bloat (Overpass has limits)
+    const uniqueTags = [...new Set(tags)];
+    lines = uniqueTags.map(t => `  ${t}(around:${radiusM},${lat},${lng});`).join('\n');
   }
 
   return `[out:json][timeout:60];\n(\n${lines}\n);\nout center tags;`;
