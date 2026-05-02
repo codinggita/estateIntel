@@ -54,4 +54,52 @@
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
+  <url>
+    <loc>https://estateintel-5.onrender.com/properties/luxury-homes-ahmedabad</loc>
+    <lastmod>2024-05-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://estateintel-5.onrender.com/properties/apartments-for-rent-ahmedabad</loc>
+    <lastmod>2024-05-02</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://estateintel-5.onrender.com/properties/flats-for-sale-gujarat</loc>
+    <lastmod>2024-05-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://estateintel-5.onrender.com/properties/commercial-property-ahmedabad</loc>
+    <lastmod>2024-05-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://estateintel-5.onrender.com/properties/affordable-housing-gujarat</loc>
+    <lastmod>2024-05-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://estateintel-5.onrender.com/search?q=buy+property+ahmedabad</loc>
+    <lastmod>2024-05-02</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://estateintel-5.onrender.com/search?q=rent+apartment+ahmedabad</loc>
+    <lastmod>2024-05-02</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://estateintel-5.onrender.com/search?q=luxury+homes+gujarat</loc>
+    <lastmod>2024-05-02</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
 </urlset>
