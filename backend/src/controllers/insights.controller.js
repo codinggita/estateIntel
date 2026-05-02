@@ -1,11 +1,28 @@
 const https = require('https');
 
-// Helper to fetch JSON from URL
-const fetchJson = (url) => new Promise((resolve, reject) => {
+// Enhanced helper to fetch JSON with redirect support and better error handling
+const fetchJson = (url, depth = 0) => new Promise((resolve, reject) => {
+  if (depth > 3) return resolve(null); // Prevent infinite redirects
+
   const options = {
-    headers: { 'User-Agent': 'EstateIntel/1.0' }
+    headers: { 
+      'User-Agent': 'EstateIntel/1.1 (https://estateintel-data.onrender.com; support@estateintel.com)',
+      'Accept': 'application/json'
+    },
+    timeout: 10000
   };
+
   https.get(url, options, (res) => {
+    // Handle redirects (Nominatim sometimes does this)
+    if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+      return resolve(fetchJson(res.headers.location, depth + 1));
+    }
+
+    if (res.statusCode !== 200) {
+      res.resume(); // Consume response data to free up memory
+      return resolve(null);
+    }
+
     let data = '';
     res.on('data', (chunk) => data += chunk);
     res.on('end', () => {
@@ -15,13 +32,21 @@ const fetchJson = (url) => new Promise((resolve, reject) => {
         resolve(null);
       }
     });
-  }).on('error', (e) => resolve(null));
+  }).on('error', (e) => {
+    console.error(`[Insights] Fetch Error for ${url}:`, e.message);
+    resolve(null);
+  }).on('timeout', () => {
+    console.warn(`[Insights] Fetch Timeout for ${url}`);
+    resolve(null);
+  });
 });
 
-// Geocoding helper (Nominatim)
+// Geocoding helper with fallback to search
 const geocode = async (query) => {
-  const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1`;
+  // Try precise search first
+  const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=1&addressdetails=1`;
   const results = await fetchJson(url);
+  
   if (results && results.length > 0) {
     return {
       lat: parseFloat(results[0].lat),
@@ -32,7 +57,7 @@ const geocode = async (query) => {
   return null;
 };
 
-// Facility Fetcher (Overpass)
+// Facility Fetcher (Overpass) with mirror support
 const fetchFacilities = async (lat, lon, radius = 3000) => {
   const query = `[out:json][timeout:30];
     (
@@ -44,8 +69,21 @@ const fetchFacilities = async (lat, lon, radius = 3000) => {
     );
     out body;`;
   
-  const url = `https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`;
-  const data = await fetchJson(url);
+  const mirrors = [
+    'https://overpass-api.de/api/interpreter',
+    'https://lz4.overpass-api.de/api/interpreter',
+    'https://z.overpass-api.de/api/interpreter',
+    'https://overpass.kumi.systems/api/interpreter'
+  ];
+
+  let data = null;
+  for (const mirror of mirrors) {
+    console.log(`[Insights] Trying Overpass mirror: ${mirror}`);
+    const url = `${mirror}?data=${encodeURIComponent(query)}`;
+    data = await fetchJson(url);
+    if (data && data.elements) break;
+  }
+
   const elements = data?.elements || [];
   
   const stats = {
