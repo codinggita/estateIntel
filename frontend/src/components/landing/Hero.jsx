@@ -6,7 +6,7 @@ import { SectionWrapper } from '../ui/Layout';
 
 const Hero = () => {
   return (
-    <SectionWrapper className="relative overflow-hidden pt-36 pb-20 md:pt-48 md:pb-32">
+    <SectionWrapper className="relative overflow-hidden pt-32 sm:pt-36 md:pt-48 pb-16 sm:pb-20 md:pb-32">
       {/* Animated Background Elements */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full -z-10 pointer-events-none">
         <motion.div 
@@ -32,7 +32,7 @@ const Hero = () => {
         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150"></div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
         <motion.div 
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -40,10 +40,10 @@ const Hero = () => {
           className="space-y-8"
         >
           {/* Trust Badge */}
-          <div className="inline-flex items-center gap-2 bg-card border border-white/10 px-4 py-2 rounded-2xl shadow-sm">
+          <div className="inline-flex items-center gap-2 bg-card border border-white/10 px-3 sm:px-4 py-1.5 sm:py-2 rounded-2xl shadow-sm">
             <div className="flex -space-x-2">
               {[1, 2, 3, 4].map(i => (
-                <div key={i} className="w-8 h-8 rounded-full border-2 border-card bg-slate-200 overflow-hidden">
+                <div key={i} className="w-6 sm:w-8 h-6 sm:h-8 rounded-full border-2 border-card bg-slate-200 overflow-hidden">
                   <img src={`https://i.pravatar.cc/100?img=${i+10}`} alt="User" />
                 </div>
               ))}
@@ -59,32 +59,32 @@ const Hero = () => {
             </div>
           </div>
 
-          <h1 className="text-5xl md:text-7xl font-bold leading-[1.05] text-text tracking-tight">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.05] text-text tracking-tight">
             Make Smart Property Decisions with <br />
             <span className="text-gradient">Data & Inspection</span>
           </h1>
 
-          <p className="text-xl text-subtext leading-relaxed max-w-xl">
+          <p className="text-lg sm:text-xl text-subtext leading-relaxed max-w-lg sm:max-w-xl">
             Before you invest crores, know what you're really buying. Standardized neighborhood reports and expert inspections — powered by precision data.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 pt-4">
-            <Button className="h-14 px-8 text-lg rounded-2xl group">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4">
+            <Button className="h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg rounded-2xl group">
               <Map size={20} className="group-hover:rotate-12 transition-transform" />
               Get Neighborhood Report
             </Button>
-            <Button variant="secondary" className="h-14 px-8 text-lg rounded-2xl group">
+            <Button variant="secondary" className="h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg rounded-2xl group">
               Book Inspection
               <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
             </Button>
           </div>
 
-          <div className="flex items-center gap-6 pt-4 text-subtext">
-            <div className="flex items-center gap-2 text-sm font-bold">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-6 pt-4 text-subtext">
+            <div className="flex items-center gap-2 text-xs sm:text-sm font-bold">
               <ShieldCheck size={18} className="text-accent" />
               Institutional Grade Data
             </div>
-            <div className="flex items-center gap-2 text-sm font-bold">
+            <div className="flex items-center gap-2 text-xs sm:text-sm font-bold">
               <ShieldCheck size={18} className="text-accent" />
               Expert Civil Engineers
             </div>

@@ -49,7 +49,7 @@ const FAQSection = () => {
   const [expandedIndex, setExpandedIndex] = React.useState(null);
 
   return (
-    <section className="py-20 px-6 bg-white dark:bg-zinc-900">
+    <section className="py-12 sm:py-16 lg:py-20 px-4 sm:px-6 bg-white dark:bg-zinc-900">
       <div className="max-w-4xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -57,15 +57,15 @@ const FAQSection = () => {
           viewport={{ once: true }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl md:text-5xl font-bold text-text mb-6">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-text mb-4 sm:mb-6">
             Frequently Asked Questions
           </h2>
-          <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+          <p className="text-base sm:text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
             Everything you need to know about EstateIntel, the best real estate platform in Ahmedabad and Gujarat
           </p>
         </motion.div>
 
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           {faqs.map((faq, index) => (
             <motion.div
               key={index}
@@ -77,18 +77,18 @@ const FAQSection = () => {
             >
               <button
                 onClick={() => setExpandedIndex(expandedIndex === index ? null : index)}
-                className="w-full px-6 py-5 flex items-center justify-between text-left hover:bg-gray-100 dark:hover:bg-zinc-700 transition-colors"
+                className="w-full px-4 sm:px-6 py-4 sm:py-5 flex items-center justify-between text-left hover:bg-gray-100 dark:hover:bg-zinc-700 transition-colors"
               >
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-3 sm:gap-4">
                   <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center text-primary">
                     {faq.icon}
                   </div>
-                  <h3 className="text-lg font-semibold text-text pr-4">
+                  <h3 className="text-base sm:text-lg font-semibold text-text pr-2 sm:pr-4">
                     {faq.question}
                   </h3>
                 </div>
                 <ChevronDown 
-                  className={`w-5 h-5 text-gray-400 transition-transform ${
+                  className={`w-4 h-4 sm:w-5 sm:h-5 text-gray-400 transition-transform ${
                     expandedIndex === index ? 'rotate-180' : ''
                   }`}
                 />
@@ -101,7 +101,7 @@ const FAQSection = () => {
                   exit={{ height: 0, opacity: 0 }}
                   className="px-6 pb-5"
                 >
-                  <div className="pl-16 text-gray-600 dark:text-gray-400 leading-relaxed">
+                  <div className="pl-16 sm:pl-20 text-gray-600 dark:text-gray-400 leading-relaxed text-sm sm:text-base">
                     {faq.answer}
                   </div>
                 </motion.div>
@@ -114,16 +114,16 @@ const FAQSection = () => {
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="mt-16 text-center"
+          className="mt-12 sm:mt-16 text-center"
         >
-          <div className="bg-gradient-to-r from-primary to-primary/80 rounded-2xl p-8 text-white">
-            <h3 className="text-2xl font-bold mb-4">
+          <div className="bg-gradient-to-r from-primary to-primary/80 rounded-2xl sm:rounded-2xl p-6 sm:p-8 text-white">
+            <h3 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">
               Still have questions about buying property in Ahmedabad?
             </h3>
-            <p className="mb-6 text-primary/90">
+            <p className="mb-4 sm:mb-6 text-primary/90 text-sm sm:text-base">
               Our real estate experts are here to help you make the best property decisions
             </p>
-            <button className="bg-white text-primary px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+            <button className="bg-white text-primary px-6 sm:px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors text-sm sm:text-base">
               Contact Our Experts
             </button>
           </div>

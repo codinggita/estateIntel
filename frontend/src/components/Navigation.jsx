@@ -37,7 +37,7 @@ const Navigation = ({ user, onLogout }) => {
           : 'py-6 bg-transparent'
       }`}
     >
-      <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 group">
           <motion.div 
@@ -52,14 +52,14 @@ const Navigation = ({ user, onLogout }) => {
         </Link>
         
         {/* Desktop Navigation */}
-        <div className="hidden lg:flex items-center gap-8">
+        <div className="hidden xl:flex items-center gap-6">
           {navLinks.map((link) => (
             <NavLink 
               key={link.name}
               to={link.path}
               end={link.path === '/'}
               className={({ isActive }) => 
-                `relative text-sm font-bold transition-colors hover:text-primary ${
+                `relative text-xs sm:text-sm font-bold transition-colors hover:text-primary whitespace-nowrap ${
                   isActive ? 'text-primary' : 'text-subtext'
                 }`
               }
@@ -91,7 +91,7 @@ const Navigation = ({ user, onLogout }) => {
           </button>
 
           {/* User/Auth */}
-          <div className="hidden md:flex items-center justify-end">
+          <div className="hidden lg:flex items-center justify-end">
             {!user ? (
               <div className="flex items-center gap-3">
                 <Link to="/login">
@@ -121,7 +121,7 @@ const Navigation = ({ user, onLogout }) => {
 
           {/* Mobile Menu Toggle */}
           <button 
-            className="lg:hidden p-2.5 rounded-xl bg-card border border-white/10 text-text"
+            className="xl:hidden p-2 sm:p-2.5 rounded-xl bg-card border border-white/10 text-text"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
             {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -136,9 +136,9 @@ const Navigation = ({ user, onLogout }) => {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="lg:hidden bg-card border-b border-white/10 overflow-hidden"
+            className="xl:hidden bg-card border-b border-white/10 overflow-hidden"
           >
-            <div className="px-6 py-8 flex flex-col gap-6">
+            <div className="px-4 sm:px-6 py-6 sm:py-8 flex flex-col gap-4 sm:gap-6">
               {navLinks.map((link) => (
                 <NavLink 
                   key={link.name}
