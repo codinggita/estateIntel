@@ -1,12 +1,23 @@
-# 🌍 Project Title: **Neighborhood Resource Intelligence Platform**
+# 🌍 Neighborhood Resource Intelligence Platform
 
-## 📌 Project Description
+## 🔗 Project Links
+
+* 🎨 Figma Design: https://www.figma.com/design/YNhcKScH8jklZQVkMDdkoq/Untitled?node-id=0-1&t=eg5ONbsbMHzVGw3q-1
+* 🎥 YouTube Demo: https://youtu.be/oFIEaKb8IAA?si=_-zDRWlh2Efr-6dn
+* 🌐 Frontend Deployment: https://estateintel-data-6cfs.onrender.com/
+* ⚙️ Backend Deployment: https://estateintel-data.onrender.com
+* 📚 Documentation: https://documenter.getpostman.com/view/50840875/2sBXqKoKbi
+* 🔀 Pull Requests Closed: https://github.com/codinggita/estateIntel/pulls?q=is%3Apr+is%3Aclosed
+
+---
+
+# 📌 Project Description
 
 The **Neighborhood Resource Intelligence Platform** is a web-based application that helps users explore, understand, and analyze neighborhood-level infrastructure through map-based visualization and structured data systems. It focuses on essential resources such as healthcare, education, public services, and waste management, providing location-based insights in a simple and accessible way.
 
 ---
 
-## ❗ Problem Statement (Real-World Context)
+# ❗ Problem Statement (Real-World Context)
 
 In many cities and semi-urban areas, including rapidly developing regions, citizens and local authorities face critical challenges:
 
@@ -20,7 +31,7 @@ This disconnect between data and accessibility leads to poor planning, reduced a
 
 ---
 
-## ✅ Solution Approach
+# ✅ Solution Approach
 
 The platform addresses these real-world challenges by:
 
@@ -32,80 +43,78 @@ The platform addresses these real-world challenges by:
 
 ---
 
-## 🚀 Major Features (Implemented)
+# 🚀 Major Features (Implemented)
 
-### 🗺️ Interactive Map Integration
+## 🗺️ Interactive Map Integration
 
 * Displays neighborhood resources on a real-time map
 * Uses markers to represent different services
 * Improves spatial understanding of the area
 
-### 📍 Neighborhood Resource Detection
+## 📍 Neighborhood Resource Detection
 
 * Shows nearby essential services like hospitals, schools, and utilities
-* Location-based results for quick access
+* Provides location-based results for quick access
 
-### ♻️ Nearby Dump Yard Detection
+## ♻️ Nearby Dump Yard Detection
 
 * Identifies waste disposal areas near the user
-* Highlights environmental concerns
+* Highlights environmental concerns and nearby waste zones
 
-### 📄 Smart Report Generation
+## 📄 Smart Report Generation
 
 * Generates reports for selected areas
 * Includes summaries and key observations
+* Helps in decision-making and area analysis
 
-### ⚙️ Backend API & Data Management
+## ⚙️ Backend API & Data Management
 
 * RESTful APIs for handling resource data
-* Structured and scalable backend system
+* Structured and scalable backend architecture
+* Efficient database management for location-based resources
 
 ---
 
-## 🛠️ Tech Stack
+# 🛠️ Tech Stack
 
-### 🎨 Frontend
+## 🎨 Frontend
 
 * **React.js** – Component-based UI development
 * **Tailwind CSS** – Utility-first CSS framework for responsive design
-* **Map Integration (Leaflet / Google Maps API)** – For real-time map visualization
+* **Leaflet / Google Maps API** – Real-time map visualization and geolocation
+* **React Router DOM** – Client-side routing and navigation
 
-### 💻 Backend
+## 💻 Backend
 
 * **Node.js** – Server-side runtime environment
-* **Express.js** – Web framework for building APIs
+* **Express.js** – Backend framework for API development
 
-### 🗄️ Database
+## 🗄️ Database
 
-* **MongoDB** – NoSQL database for storing resource data
-* **Mongoose** – ODM for schema-based data modeling
+* **MongoDB** – NoSQL database for storing resource and neighborhood data
+* **Mongoose** – ODM for schema-based database modeling
 
-### ⚙️ Tools & Utilities
+## ⚙️ Tools & Utilities
 
-* **Postman** – API testing
-* **Nodemon** – Development server auto-reload
-* **dotenv** – Environment variable management
+* **Postman** – API testing and debugging
+* **Nodemon** – Automatic backend server restart during development
+* **dotenv** – Environment variable configuration
+* **Git & GitHub** – Version control and collaboration
 
 ---
 
-## 💡 Real-World Relevance
+# 💡 Real-World Relevance
 
 * Helps citizens identify nearby resources quickly
-* Raises awareness about waste management issues
-* Supports data-driven urban planning
-* Provides a base for smart city solutions
+* Raises awareness about waste management and environmental issues
+* Supports smarter and data-driven urban planning
+* Assists authorities in identifying resource-deficient areas
+* Provides a foundation for smart city and civic-tech solutions
 
 ---
 
-## 🎨 Figma Design
+# 📣 Conclusion
 
-Explore the UI/UX prototype of the project here:
-👉 **Figma Link:** https://www.figma.com/design/YNhcKScH8jklZQVkMDdkoq/Untitled?node-id=0-1&t=eg5ONbsbMHzVGw3q-1
+The **Neighborhood Resource Intelligence Platform** bridges the gap between scattered neighborhood data and real-world usability. By combining React-based frontend development, Tailwind-powered responsive UI, backend API systems, MongoDB database management, and map visualization technologies, the platform delivers meaningful insights that support smarter communities and informed urban decision-making.
 
----
-
-## 📣 Conclusion
-
-The **Neighborhood Resource Intelligence Platform** bridges the gap between scattered data and real-world usability. By combining React-based frontend, Tailwind-powered UI, backend systems, and map visualization, it delivers meaningful insights that can support smarter and more informed communities.
-
----
+This project demonstrates how modern full-stack technologies can be used to solve real-world civic and infrastructure challenges through intuitive visualization, structured data management, and scalable web solutions.
