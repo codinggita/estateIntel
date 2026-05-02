@@ -88,7 +88,7 @@ const PricingSection = () => {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 w-full">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 lg:gap-12 w-full px-4 sm:px-0">
           {plans.map((plan, i) => (
             <motion.div
               key={plan.name}
@@ -96,10 +96,10 @@ const PricingSection = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1, duration: 0.6 }}
-              className="grow"
+              className="grow flex"
             >
               <Card 
-                className={`relative flex flex-col h-full transition-all duration-500 hover:-translate-y-4 ${
+                className={`relative flex flex-col h-full p-8 md:p-10 lg:p-12 transition-all duration-500 hover:-translate-y-4 ${
                   plan.highlight 
                     ? 'bg-primary text-white scale-105 z-10 shadow-primary/30 ring-4 ring-primary/20' 
                     : 'bg-card text-text border border-white/5'
