@@ -13,21 +13,15 @@ import SignIn from "./components/SignIn";
 import Settings from "./components/Settings";
 import LandingPage from "./components/LandingPage";
 import MapComponent from "./components/Map";
-import ProtectedRoute from "./components/ProtectedRoute";
 import InsightsPage from "./components/InsightsPage";
-import ReportsPage from "./components/ReportsPage";
+import ReportsPage from "./components/Reports/ReportsPage";
 import InspectionPage from "./components/InspectionPage";
-import AboutPage from "./components/AboutPage";
 import ResourcesPage from "./components/ResourcesPage";
+import AboutPage from "./components/AboutPage";
+import Sitemap from "./components/Sitemap/Sitemap";
+import PublicRoute from "./components/PublicRoute";
+import ProtectedRoute from "./components/ProtectedRoute";
 
-
-// Component to redirect if already logged in
-const PublicRoute = ({ user, children }) => {
-  if (user) {
-    return <Navigate to="/" replace />;
-  }
-  return children;
-};
 
 function App() {
   const [user, setUser] = useState(null);
@@ -199,6 +193,9 @@ function App() {
 
         {/* Legacy Dashboard Route - Redirect to home */}
         <Route path="/dashboard" element={<Navigate to="/" replace />} />
+
+        {/* Sitemap Route - Public */}
+        <Route path="/sitemap.xml" element={<Sitemap />} />
 
         {/* Catch all route - redirect to login or home */}
         <Route path="*" element={
