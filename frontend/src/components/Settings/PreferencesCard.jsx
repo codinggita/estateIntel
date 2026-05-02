@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import logger from '../../utils/logger';
 import { useTheme } from '../../context/ThemeContext';
 
 const PreferencesCard = () => {
@@ -37,7 +38,7 @@ const PreferencesCard = () => {
         setPreferences(otherPreferences);
       }
     } catch (error) {
-      console.error('Error loading preferences:', error);
+      logger.error('Error loading preferences:', error);
     }
   }, []);
 
@@ -46,7 +47,7 @@ const PreferencesCard = () => {
     try {
       localStorage.setItem('userPreferences', JSON.stringify(preferences));
     } catch (error) {
-      console.error('Error saving preferences:', error);
+      logger.error('Error saving preferences:', error);
     }
   }, [preferences]);
 

@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTheme } from '../../context/ThemeContext';
 import { auth } from '../../firebase';
+import logger from '../../utils/logger';
 
 const SecurityCard = ({ user, onLogout }) => {
   const { theme } = useTheme();
@@ -60,7 +61,7 @@ const SecurityCard = ({ user, onLogout }) => {
     try {
       // For email/password users, we would reauthenticate and update password
       // For now, this is a placeholder since Firebase requires additional setup
-      console.log('Password change requested');
+      logger.info('Password change requested');
       
       // Reset form
       setPasswordData({
@@ -73,7 +74,7 @@ const SecurityCard = ({ user, onLogout }) => {
       alert('Password change functionality would require additional Firebase configuration');
     } catch (error) {
       setError('Failed to change password. Please try again.');
-      console.error('Password change error:', error);
+      logger.error('Password change error:', error);
     } finally {
       setLoading(false);
     }

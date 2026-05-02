@@ -40,7 +40,7 @@ const Solutions = () => {
         {/* Neighborhood Intel */}
         <motion.div variants={itemVariants}>
           <Card className="p-8 md:p-12 h-full flex flex-col group border-primary/5 hover:border-primary/20 bg-gradient-to-b from-card to-bg/50">
-            <div className="w-16 h-16 bg-primary/10 text-primary rounded-2xl mb-8 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all duration-500 shadow-lg shadow-primary/5">
+            <div className="bg-linear-to-b from-primary/10 to-transparent border-l-4 border-primary/20 rounded-2xl mb-8 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all duration-500 shadow-lg shadow-primary/5">
               <Search size={32} />
             </div>
             <h3 className="text-3xl font-bold mb-4 text-text">Neighborhood Intel</h3>
@@ -73,7 +73,7 @@ const Solutions = () => {
         {/* Property Audit */}
         <motion.div variants={itemVariants}>
           <Card className="p-8 md:p-12 h-full flex flex-col group border-secondary/5 hover:border-secondary/20 bg-gradient-to-b from-card to-bg/50">
-            <div className="w-16 h-16 bg-secondary/10 text-secondary rounded-2xl mb-8 flex items-center justify-center group-hover:bg-secondary group-hover:text-white transition-all duration-500 shadow-lg shadow-secondary/5">
+            <div className="bg-linear-to-b from-secondary/10 to-transparent border-r-4 border-secondary/20 rounded-2xl mb-8 flex items-center justify-center group-hover:bg-secondary group-hover:text-white transition-all duration-500 shadow-lg shadow-secondary/5">
               <ShieldCheck size={32} />
             </div>
             <h3 className="text-3xl font-bold mb-4 text-text">Property Audit</h3>

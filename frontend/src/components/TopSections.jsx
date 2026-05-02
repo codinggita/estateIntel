@@ -33,6 +33,7 @@ const TopSections = () => {
             <button 
               onClick={handleGetNeighborhoodReport}
               className="bg-indigo-600 text-white font-bold px-8 py-4 rounded-xl flex items-center justify-center gap-3 hover:bg-indigo-700 hover:shadow-2xl hover:shadow-indigo-200 transition-all active:scale-95 group"
+              aria-label="Get neighborhood report"
             >
               <Map size={20} />
               Get Neighborhood Report
@@ -40,8 +41,10 @@ const TopSections = () => {
             <button 
               onClick={handleBookInspection}
               className="bg-white text-slate-900 border-2 border-slate-200 font-bold px-8 py-4 rounded-xl flex items-center justify-center gap-3 hover:border-slate-300 hover:bg-slate-50 transition-all active:scale-95"
+              aria-label="Book property inspection"
             >
-              Book Inspection →
+              <FileText size={20} />
+              Book Property Inspection
             </button>
           </div>
         </div>
@@ -84,6 +87,7 @@ const TopSections = () => {
             <button 
               onClick={handleGetNeighborhoodReport}
               className="w-full py-5 bg-slate-900 text-white font-black rounded-2xl hover:bg-slate-800 transition-all"
+              aria-label="Get neighborhood report"
             >
               Get Neighborhood Report
             </button>
@@ -107,6 +111,7 @@ const TopSections = () => {
             <button 
               onClick={handleBookInspection}
               className="w-full py-5 bg-indigo-600 text-white font-black rounded-2xl hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100"
+              aria-label="Book property audit"
             >
               Book Property Audit
             </button>

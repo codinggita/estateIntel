@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { Eye, EyeOff, ArrowLeft, AlertCircle, Shield } from 'lucide-react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useFormik } from 'formik';
@@ -37,24 +38,21 @@ const SignIn = ({ onLogin }) => {
       if (result.success) {
         console.log('✅ Google authentication successful:', result.user);
         
-        // Store user data in localStorage immediately
+        // Store user data in localStorage
         localStorage.setItem('user', JSON.stringify(result.user));
         console.log('💾 Google user data stored in localStorage:', result.user);
-        console.log('📊 Google user data structure:', Object.keys(result.user));
         
         // Call parent login handler
         onLogin(result.user);
-        console.log('📞 Called onLogin handler for Google auth');
+        console.log('📞 Called onLogin handler for Google auth, waiting for redirect...');
         
-        // Verify user is stored before redirect
+        // React Router will handle the redirect via App.jsx useEffect
+        // Add a small delay to ensure state is updated before potential manual redirect
         setTimeout(() => {
-          const storedUser = localStorage.getItem('user');
-          console.log('🔍 Google Auth Verification - User in localStorage:', !!storedUser);
-          if (storedUser) {
-            console.log('🚀 Redirecting to home page after Google auth...');
-            window.location.href = '/';
-          } else {
-            console.error('❌ Google user data not found in localStorage before redirect');
+          const currentPath = window.location.pathname;
+          if (currentPath === '/login' || currentPath === '/signup') {
+            console.log('🚀 Manual redirect fallback for Google auth - navigating to home');
+            navigate('/', { replace: true });
           }
         }, 200);
                 
@@ -90,41 +88,36 @@ const SignIn = ({ onLogin }) => {
       setServerError('');
       try {
         const endpoint = view === 'login' ? '/api/user/login' : '/api/user/register';
-        const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-        const response = await fetch(`${backendUrl}${endpoint}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(values)
+        const backendUrl = import.meta.env.VITE_API_URL || '';
+        const response = await axios.post(`${backendUrl}${endpoint}`, values, {
+          headers: { 'Content-Type': 'application/json' }
         });
 
-        const data = await response.json();
+        const data = response.data;
 
-        if (!response.ok) {
-          throw new Error(data.message || 'Something went wrong');
-        }
-
-        // Store user data in localStorage immediately
+        // Store user data in localStorage
         localStorage.setItem('user', JSON.stringify(data.user));
         console.log('💾 User data stored in localStorage:', data.user);
-        console.log('📊 Response user data structure:', Object.keys(data.user));
+        console.log('🔍 Current path before redirect:', window.location.pathname);
         
         // Call parent login handler
         onLogin(data.user);
-        console.log('📞 Called onLogin handler');
+        console.log('📞 Called onLogin handler, waiting for redirect...');
         
-        // Verify user is stored before redirect
+        // Force redirect after a short delay to ensure state is updated
         setTimeout(() => {
-          const storedUser = localStorage.getItem('user');
-          console.log('🔍 Verification - User in localStorage:', !!storedUser);
-          if (storedUser) {
-            console.log('🚀 Redirecting to home page...');
-            window.location.href = '/';
+          const currentPath = window.location.pathname;
+          console.log('🔍 Path after delay:', currentPath, 'User in localStorage:', !!localStorage.getItem('user'));
+          if (currentPath === '/login' || currentPath === '/signup') {
+            console.log('🚀 Manual redirect fallback - navigating to home');
+            navigate('/', { replace: true });
           } else {
-            console.error('❌ User data not found in localStorage before redirect');
+            console.log('✅ Already redirected or on different page');
           }
-        }, 200);
+        }, 300);
       } catch (err) {
-        setServerError(err.message);
+        const message = err.response?.data?.message || err.message || 'An error occurred during authentication';
+        setServerError(message);
       } finally {
         setSubmitting(false);
       }
@@ -135,7 +128,7 @@ const SignIn = ({ onLogin }) => {
     <div className="flex min-h-screen w-full bg-bg text-text font-sans absolute inset-0 z-[200]">
       
       {/* Left Panel - Modern Gradient & Image */}
-      <div className="hidden lg:flex lg:w-1/2 xl:w-[55%] relative overflow-hidden">
+      <div className="hidden lg:flex lg:w-[45%] xl:w-[50%] relative overflow-hidden">
         <div className="absolute inset-0 bg-slate-900/40 z-10"></div>
         <img 
           src={view === 'login' 
@@ -180,13 +173,13 @@ const SignIn = ({ onLogin }) => {
       </div>
 
       {/* Right Panel - Form */}
-      <div className="w-full lg:w-1/2 xl:w-[45%] flex flex-col items-center justify-center relative py-8 sm:py-12 px-4 sm:px-6 lg:px-8 xl:px-12 bg-bg overflow-y-auto">
+      <div className="w-full lg:w-[55%] xl:w-[50%] flex flex-col items-center justify-center relative py-12 px-6 sm:px-12 lg:px-16 xl:px-24 bg-bg overflow-y-auto">
         
         {/* Back Button */}
         <button 
           type="button"
           onClick={() => navigate('/')}
-          className="absolute top-4 sm:top-8 left-4 sm:left-6 flex items-center space-x-2 text-subtext hover:text-text transition-colors font-bold text-sm group"
+          className="absolute top-8 left-6 sm:left-8 flex items-center space-x-2 text-subtext hover:text-text transition-colors font-bold text-sm group"
         >
           <div className="w-8 h-8 rounded-full bg-card border border-white/5 flex items-center justify-center transition-colors">
             <ArrowLeft size={16} />
@@ -195,7 +188,7 @@ const SignIn = ({ onLogin }) => {
         </button>
 
         {/* Top Right Toggle */}
-        <div className="absolute top-4 sm:top-8 right-4 sm:right-6">
+        <div className="absolute top-8 right-6 sm:right-12">
           <Button 
             variant="secondary"
             onClick={() => handleViewChange(view === 'login' ? 'register' : 'login')} 
@@ -205,10 +198,10 @@ const SignIn = ({ onLogin }) => {
           </Button>
         </div>
 
-        <div className="w-full max-w-sm sm:max-w-md animate-in fade-in slide-in-from-bottom-4 duration-500 py-4 sm:py-8">
+        <div className="w-full max-w-[440px] animate-in fade-in slide-in-from-bottom-4 duration-500 py-8">
           
-          <div className="mb-8 sm:mb-10 text-center lg:text-left">
-            <h1 className="text-3xl sm:text-4xl font-bold text-text tracking-tight mb-3">
+          <div className="mb-10 text-center lg:text-left">
+            <h1 className="text-4xl font-bold text-text tracking-tight mb-3">
               {view === 'login' ? 'Welcome Back' : 'Get Started'}
             </h1>
             <p className="text-subtext font-medium">
@@ -216,7 +209,7 @@ const SignIn = ({ onLogin }) => {
             </p>
           </div>
 
-          <form className="space-y-4 sm:space-y-6" onSubmit={formik.handleSubmit}>
+          <form className="space-y-6" onSubmit={formik.handleSubmit}>
             {serverError && (
               <div className="bg-red-500/10 border border-red-500/20 text-red-500 px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-2">
                 <AlertCircle size={18} />
@@ -230,7 +223,7 @@ const SignIn = ({ onLogin }) => {
                 <input 
                   {...formik.getFieldProps('fullName')}
                   type="text" 
-                  className={`w-full px-4 sm:px-5 py-3 sm:py-4 bg-card border ${formik.touched.fullName && formik.errors.fullName ? 'border-red-500' : 'border-white/30'} rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/50 text-subtext font-bold transition-all placeholder:text-subtext/40 text-sm sm:text-base`} 
+                  className={`w-full px-5 py-4 bg-card border ${formik.touched.fullName && formik.errors.fullName ? 'border-red-500' : 'border-white/30'} rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/50 text-subtext font-bold transition-all placeholder:text-subtext/40`} 
                   placeholder="John Doe" 
                 />
                 {formik.touched.fullName && formik.errors.fullName && (
@@ -244,7 +237,7 @@ const SignIn = ({ onLogin }) => {
               <input 
                 {...formik.getFieldProps('email')}
                 type="email" 
-                className={`w-full px-4 sm:px-5 py-3 sm:py-4 bg-card border ${formik.touched.email && formik.errors.email ? 'border-red-500' : 'border-white/30'} rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/50 text-subtext font-bold transition-all placeholder:text-subtext/40 text-sm sm:text-base`} 
+                className={`w-full px-5 py-4 bg-card border ${formik.touched.email && formik.errors.email ? 'border-red-500' : 'border-white/30'} rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/50 text-subtext font-bold transition-all placeholder:text-subtext/40`} 
                 placeholder="you@example.com" 
               />
               {formik.touched.email && formik.errors.email && (
@@ -258,10 +251,10 @@ const SignIn = ({ onLogin }) => {
                 <input 
                   {...formik.getFieldProps('password')}
                   type={showPassword ? "text" : "password"} 
-                  className={`w-full pl-4 sm:pl-5 pr-12 sm:pr-14 py-3 sm:py-4 bg-card border ${formik.touched.password && formik.errors.password ? 'border-red-500' : 'border-white/30'} rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/50 text-subtext font-bold transition-all placeholder:text-subtext/40 text-sm sm:text-base`} 
+                  className={`w-full pl-5 pr-14 py-4 bg-card border ${formik.touched.password && formik.errors.password ? 'border-red-500' : 'border-white/30'} rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/50 text-subtext font-bold transition-all placeholder:text-subtext/40`} 
                   placeholder="••••••••" 
                 />
-                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 sm:right-5 top-3.5 sm:top-4.5 text-subtext hover:text-text transition-colors">
+                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-5 top-[18px] text-subtext hover:text-text transition-colors">
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
               </div>
@@ -271,7 +264,7 @@ const SignIn = ({ onLogin }) => {
             </div>
             
             {view === 'login' && (
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-4">
+              <div className="flex items-center justify-between">
                 <label className="flex items-center gap-2 cursor-pointer group">
                   <input type="checkbox" className="w-4 h-4 rounded border-white/10 bg-card text-primary focus:ring-primary/50 cursor-pointer" />
                   <span className="text-sm font-bold text-subtext group-hover:text-text transition-colors">Remember me</span>
@@ -287,7 +280,7 @@ const SignIn = ({ onLogin }) => {
               variant="secondary"
               disabled={formik.isSubmitting} 
               fullWidth
-              className="py-3 sm:py-4 rounded-2xl text-base sm:text-lg mt-4 sm:mt-6 shadow-xl"
+              className="py-4 rounded-2xl text-lg mt-4 shadow-xl"
             >
               {formik.isSubmitting ? (
                 <div className="w-6 h-6 border-2 border-black/20 border-t-black rounded-full animate-spin"></div>
@@ -299,7 +292,7 @@ const SignIn = ({ onLogin }) => {
             </Button>
           </form>
 
-          <div className="my-8 sm:my-10 flex items-center gap-4">
+          <div className="my-10 flex items-center gap-4">
             <div className="flex-1 h-px bg-white/5"></div>
             <span className="text-[10px] font-black text-subtext uppercase tracking-[0.2em] whitespace-nowrap">
               or continue with
@@ -310,7 +303,7 @@ const SignIn = ({ onLogin }) => {
           <div className="w-full">
             <button 
               onClick={handleGoogleSignIn}
-              className="w-full flex items-center justify-center gap-3 px-4 py-3 sm:py-4 bg-card border border-white/30 rounded-2xl hover:border-primary/50 hover:shadow-md transition-all font-bold text-sm sm:text-base shadow-sm"
+              className="w-full flex items-center justify-center gap-3 px-4 py-4 bg-card border border-white/30 rounded-2xl hover:border-primary/50 hover:shadow-md transition-all font-bold text-sm shadow-sm"
               type="button"
             >
               <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" alt="Google" className="w-5 h-5" />

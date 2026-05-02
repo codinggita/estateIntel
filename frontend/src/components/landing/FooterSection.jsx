@@ -21,16 +21,16 @@ const FooterSection = () => {
               Standardizing property intelligence for the modern homebuyer. Know the reality of every brick before you buy.
             </p>
             <div className="flex gap-4">
-              <a href="https://facebook.com/estateintel" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-xl bg-card border border-white/10 flex items-center justify-center text-subtext hover:text-primary hover:border-primary/50 transition-all">
+              <a href="https://facebook.com/estateintel" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-xl bg-card border border-white/10 flex items-center justify-center text-subtext hover:text-primary hover:border-primary/50 transition-all" aria-label="Follow EstateIntel on Facebook">
                 <Send size={20} />
               </a>
-              <a href="https://twitter.com/estateintel" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-xl bg-card border border-white/10 flex items-center justify-center text-subtext hover:text-primary hover:border-primary/50 transition-all">
+              <a href="https://twitter.com/estateintel" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-xl bg-card border border-white/10 flex items-center justify-center text-subtext hover:text-primary hover:border-primary/50 transition-all" aria-label="Follow EstateIntel on Twitter">
                 <Share2 size={20} />
               </a>
-              <a href="https://instagram.com/estateintel" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-xl bg-card border border-white/10 flex items-center justify-center text-subtext hover:text-primary hover:border-primary/50 transition-all">
+              <a href="https://instagram.com/estateintel" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-xl bg-card border border-white/10 flex items-center justify-center text-subtext hover:text-primary hover:border-primary/50 transition-all" aria-label="Follow EstateIntel on Instagram">
                 <MessageCircle size={20} />
               </a>
-              <a href="mailto:hello@estateintel.in" className="w-10 h-10 rounded-xl bg-card border border-white/10 flex items-center justify-center text-subtext hover:text-primary hover:border-primary/50 transition-all">
+              <a href="mailto:hello@estateintel.in" className="w-10 h-10 rounded-xl bg-card border border-white/10 flex items-center justify-center text-subtext hover:text-primary hover:border-primary/50 transition-all" aria-label="Send us an Email">
                 <Camera size={20} />
               </a>
             </div>

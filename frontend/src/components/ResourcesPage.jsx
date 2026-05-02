@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import MapComponent from './Map';
 import { Search, MapPin, Filter, X, ShieldCheck, RefreshCw } from 'lucide-react';
 import axios from 'axios';
+import logger from '../utils/logger';
 
 // Haversine formula for accurate distance calculation
 function getDistanceKm(lat1, lon1, lat2, lon2) {
@@ -58,13 +59,19 @@ const ResourcesPage = () => {
   const fetchResources = async () => {
     if (!userLocation) return;
     setIsLoading(true);
+    
     try {
-      console.log('[ResourcesPage] Fetching with params:', {
+      logger.info('Fetching resources with params:', {
         lat: userLocation.lat,
         lng: userLocation.lng,
         radius: filters.radius,
         type: filters.type
       });
+      
+      // Add timeout to prevent hanging requests
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      
       const { data } = await axios.get('/api/resources', {
         params: {
           lat: userLocation.lat,
@@ -72,12 +79,19 @@ const ResourcesPage = () => {
           radius: filters.radius,
           type: filters.type,
           search: filters.search,
-        }
+        },
+        signal: controller.signal
       });
-      console.log(`[ResourcesPage] Received ${data.length} results from backend`);
+      
+      clearTimeout(timeoutId);
+      logger.info(`Received ${data.length} results from backend`);
       setResources(Array.isArray(data) ? data : []);
     } catch (err) {
-      console.error('[ResourcesPage] Backend fetch failed:', err.response?.data || err.message);
+      if (err.name === 'AbortError') {
+        logger.warn('Resources fetch timeout');
+      } else {
+        logger.error('Backend fetch failed:', err.response?.data || err.message);
+      }
       setResources([]);
     } finally {
       setIsLoading(false);
@@ -124,6 +138,7 @@ const ResourcesPage = () => {
           onMarkerClick={handleMarkerClick}
           externalUserLocation={userLocation}
           shouldZoomToSelected={true}
+          isEmbedded={true}
         />
       </div>
 

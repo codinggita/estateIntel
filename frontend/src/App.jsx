@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from "react";
 import { Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { onAuthStateChanged, signOut } from "firebase/auth";
-import { HelmetProvider } from "react-helmet-async";
 import { auth } from "./firebase";
 import { ThemeProvider } from "./context/ThemeContext";
 import { Toaster } from "react-hot-toast";
@@ -13,15 +12,21 @@ import SignIn from "./components/SignIn";
 import Settings from "./components/Settings";
 import LandingPage from "./components/LandingPage";
 import MapComponent from "./components/Map";
-import InsightsPage from "./components/InsightsPage";
-import ReportsPage from "./components/Reports/ReportsPage";
-import InspectionPage from "./components/InspectionPage";
-import ResourcesPage from "./components/ResourcesPage";
-import AboutPage from "./components/AboutPage";
-import Sitemap from "./components/Sitemap/Sitemap";
-import PublicRoute from "./components/PublicRoute";
 import ProtectedRoute from "./components/ProtectedRoute";
+import InsightsPage from "./components/InsightsPage";
+import ReportsPage from "./components/ReportsPage";
+import InspectionPage from "./components/InspectionPage";
+import AboutPage from "./components/AboutPage";
+import ResourcesPage from "./components/ResourcesPage";
 
+
+// Component to redirect if already logged in
+const PublicRoute = ({ user, children }) => {
+  if (user) {
+    return <Navigate to="/" replace />;
+  }
+  return children;
+};
 
 function App() {
   const [user, setUser] = useState(null);
@@ -40,13 +45,11 @@ function App() {
     // Check localStorage first for immediate authentication
     const storedUser = localStorage.getItem('user');
     console.log('🔍 App startup - Checking localStorage for user:', !!storedUser);
-    console.log('🌐 Current domain:', window.location.hostname);
     
     if (storedUser) {
       try {
         const userData = JSON.parse(storedUser);
         console.log('✅ User found in localStorage:', userData.email || userData.name || userData.fullName);
-        console.log('📊 User data structure:', Object.keys(userData));
         setUser(userData);
         setIsLoading(false);
         console.log('👤 User authenticated on startup:', !!userData);
@@ -97,19 +100,16 @@ function App() {
     if (isLoading) return; // Don't redirect while loading
     
     const currentPath = window.location.pathname;
-    const storedUser = localStorage.getItem('user');
-    const isAuthenticated = user || storedUser;
+    console.log('🔍 Auth redirect check - Path:', currentPath, 'User:', !!user, 'Loading:', isLoading);
     
-    console.log('🔍 Auth redirect check - Path:', currentPath, 'User:', !!user, 'StoredUser:', !!storedUser);
-    
-    if (isAuthenticated) {
-      // User is authenticated
+    if (user) {
+      console.log('✅ User is authenticated, checking redirect needs...');
       if (currentPath === '/login' || currentPath === '/signup') {
         console.log('🚀 Redirecting authenticated user from auth page to home');
         navigate('/', { replace: true });
       }
     } else {
-      // User is not authenticated
+      console.log('📝 User is not authenticated, checking if login needed...');
       if (currentPath !== '/login' && currentPath !== '/signup' && currentPath !== '/') {
         console.log('🚀 Redirecting unauthenticated user to login from:', currentPath);
         navigate('/login', { replace: true });
@@ -144,9 +144,8 @@ function App() {
   };
 
   return (
-    <HelmetProvider>
-      <ThemeProvider>
-        <Routes>
+    <ThemeProvider>
+      <Routes>
         {/* Public Routes - No Layout */}
         <Route path="/login" element={<PublicRoute user={user}><SignIn onLogin={handleLogin} /></PublicRoute>} />
         <Route path="/signup" element={<PublicRoute user={user}><SignIn onLogin={handleLogin} /></PublicRoute>} />
@@ -156,15 +155,6 @@ function App() {
           <ProtectedRoute user={user}>
             <Layout user={user} onLogout={handleLogout}>
               <LandingPage />
-            </Layout>
-          </ProtectedRoute>
-        } />
-
-        {/* About page - standalone */}
-        <Route path="/about" element={
-          <ProtectedRoute user={user}>
-            <Layout user={user} onLogout={handleLogout}>
-              <AboutPage />
             </Layout>
           </ProtectedRoute>
         } />
@@ -202,9 +192,6 @@ function App() {
 
         {/* Legacy Dashboard Route - Redirect to home */}
         <Route path="/dashboard" element={<Navigate to="/" replace />} />
-
-        {/* Sitemap Route - Public */}
-        <Route path="/sitemap.xml" element={<Sitemap />} />
 
         {/* Catch all route - redirect to login or home */}
         <Route path="*" element={
@@ -248,8 +235,7 @@ function App() {
           },
         }}
       />
-      </ThemeProvider>
-    </HelmetProvider>
+    </ThemeProvider>
   );
 };
 

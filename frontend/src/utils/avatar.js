@@ -13,6 +13,11 @@ export const getNameFromEmail = (user) => {
     return user.displayName;
   }
   
+  // Try fullName field (from backend)
+  if (user.fullName && user.fullName !== "User") {
+    return user.fullName;
+  }
+  
   // Try name field
   if (user.name && user.name !== "User") {
     return user.name;

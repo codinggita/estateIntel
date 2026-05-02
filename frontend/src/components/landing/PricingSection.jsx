@@ -96,14 +96,14 @@ const PricingSection = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: i * 0.1, duration: 0.6 }}
-              className="flex"
+              className="grow"
             >
               <Card 
-                className={`relative flex flex-col p-10 h-full w-full border-none shadow-2xl transition-all duration-500 hover:-translate-y-4 ${
+                className="w-150 h-150 bg-linear-to-br from-card via-card/50 to-bg border border-white/10 rounded-2xl p-8 shadow-xl transition-all duration-500 hover:-translate-y-4 ${
                   plan.highlight 
                     ? 'bg-primary text-white scale-105 z-10 shadow-primary/30 ring-4 ring-primary/20' 
                     : 'bg-card text-text border border-white/5'
-                }`}
+                }"
               >
                 {plan.highlight && (
                   <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-accent text-white text-[10px] font-black uppercase tracking-[0.2em] px-6 py-2 rounded-full shadow-lg">

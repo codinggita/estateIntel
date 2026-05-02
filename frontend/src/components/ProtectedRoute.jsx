@@ -2,35 +2,29 @@ import React, { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 
 const ProtectedRoute = ({ user, children }) => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     console.log('🔍 ProtectedRoute - Checking authentication...');
     
-    // Check authentication immediately
+    // Check both user prop and localStorage for authentication
     const checkAuth = () => {
       const storedUser = localStorage.getItem('user');
-      const isAuthenticated = user || storedUser;
-      
       console.log('🔍 ProtectedRoute - User prop:', !!user, 'LocalStorage:', !!storedUser);
-      console.log('🌐 Current domain:', window.location.hostname);
       
-      if (storedUser) {
-        try {
-          const userData = JSON.parse(storedUser);
-          console.log('📊 Stored user data structure:', Object.keys(userData));
-          console.log('📧 Stored user email:', userData.email || userData.name || 'No email');
-        } catch (error) {
-          console.error('❌ Error parsing stored user in ProtectedRoute:', error);
-        }
+      if (user || storedUser) {
+        setIsAuthenticated(true);
+        console.log('✅ ProtectedRoute - User is authenticated');
+      } else {
+        setIsAuthenticated(false);
+        console.log('❌ ProtectedRoute - User is not authenticated');
       }
-      
       setIsLoading(false);
     };
 
-    // Small delay to ensure localStorage is ready
-    const timer = setTimeout(checkAuth, 50);
-    return () => clearTimeout(timer);
+    // Check immediately, no delay needed
+    checkAuth();
   }, [user]);
 
   if (isLoading) {
@@ -45,13 +39,8 @@ const ProtectedRoute = ({ user, children }) => {
     );
   }
 
-  const storedUser = localStorage.getItem('user');
-  const isAuthenticated = user || storedUser;
-
   if (!isAuthenticated) {
     console.log('🚀 ProtectedRoute - Redirecting to login (not authenticated)');
-    console.log('🔍 Debug - User prop exists:', !!user);
-    console.log('🔍 Debug - localStorage exists:', !!storedUser);
     return <Navigate to="/login" replace />;
   }
 

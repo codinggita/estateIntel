@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
+import logger from '../utils/logger';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import {
@@ -47,24 +48,31 @@ import {
 const InsightsPage = () => {
    const [selectedCity, setSelectedCity] = useState("Mumbai");
    const [data, setData] = useState(null);
-   const [loading, setLoading] = useState(true);
+   const [loading, setLoading] = useState(false);
    const [searchQuery, setSearchQuery] = useState("");
    const [generatingReport, setGeneratingReport] = useState(false);
    const [report, setReport] = useState(null);
    const [showReport, setShowReport] = useState(false);
    const [progress, setProgress] = useState("");
 
-   useEffect(() => {
-      fetchCityData(selectedCity);
-   }, [selectedCity]);
-
    const fetchCityData = async (city) => {
       setLoading(true);
       try {
-         const response = await axios.get(`http://localhost:5000/api/insights/${city}`);
+         const controller = new AbortController();
+         const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
+
+         const response = await axios.get(`/api/insights/${city}`, {
+            signal: controller.signal
+         });
+
+         clearTimeout(timeoutId);
          setData(response.data);
       } catch (error) {
-         console.error("Link broken");
+         if (error.name === 'AbortError') {
+            logger.warn('City data fetch timeout');
+         } else {
+            logger.error('City data fetch failed:', error.message);
+         }
       } finally {
          setLoading(false);
       }
@@ -73,18 +81,30 @@ const InsightsPage = () => {
    const handleSearchSubmit = (e) => {
       e.preventDefault();
       if (searchQuery.trim()) {
-         handleGenerateReport(searchQuery);
+         setSelectedCity(searchQuery);
+         fetchCityData(searchQuery);
       }
    };
 
    const handleGenerateReport = async (location = selectedCity) => {
       setGeneratingReport(true);
       try {
-         const response = await axios.get(`http://localhost:5000/api/insights/report/${location}`);
+         const controller = new AbortController();
+         const timeoutId = setTimeout(() => controller.abort(), 12000); // 12 second timeout
+
+         const response = await axios.get(`/api/insights/report/${location}`, {
+            signal: controller.signal
+         });
+
+         clearTimeout(timeoutId);
          setReport(response.data);
          setShowReport(true);
       } catch (error) {
-         console.error("Audit failure");
+         if (error.name === 'AbortError') {
+            logger.warn('Report generation timeout');
+         } else {
+            logger.error('Report generation failed:', error.message);
+         }
       } finally {
          setGeneratingReport(false);
       }
@@ -127,9 +147,51 @@ const InsightsPage = () => {
       );
    }
 
-   if (!data) return <div className="pt-32 text-center text-slate-500 font-bold">Analysis system unavailable.</div>;
+   if (generatingReport) {
+      return (
+         <div className="flex flex-col items-center justify-center min-h-screen bg-bg">
+            <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+            <p className="mt-6 text-[10px] font-black text-slate-400 tracking-widest uppercase">{progress || 'Generating Deep Audit...'}</p>
+         </div>
+      );
+   }
 
-   const { property, overallScore, verdict } = data;
+   if (!data && !(showReport && report)) return (
+      <div className="min-h-screen bg-bg font-sans">
+         <div className="pt-32 pb-16 px-6 max-w-7xl mx-auto">
+            <div className="max-w-4xl mx-auto text-center mb-16">
+               <div className="inline-flex items-center gap-2 mb-4 bg-card px-4 py-1.5 rounded-full border border-white/10 shadow-sm">
+                  <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></div>
+                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest leading-none">Global Sentiment Active</span>
+               </div>
+               <h2 className="text-6xl font-black text-text mb-8 tracking-tighter italic">
+                  EstateIntel <span className="text-indigo-600 italic">Audit Hub.</span>
+               </h2>
+               <p className="text-slate-500 font-bold mb-8">Search any city or neighborhood to generate a deep real estate audit.</p>
+               <form onSubmit={handleSearchSubmit} className="relative group max-w-2xl mx-auto">
+                  <div className="flex items-center bg-card border border-white/10 rounded-[2rem] shadow-xl overflow-hidden p-1.5 group-focus-within:border-primary transition-all">
+                     <div className="pl-6 text-slate-400">
+                        <Search size={22} />
+                     </div>
+                     <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="Analyze neighborhood context..."
+                        className="flex-grow py-4 px-4 text-xl font-bold text-text outline-none placeholder:text-subtext/40 bg-transparent"
+                     />
+                     <button type="submit" disabled={generatingReport} className="bg-slate-900 text-white px-10 py-5 rounded-[1.5rem] font-bold text-sm uppercase tracking-widest hover:bg-indigo-600 transition-all active:scale-95">
+                        {generatingReport ? <Loader2 className="animate-spin" size={18} /> : 'Request'}
+                     </button>
+                  </div>
+               </form>
+            </div>
+         </div>
+      </div>
+   );
+
+   // Safe destructuring with fallbacks
+   const { property = {}, overallScore = 0, verdict = "N/A" } = data || {};
 
    return (
       <div className="min-h-screen bg-bg font-sans selection:bg-primary/10">
@@ -170,8 +232,8 @@ const InsightsPage = () => {
                         key={city}
                         onClick={() => setSelectedCity(city)}
                         className={`px-8 py-3 rounded-2xl font-bold text-xs transition-all border ${selectedCity === city
-                              ? "bg-indigo-600 text-white border-indigo-600 shadow-xl"
-                              : "bg-white text-slate-500 border-slate-200"
+                           ? "bg-indigo-600 text-white border-indigo-600 shadow-xl"
+                           : "bg-white text-slate-500 border-slate-200"
                            }`}
                      >
                         {city}
@@ -353,15 +415,15 @@ const InsightsPage = () => {
                         <section className="mb-20">
                            <div className="text-[10px] font-black text-indigo-600 uppercase tracking-[0.5em] mb-12 italic">Deep-Spectral Analytics</div>
                            <div className="space-y-8">
-                              {Object.entries(report.multiScores).map(([key, item]) => (
+                              {Object.entries(report.scores || {}).map(([key, value]) => (
                                  <div key={key} className="flex items-center gap-12 border-b-2 border-slate-50 pb-8 last:border-0">
                                     <div className="w-56">
                                        <div className="text-sm font-black text-slate-900 uppercase tracking-[0.2em] mb-1 italic leading-none">{key} Matrix</div>
                                     </div>
                                     <div className="flex-grow h-4 bg-slate-50 rounded-full overflow-hidden">
-                                       <div className="h-full bg-slate-900" style={{ width: `${item.score * 10}%` }}></div>
+                                       <div className="h-full bg-slate-900" style={{ width: `${parseFloat(value) * 10}%` }}></div>
                                     </div>
-                                    <div className="text-4xl font-black text-slate-900 w-24 text-right tabular-nums italic leading-none">{item.score}/10</div>
+                                    <div className="text-4xl font-black text-slate-900 w-24 text-right tabular-nums italic leading-none">{parseFloat(value).toFixed(1)}/10</div>
                                  </div>
                               ))}
                            </div>

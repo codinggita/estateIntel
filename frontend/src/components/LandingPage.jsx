@@ -16,10 +16,10 @@ const LandingPage = () => {
     "@context": "https://schema.org",
     "@type": "Organization",
     "name": "EstateIntel",
-    "url": "https://estateintel-5.onrender.com",
+    "url": "https://estateintel-data-6cfs.onrender.com",
     "description": "Leading real estate platform in Ahmedabad, Gujarat offering verified property listings, luxury homes, apartments for rent, flats for sale, commercial property, and affordable housing solutions",
-    "logo": "https://estateintel-5.onrender.com/logo.png",
-    "image": "https://estateintel-5.onrender.com/og-home.jpg",
+    "logo": "https://estateintel-data-6cfs.onrender.com/logo.png",
+    "image": "https://estateintel-data-6cfs.onrender.com/og-home.jpg",
     "address": {
       "@type": "PostalAddress",
       "addressLocality": "Ahmedabad",
@@ -62,17 +62,17 @@ const LandingPage = () => {
     "@context": "https://schema.org",
     "@type": "WebSite",
     "name": "EstateIntel",
-    "url": "https://estateintel-5.onrender.com",
+    "url": "https://estateintel-data-6cfs.onrender.com",
     "description": "Best real estate platform in Ahmedabad, Gujarat. Buy property online, find apartments for rent, luxury homes, flats for sale, commercial property, and verified property listings",
     "potentialAction": {
       "@type": "SearchAction",
-      "target": "https://estateintel-5.onrender.com/search?q={search_term_string}",
+      "target": "https://estateintel-data-6cfs.onrender.com/search?q={search_term_string}",
       "query-input": "required name=search_term_string"
     },
     "publisher": {
       "@type": "Organization",
       "name": "EstateIntel",
-      "url": "https://estateintel-5.onrender.com"
+      "url": "https://estateintel-data-6cfs.onrender.com"
     }
   };
 
@@ -128,9 +128,9 @@ const LandingPage = () => {
       <SEO 
         title="Smart Real Estate Platform - Buy Property, Rent Apartments, Luxury Homes"
         description="Discover premium real estate listings, buy property, rent apartments, and find luxury homes with EstateIntel. Your trusted platform for verified property listings and real estate investment opportunities."
-        keywords="EstateIntel, real estate platform, buy property online, apartments for rent, flats for sale, luxury homes, commercial property, verified property listings, affordable housing, property investment, real estate near me, best property website, homes for sale, rental properties, real estate in Ahmedabad, Gujarat property listings, smart property decisions, real estate analytics, property investment platform, buy property, rent apartment, property management, real estate experts, verified listings, property search, real estate services, property portal"
-        canonicalUrl="https://estateintel-5.onrender.com"
-        ogImage="https://estateintel-5.onrender.com/og-home.jpg"
+        keywords="EstateIntel, real estate platform, buy property online, apartments for rent, flats for sale, luxury homes, commercial property, verified property listings, affordable housing, property investment, real estate near me, best property website, homes for sale, rental properties, real estate in Ahmedabad, Gujarat property listings, smart property decisions, real estate analytics, property investment platform, buy property, rent apartment, property management, real estate experts, verified listings, property search, real estate services, property portal, home inspection India, property audit report, neighborhood intelligence, real estate data science, property valuation tool India, verified property dealers Ahmedabad, buy house in Gujarat, real estate due diligence"
+        canonicalUrl="https://estateintel-data-6cfs.onrender.com"
+        ogImage="https://estateintel-data-6cfs.onrender.com/og-home.jpg"
         schemaMarkup={organizationSchema}
         additionalSchemas={[websiteSchema, faqSchema]}
       />

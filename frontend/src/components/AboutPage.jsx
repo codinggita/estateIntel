@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import SEO from './SEO/SEO';
 import { 
   MapPin, 
@@ -283,9 +284,11 @@ const AboutPage = () => {
       <SectionWrapper className="text-center">
         <Card variant="primary" className="py-16 px-8 max-w-4xl mx-auto">
           <h2 className="text-4xl font-bold mb-8 text-white">Ready to analyze your next property?</h2>
-          <Button variant="white" className="h-16 px-10 text-xl rounded-full">
-            Start Analysing <ArrowRight size={24} className="ml-2" />
-          </Button>
+          <Link to="/app/map">
+            <Button variant="white" className="h-16 px-10 text-xl rounded-full">
+              Start Analysing <ArrowRight size={24} className="ml-2" />
+            </Button>
+          </Link>
         </Card>
       </SectionWrapper>
     </main>

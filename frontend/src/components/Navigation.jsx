@@ -31,7 +31,9 @@ const Navigation = ({ user, onLogout }) => {
 
   return (
     <nav 
-      className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-300 ${
+      role="navigation"
+      aria-label="Main navigation"
+      className={`fixed top-0 left-0 right-0 z-100 transition-all duration-300 ${
         isScrolled 
           ? 'py-3 bg-bg/80 backdrop-blur-xl border-b border-white/10 shadow-lg' 
           : 'py-6 bg-transparent'
@@ -39,10 +41,15 @@ const Navigation = ({ user, onLogout }) => {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2 group">
+        <Link 
+          to="/" 
+          className="flex items-center gap-2 group"
+          aria-label="EstateIntel Home"
+        >
           <motion.div 
-            whileHover={{ rotate: 10, scale: 1.1 }}
+            whileHover={{ rotate: 10, scale:1.1 }}
             className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white shadow-lg shadow-primary/20"
+            aria-hidden="true"
           >
             <Shield size={24} fill="currentColor" />
           </motion.div>
@@ -63,6 +70,8 @@ const Navigation = ({ user, onLogout }) => {
                   isActive ? 'text-primary' : 'text-subtext'
                 }`
               }
+              aria-label={`Navigate to ${link.name}`}
+              aria-current={link.path === '/' ? 'page' : undefined}
             >
               {({ isActive }) => (
                 <>
@@ -71,6 +80,7 @@ const Navigation = ({ user, onLogout }) => {
                     <motion.div 
                       layoutId="nav-underline"
                       className="absolute -bottom-1 left-0 right-0 h-0.5 bg-primary rounded-full"
+                      aria-hidden="true"
                     />
                   )}
                 </>
@@ -85,7 +95,8 @@ const Navigation = ({ user, onLogout }) => {
           <button 
             onClick={toggleTheme}
             className="p-2.5 rounded-xl bg-card border border-white/10 text-text hover:text-primary transition-all active:scale-90"
-            aria-label="Toggle theme"
+            aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} theme`}
+            type="button"
           >
             {theme === 'light' ? <Moon size={20} /> : <Sun size={20} />}
           </button>
@@ -94,10 +105,16 @@ const Navigation = ({ user, onLogout }) => {
           <div className="hidden lg:flex items-center justify-end">
             {!user ? (
               <div className="flex items-center gap-3">
-                <Link to="/login">
+                <Link 
+                  to="/signin"
+                  aria-label="Sign in to EstateIntel"
+                >
                   <Button variant="ghost" className="text-sm">Sign in</Button>
                 </Link>
-                <Link to="/signup">
+                <Link 
+                  to="/signup"
+                  aria-label="Sign up for EstateIntel"
+                >
                   <Button className="text-sm rounded-full">Explore Now</Button>
                 </Link>
               </div>
@@ -107,11 +124,12 @@ const Navigation = ({ user, onLogout }) => {
                   <p className="text-sm font-medium text-text">{getNameFromEmail(user)}</p>
                   <p className="text-xs text-subtext">{user.email}</p>
                 </div>
-                <Avatar user={user} size="md" />
+                <Avatar user={user} size="md" aria-label={`User avatar for ${user.email}`} />
                 <button 
                   onClick={onLogout}
                   className="p-2 bg-card border border-white/10 text-text rounded-full hover:bg-primary hover:text-white transition-colors"
-                  title="Sign Out"
+                  aria-label="Sign out from EstateIntel"
+                  type="button"
                 >
                   <LogOut size={16} />
                 </button>
@@ -123,6 +141,10 @@ const Navigation = ({ user, onLogout }) => {
           <button 
             className="xl:hidden p-2 sm:p-2.5 rounded-xl bg-card border border-white/10 text-text"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            aria-label="Toggle mobile menu"
+            aria-expanded={isMobileMenuOpen}
+            aria-controls="mobile-menu"
+            type="button"
           >
             {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
@@ -137,6 +159,9 @@ const Navigation = ({ user, onLogout }) => {
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             className="xl:hidden bg-card border-b border-white/10 overflow-hidden"
+            id="mobile-menu"
+            role="navigation"
+            aria-label="Mobile navigation menu"
           >
             <div className="px-4 sm:px-6 py-6 sm:py-8 flex flex-col gap-4 sm:gap-6">
               {navLinks.map((link) => (
@@ -145,6 +170,7 @@ const Navigation = ({ user, onLogout }) => {
                   to={link.path}
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="text-lg font-bold text-text hover:text-primary transition-colors"
+                  aria-label={`Navigate to ${link.name}`}
                 >
                   {link.name}
                 </NavLink>
@@ -152,10 +178,18 @@ const Navigation = ({ user, onLogout }) => {
               <hr className="border-white/5" />
               {!user ? (
                 <div className="flex flex-col gap-4">
-                  <Link to="/login" onClick={() => setIsMobileMenuOpen(false)}>
+                  <Link 
+                    to="/signin" 
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    aria-label="Sign in to EstateIntel"
+                  >
                     <Button variant="outline" fullWidth>Sign in</Button>
                   </Link>
-                  <Link to="/signup" onClick={() => setIsMobileMenuOpen(false)}>
+                  <Link 
+                    to="/signup" 
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    aria-label="Sign up for EstateIntel"
+                  >
                     <Button fullWidth>Get Started</Button>
                   </Link>
                 </div>

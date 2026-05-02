@@ -59,7 +59,7 @@ const InspectionPage = () => {
     const loadingToast = toastNotifications.showLoading('Cancelling booking...');
     
     try {
-      await axios.delete(`http://localhost:5000/api/inspection/book/${bookingId}`);
+      await axios.delete(`/api/inspection/book/${bookingId}`);
       toastNotifications.dismiss(loadingToast);
       toastNotifications.bookingCancelled(bookingId);
       
@@ -78,7 +78,7 @@ const InspectionPage = () => {
     const loadingToast = toastNotifications.showLoading('Rescheduling booking...');
     
     try {
-      const response = await axios.put(`http://localhost:5000/api/inspection/book/${bookingId}`, {
+      const response = await axios.put(`/api/inspection/book/${bookingId}`, {
         preferredDate: newDate,
         preferredTime: newTime
       });
@@ -165,7 +165,7 @@ Contact: ${bookingDetails.name} | ${bookingDetails.phone}
         toastNotifications.paymentSuccessful();
         
         // Update booking status to paid
-        const response = await axios.put(`http://localhost:5000/api/inspection/book/${bookingId}/payment`, {
+        const response = await axios.put(`/api/inspection/book/${bookingId}/payment`, {
           status: 'paid',
           amount: amount,
           paymentMethod: 'online'
@@ -210,7 +210,7 @@ Contact: ${bookingDetails.name} | ${bookingDetails.phone}
     const loadingToast = toastNotifications.showLoading('Creating your booking...');
     
     try {
-      const response = await axios.post('http://localhost:5000/api/inspection/book', values, {
+      const response = await axios.post('/api/inspection/book', values, {
         headers: {
           'Content-Type': 'application/json'
         }
