@@ -21,7 +21,7 @@ const Analytics = () => {
     // Google Search Console verification
     const meta = document.createElement('meta');
     meta.name = 'google-site-verification';
-    meta.content = 'YOUR_VERIFICATION_CODE';
+    meta.content = 'MZh6sd4YsdLNP89bFlWrM4ef-gceJu0rRU6teCSt7gA';
     document.head.appendChild(meta);
 
     return () => {
@@ -43,7 +43,7 @@ const Analytics = () => {
       </script>
       
       {/* Google Search Console */}
-      <meta name="google-site-verification" content="YOUR_VERIFICATION_CODE" />
+      <meta name="google-site-verification" content="MZh6sd4YsdLNP89bFlWrM4ef-gceJu0rRU6teCSt7gA" />
       
       {/* Bing Webmaster Tools */}
       <meta name="msvalidate.01" content="YOUR_BING_VERIFICATION_CODE" />

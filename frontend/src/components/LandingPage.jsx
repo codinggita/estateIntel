@@ -1,5 +1,6 @@
 import React from 'react';
 import SEO from './SEO/SEO';
+import Analytics from './SEO/Analytics';
 import Hero from './landing/Hero';
 import Solutions from './landing/Solutions';
 import Features from './landing/Features';
@@ -53,6 +54,7 @@ const LandingPage = () => {
         ogImage="https://estateintel-5.onrender.com/og-home.jpg"
         schemaMarkup={organizationSchema}
       />
+      <Analytics />
       <main className="bg-bg overflow-x-hidden">
         <header>
           <h1 className="sr-only">EstateIntel - Smart Real Estate Platform</h1>
