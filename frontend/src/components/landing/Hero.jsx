@@ -45,7 +45,7 @@ const Hero = () => {
             <div className="flex -space-x-2">
               {[1, 2, 3, 4].map(i => (
                 <div key={i} className="w-6 sm:w-8 h-6 sm:h-8 rounded-full border-2 border-card bg-slate-200 overflow-hidden">
-                  <img src={`https://i.pravatar.cc/100?img=${i+10}`} alt={`User avatar ${i}`} loading="lazy" decoding="async" width="32" height="32" />
+                  <img src={`https://i.pravatar.cc/100?img=${i+10}`} alt={`Verified User ${i}`} loading="lazy" decoding="async" width="32" height="32" />
                 </div>
               ))}
             </div>
@@ -111,8 +111,12 @@ const Hero = () => {
             </div>
             <img 
               src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=1200" 
-              alt="EstateIntel Data Dashboard" 
+              alt="EstateIntel Data Dashboard showing property analytics and neighborhood insights" 
               className="w-full h-auto object-cover rounded-2xl shadow-inner mt-6"
+              loading="lazy"
+              decoding="async"
+              width="1200"
+              height="800"
             />
           </div>
           

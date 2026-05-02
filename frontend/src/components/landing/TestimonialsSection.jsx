@@ -61,8 +61,12 @@ const TestimonialsSection = () => {
               <div className="flex items-center gap-4">
                 <img 
                   src={t.image} 
-                  alt={t.name} 
+                  alt={`Testimonial from ${t.name}`} 
                   className="w-12 h-12 rounded-full border-2 border-primary/20 shadow-sm"
+                  loading="lazy"
+                  decoding="async"
+                  width="48"
+                  height="48"
                 />
                 <div>
                   <h4 className="font-bold text-text">{t.name}</h4>

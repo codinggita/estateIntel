@@ -2,43 +2,4 @@ User-agent: *
 Allow: /
 
 # Sitemap
-Sitemap: https://estateintel-5.onrender.com/sitemap.xml
-
-# Block common non-content paths
-Disallow: /api/
-Disallow: /login
-Disallow: /signup
-Disallow: /settings
-Disallow: /admin
-Disallow: /private
-Disallow: /dashboard
-
-# Allow search engines to crawl main content
-Allow: /
-Allow: /about
-Allow: /app/
-Allow: /properties/
-Allow: /search
-
-# Crawl delay for better server performance
-Crawl-delay: 1
-
-# Specific instructions for major search engines
-User-agent: Googlebot
-Allow: /
-Crawl-delay: 0.5
-
-User-agent: Bingbot
-Allow: /
-Crawl-delay: 1
-
-User-agent: Slurp
-Allow: /
-Crawl-delay: 1
-Allow: /app/map
-Allow: /app/insights
-Allow: /app/reports
-Allow: /app/inspection
-Allow: /app/resources
-# Crawl delay for respectful crawling
-Crawl-delay: 1
+Sitemap: https://estateintel-data-6cfs.onrender.com/sitemap.xml
