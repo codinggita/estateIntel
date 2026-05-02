@@ -87,7 +87,8 @@ const SignIn = ({ onLogin }) => {
       setServerError('');
       try {
         const endpoint = view === 'login' ? '/api/user/login' : '/api/user/register';
-        const response = await fetch(`http://localhost:5000${endpoint}`, {
+        const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+        const response = await fetch(`${backendUrl}${endpoint}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(values)
@@ -102,20 +103,23 @@ const SignIn = ({ onLogin }) => {
         // Store user data in localStorage
         localStorage.setItem('user', JSON.stringify(data.user));
         console.log('💾 User data stored in localStorage:', data.user);
+        console.log('🔍 Current path before redirect:', window.location.pathname);
         
         // Call parent login handler
         onLogin(data.user);
         console.log('📞 Called onLogin handler, waiting for redirect...');
         
-        // React Router will handle the redirect via App.jsx useEffect
-        // Add a small delay to ensure state is updated before potential manual redirect
+        // Force redirect after a short delay to ensure state is updated
         setTimeout(() => {
           const currentPath = window.location.pathname;
+          console.log('🔍 Path after delay:', currentPath, 'User in localStorage:', !!localStorage.getItem('user'));
           if (currentPath === '/login' || currentPath === '/signup') {
             console.log('🚀 Manual redirect fallback - navigating to home');
             navigate('/', { replace: true });
+          } else {
+            console.log('✅ Already redirected or on different page');
           }
-        }, 200);
+        }, 300);
       } catch (err) {
         setServerError(err.message);
       } finally {

@@ -2,10 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
 
 const ProtectedRoute = ({ user, children }) => {
-  const [isLoading, setIsLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    console.log('🔍 ProtectedRoute - Checking authentication...');
+    
     // Check both user prop and localStorage for authentication
     const checkAuth = () => {
       const storedUser = localStorage.getItem('user');
@@ -13,19 +15,20 @@ const ProtectedRoute = ({ user, children }) => {
       
       if (user || storedUser) {
         setIsAuthenticated(true);
-        setIsLoading(false);
+        console.log('✅ ProtectedRoute - User is authenticated');
       } else {
         setIsAuthenticated(false);
-        setIsLoading(false);
+        console.log('❌ ProtectedRoute - User is not authenticated');
       }
+      setIsLoading(false);
     };
 
-    // Small delay to ensure localStorage is ready
-    const timer = setTimeout(checkAuth, 100);
-    return () => clearTimeout(timer);
+    // Check immediately, no delay needed
+    checkAuth();
   }, [user]);
 
   if (isLoading) {
+    console.log('⏳ ProtectedRoute - Loading authentication state...');
     return (
       <div className="min-h-screen flex items-center justify-center bg-bg text-text">
         <div className="text-center">
@@ -41,6 +44,7 @@ const ProtectedRoute = ({ user, children }) => {
     return <Navigate to="/login" replace />;
   }
 
+  console.log('✅ ProtectedRoute - Rendering protected content');
   return children;
 };
 

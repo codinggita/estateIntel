@@ -12,9 +12,8 @@ export const handleGoogleLogin = async () => {
     console.log('🔐 Starting Google sign-in...');
     
     // Determine backend URL based on environment
-    const backendUrl = window.location.hostname === 'localhost' 
-      ? 'http://localhost:5000' 
-      : 'https://estateintel-backend.onrender.com'; // Replace with your production backend URL
+    const backendUrl = import.meta.env.VITE_API_URL || 
+      (window.location.hostname === 'localhost' ? 'http://localhost:5000' : 'https://estateintel-backend.onrender.com');
     
     console.log('🌐 Using backend URL:', backendUrl);
     

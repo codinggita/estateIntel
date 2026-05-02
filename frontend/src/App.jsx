@@ -36,6 +36,7 @@ function App() {
 
   // Initialize user from localStorage on app startup
   useEffect(() => {
+    console.log('🚀 App initializing...');
     document.title = "EstateIntel - Smart Property Decisions";
     if (window.location.hash) {
       window.history.replaceState(null, null, window.location.pathname);
@@ -48,15 +49,17 @@ function App() {
     if (storedUser) {
       try {
         const userData = JSON.parse(storedUser);
-        console.log('✅ User found in localStorage:', userData.email || userData.name);
+        console.log('✅ User found in localStorage:', userData.email || userData.name || userData.fullName);
         setUser(userData);
         setIsLoading(false);
+        console.log('👤 User authenticated on startup:', !!userData);
       } catch (error) {
         console.error('❌ Error parsing stored user data:', error);
         localStorage.removeItem('user');
         setIsLoading(false);
       }
     } else {
+      console.log('📝 No user found in localStorage');
       setIsLoading(false);
     }
   }, []);
@@ -97,18 +100,18 @@ function App() {
     if (isLoading) return; // Don't redirect while loading
     
     const currentPath = window.location.pathname;
-    console.log('� Auth redirect check - Path:', currentPath, 'User:', !!user);
+    console.log('🔍 Auth redirect check - Path:', currentPath, 'User:', !!user, 'Loading:', isLoading);
     
     if (user) {
-      // User is authenticated
+      console.log('✅ User is authenticated, checking redirect needs...');
       if (currentPath === '/login' || currentPath === '/signup') {
-        console.log('� Redirecting authenticated user from auth page to home');
+        console.log('🚀 Redirecting authenticated user from auth page to home');
         navigate('/', { replace: true });
       }
     } else {
-      // User is not authenticated
+      console.log('📝 User is not authenticated, checking if login needed...');
       if (currentPath !== '/login' && currentPath !== '/signup' && currentPath !== '/') {
-        console.log('🚀 Redirecting unauthenticated user to login');
+        console.log('🚀 Redirecting unauthenticated user to login from:', currentPath);
         navigate('/login', { replace: true });
       }
     }
