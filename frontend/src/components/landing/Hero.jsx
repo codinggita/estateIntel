@@ -110,7 +110,7 @@ const Hero = () => {
               <div className="w-2.5 h-2.5 rounded-full bg-green-500/50"></div>
             </div>
             <img 
-              src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=1200" 
+              src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&q=80&w=1200&fm=webp" 
               alt="EstateIntel Data Dashboard showing property analytics and neighborhood insights" 
               className="w-full h-auto object-cover rounded-2xl shadow-inner mt-6"
               loading="lazy"

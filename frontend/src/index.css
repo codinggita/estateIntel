@@ -2,12 +2,12 @@
 
 :root {
   --color-primary: #4F46E5;
-  --color-secondary: #ADD8E6;
-  --color-accent: #22C55E;
+  --color-secondary: #0EA5E9; /* Darkened from lightblue for better contrast */
+  --color-accent: #16A34A;   /* Darkened for better contrast */
   --color-bg: #F8FAFC;
   --color-card: #FFFFFF;
   --color-text: #0F172A;
-  --color-subtext: #64748B;
+  --color-subtext: #475569; /* Darkened from #64748B for AA compliance (4.5:1+) */
   
   --font-sans: "Inter", "Geist", "system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "Helvetica Neue", "Arial", "sans-serif";
   --radius-lg: 0.5rem;
@@ -18,7 +18,7 @@
 
 .dark {
   --color-primary: #818CF8;
-  --color-secondary: #ADD8E6;
+  --color-secondary: #38BDF8;
   --color-accent: #4ADE80;
   --color-bg: #050810;
   --color-card: #0D111C;
