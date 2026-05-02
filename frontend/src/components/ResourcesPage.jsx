@@ -99,15 +99,7 @@ const ResourcesPage = () => {
     }
   };
 
-  // Fetch whenever location or filters change (debounced 400ms)
-  useEffect(() => {
-    if (!userLocation) return;
-    clearTimeout(fetchRef.current);
-    fetchRef.current = setTimeout(fetchResources, 400);
-    return () => clearTimeout(fetchRef.current);
-  }, [userLocation, filters.type, filters.radius]);
-
-  // Search is purely client-side, no re-fetch needed
+  // Search is both backend (for new data) and client-side (for instant feedback)
   const displayedResources = filters.search
     ? resources.filter(r =>
         r.name.toLowerCase().includes(filters.search.toLowerCase()) ||
@@ -115,6 +107,16 @@ const ResourcesPage = () => {
         r.type.toLowerCase().includes(filters.search.toLowerCase())
       )
     : resources;
+
+  // Fetch whenever location or filters change
+  useEffect(() => {
+    if (!userLocation) return;
+    clearTimeout(fetchRef.current);
+    // Use longer debounce for search to avoid excessive API calls
+    const debounceTime = filters.search ? 800 : 400;
+    fetchRef.current = setTimeout(fetchResources, debounceTime);
+    return () => clearTimeout(fetchRef.current);
+  }, [userLocation, filters.type, filters.radius, filters.search]);
 
   const handleMarkerClick = (resource) => {
     setSelectedId(resource.id);
