@@ -1,6 +1,7 @@
 import React from 'react';
 import { Search, ShieldCheck, ArrowRight, Droplets, Building2, Map } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { SectionWrapper, Heading } from '../ui/Layout';
 import Card from '../ui/Card';
 import Button from '../ui/Button';
@@ -61,9 +62,11 @@ const Solutions = () => {
                 </li>
               ))}
             </ul>
-            <Button variant="primary" fullWidth className="h-14 rounded-2xl">
-              Get Neighborhood Report
-            </Button>
+            <Link to="/app/map">
+              <Button variant="primary" fullWidth className="h-14 rounded-2xl">
+                Get Neighborhood Report
+              </Button>
+            </Link>
           </Card>
         </motion.div>
 
@@ -92,9 +95,11 @@ const Solutions = () => {
                 </li>
               ))}
             </ul>
-            <Button variant="secondary" fullWidth className="h-14 rounded-2xl">
-              Book Property Audit
-            </Button>
+            <Link to="/app/inspection">
+              <Button variant="secondary" fullWidth className="h-14 rounded-2xl">
+                Book Property Audit
+              </Button>
+            </Link>
           </Card>
         </motion.div>
       </motion.div>

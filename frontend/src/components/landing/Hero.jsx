@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Map, ArrowRight, ShieldCheck, Star } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import Button from '../ui/Button';
 import { SectionWrapper } from '../ui/Layout';
 
@@ -69,14 +70,18 @@ const Hero = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-4">
-            <Button className="h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg rounded-2xl group">
-              <Map size={20} className="group-hover:rotate-12 transition-transform" />
-              Get Neighborhood Report
-            </Button>
-            <Button variant="secondary" className="h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg rounded-2xl group">
-              Book Inspection
-              <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
-            </Button>
+            <Link to="/app/map">
+              <Button className="h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg rounded-2xl group w-full sm:w-auto">
+                <Map size={20} className="group-hover:rotate-12 transition-transform" />
+                Get Neighborhood Report
+              </Button>
+            </Link>
+            <Link to="/app/inspection">
+              <Button variant="secondary" className="h-12 sm:h-14 px-6 sm:px-8 text-base sm:text-lg rounded-2xl group w-full sm:w-auto">
+                Book Inspection
+                <ArrowRight size={20} className="group-hover:translate-x-1 transition-transform" />
+              </Button>
+            </Link>
           </div>
 
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-6 pt-4 text-subtext">

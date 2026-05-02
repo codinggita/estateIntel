@@ -1,6 +1,7 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown, Home, Building, DollarSign, MapPin, Search } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const FAQSection = () => {
   const faqs = [
@@ -123,9 +124,11 @@ const FAQSection = () => {
             <p className="mb-4 sm:mb-6 text-primary/90 text-sm sm:text-base">
               Our real estate experts are here to help you make the best property decisions
             </p>
-            <button className="bg-white text-primary px-6 sm:px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors text-sm sm:text-base">
-              Contact Our Experts
-            </button>
+            <Link to="/contact">
+              <button className="bg-white text-primary px-6 sm:px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors text-sm sm:text-base">
+                Contact Our Experts
+              </button>
+            </Link>
           </div>
         </motion.div>
       </div>
