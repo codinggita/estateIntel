@@ -49,7 +49,7 @@ const LandingPage = () => {
       <SEO 
         title="Smart Real Estate Platform - Buy Property, Rent Apartments, Luxury Homes"
         description="Discover premium real estate listings, buy property, rent apartments, and find luxury homes with EstateIntel. Your trusted platform for verified property listings and real estate investment opportunities."
-        keywords="real estate, property listing, buy property, rent apartment, luxury homes, commercial property, flats for sale, real estate investment, affordable housing, property management, homes for sale, apartments for rent, verified property listings, best real estate platform, real estate near me, property search"
+        keywords="EstateIntel, real estate platform, smart property decisions, property listing, buy property, rent apartment, luxury homes, commercial property, flats for sale, real estate investment, affordable housing, property management, homes for sale, apartments for rent, verified property listings, best real estate platform, real estate near me, property search"
         canonicalUrl="https://estateintel-5.onrender.com"
         ogImage="https://estateintel-5.onrender.com/og-home.jpg"
         schemaMarkup={organizationSchema}

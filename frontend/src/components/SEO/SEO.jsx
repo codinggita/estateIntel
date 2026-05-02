@@ -12,7 +12,7 @@ const SEO = ({
 }) => {
   const siteTitle = title ? `${title} | EstateIntel` : 'EstateIntel - Smart Property Decisions';
   const siteDescription = description || 'Discover premium real estate listings, buy property, rent apartments, and find luxury homes with EstateIntel. Your trusted platform for verified property listings and real estate investment opportunities.';
-  const siteKeywords = keywords || 'real estate, property listing, buy property, rent apartment, luxury homes, commercial property, flats for sale, real estate investment, affordable housing, property management, homes for sale, apartments for rent, verified property listings';
+  const siteKeywords = keywords || 'EstateIntel, real estate, property listing, buy property, rent apartment, luxury homes, commercial property, flats for sale, real estate investment, affordable housing, property management, homes for sale, apartments for rent, verified property listings, best real estate platform, real estate near me, property search, smart property decisions, real estate analytics, property investment platform';
   const siteUrl = canonicalUrl || 'https://estateintel-5.onrender.com';
   const siteImage = ogImage || 'https://estateintel-5.onrender.com/og-image.jpg';
 
