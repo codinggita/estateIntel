@@ -7,7 +7,7 @@ const Layout = ({ user, onLogout, children }) => {
   return (
     <div className="min-h-screen bg-bg font-sans text-text transition-colors duration-300">
       <Navigation user={user} onLogout={onLogout} />
-      <main>
+      <main id="main-content" tabIndex="-1">
         {children || <Outlet />}
       </main>
     </div>
