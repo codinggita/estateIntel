@@ -1,4 +1,5 @@
 import React from 'react';
+import SEO from './SEO/SEO';
 import { 
   MapPin, 
   Map as MapIcon, 
@@ -36,8 +37,32 @@ const FeatureCard = ({ icon: Icon, title, description, index }) => (
 );
 
 const AboutPage = () => {
+  // Schema markup for about page
+  const aboutSchema = {
+    "@context": "https://schema.org",
+    "@type": "AboutPage",
+    "name": "About EstateIntel - Smart Real Estate Platform",
+    "description": "Learn about EstateIntel, your trusted real estate platform for property analysis, neighborhood insights, and smart investment decisions. Our team of experts provides verified property listings and comprehensive real estate intelligence.",
+    "url": "https://estateintel-5.onrender.com/about",
+    "mainEntity": {
+      "@type": "Organization",
+      "name": "EstateIntel",
+      "description": "Smart real estate platform for verified property listings and investment opportunities",
+      "url": "https://estateintel-5.onrender.com"
+    }
+  };
+
   return (
-    <main className="bg-bg">
+    <>
+      <SEO 
+        title="About EstateIntel - Smart Real Estate Platform | Property Analysis Experts"
+        description="Learn about EstateIntel, your trusted real estate platform for property analysis, neighborhood insights, and smart investment decisions. Our team provides verified property listings and comprehensive real estate intelligence."
+        keywords="about estateintel, real estate platform, property analysis, neighborhood insights, real estate experts, property investment, smart real estate, verified listings, property management, real estate team"
+        canonicalUrl="https://estateintel-5.onrender.com/about"
+        ogImage="https://estateintel-5.onrender.com/og-about.jpg"
+        schemaMarkup={aboutSchema}
+      />
+      <main className="bg-bg">
       {/* Intro Section */}
       <SectionWrapper className="pt-40 pb-20">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
@@ -264,6 +289,7 @@ const AboutPage = () => {
         </Card>
       </SectionWrapper>
     </main>
+    </>
   );
 };
 

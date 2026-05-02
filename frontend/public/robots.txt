@@ -1,0 +1,25 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://estateintel-5.onrender.com/sitemap.xml
+
+# Block common non-content paths
+Disallow: /api/
+Disallow: /login
+Disallow: /signup
+Disallow: /settings
+Disallow: /*?*
+
+# Allow search engines to crawl main content
+Allow: /
+Allow: /about
+Allow: /app/
+Allow: /app/map
+Allow: /app/insights
+Allow: /app/reports
+Allow: /app/inspection
+Allow: /app/resources
+
+# Crawl delay for respectful crawling
+Crawl-delay: 1

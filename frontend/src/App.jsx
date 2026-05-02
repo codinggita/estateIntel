@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { onAuthStateChanged, signOut } from "firebase/auth";
+import { HelmetProvider } from "react-helmet-async";
 import { auth } from "./firebase";
 import { ThemeProvider } from "./context/ThemeContext";
 import { Toaster } from "react-hot-toast";
@@ -12,21 +13,15 @@ import SignIn from "./components/SignIn";
 import Settings from "./components/Settings";
 import LandingPage from "./components/LandingPage";
 import MapComponent from "./components/Map";
-import ProtectedRoute from "./components/ProtectedRoute";
 import InsightsPage from "./components/InsightsPage";
-import ReportsPage from "./components/ReportsPage";
+import ReportsPage from "./components/Reports/ReportsPage";
 import InspectionPage from "./components/InspectionPage";
-import AboutPage from "./components/AboutPage";
 import ResourcesPage from "./components/ResourcesPage";
+import AboutPage from "./components/AboutPage";
+import Sitemap from "./components/Sitemap/Sitemap";
+import PublicRoute from "./components/PublicRoute";
+import ProtectedRoute from "./components/ProtectedRoute";
 
-
-// Component to redirect if already logged in
-const PublicRoute = ({ user, children }) => {
-  if (user) {
-    return <Navigate to="/" replace />;
-  }
-  return children;
-};
 
 function App() {
   const [user, setUser] = useState(null);
@@ -149,8 +144,9 @@ function App() {
   };
 
   return (
-    <ThemeProvider>
-      <Routes>
+    <HelmetProvider>
+      <ThemeProvider>
+        <Routes>
         {/* Public Routes - No Layout */}
         <Route path="/login" element={<PublicRoute user={user}><SignIn onLogin={handleLogin} /></PublicRoute>} />
         <Route path="/signup" element={<PublicRoute user={user}><SignIn onLogin={handleLogin} /></PublicRoute>} />
@@ -198,6 +194,9 @@ function App() {
         {/* Legacy Dashboard Route - Redirect to home */}
         <Route path="/dashboard" element={<Navigate to="/" replace />} />
 
+        {/* Sitemap Route - Public */}
+        <Route path="/sitemap.xml" element={<Sitemap />} />
+
         {/* Catch all route - redirect to login or home */}
         <Route path="*" element={
           user ? <Navigate to="/" replace /> : <Navigate to="/login" replace />
@@ -240,7 +239,8 @@ function App() {
           },
         }}
       />
-    </ThemeProvider>
+      </ThemeProvider>
+    </HelmetProvider>
   );
 };
 
