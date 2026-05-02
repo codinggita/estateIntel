@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { Routes, Route, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { onAuthStateChanged, signOut } from "firebase/auth";
+import { HelmetProvider } from "react-helmet-async";
 import { auth } from "./firebase";
 import { ThemeProvider } from "./context/ThemeContext";
 import { Toaster } from "react-hot-toast";
@@ -149,8 +150,9 @@ function App() {
   };
 
   return (
-    <ThemeProvider>
-      <Routes>
+    <HelmetProvider>
+      <ThemeProvider>
+        <Routes>
         {/* Public Routes - No Layout */}
         <Route path="/login" element={<PublicRoute user={user}><SignIn onLogin={handleLogin} /></PublicRoute>} />
         <Route path="/signup" element={<PublicRoute user={user}><SignIn onLogin={handleLogin} /></PublicRoute>} />
@@ -240,7 +242,8 @@ function App() {
           },
         }}
       />
-    </ThemeProvider>
+      </ThemeProvider>
+    </HelmetProvider>
   );
 };
 
