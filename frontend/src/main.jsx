@@ -3,6 +3,11 @@ import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import './index.css'
 import App from './App.jsx'
+import axios from 'axios'
+
+// Configure Axios globally
+axios.defaults.baseURL = import.meta.env.VITE_API_URL || '';
+axios.defaults.withCredentials = true;
 
 // Optimized initialization for immediate FCP
 const initApp = () => {

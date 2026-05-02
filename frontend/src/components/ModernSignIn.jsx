@@ -67,7 +67,8 @@ const ModernSignIn = ({ onLogin }) => {
       console.log('✅ Google sign-in successful:', userData);
       
       // Send user data to backend
-      const response = await axios.post('http://localhost:5000/api/auth/google', userData, {
+      const backendUrl = import.meta.env.VITE_API_URL || '';
+      const response = await axios.post(`${backendUrl}/api/auth/google`, userData, {
         headers: {
           'Content-Type': 'application/json'
         }

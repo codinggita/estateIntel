@@ -58,8 +58,9 @@ const InspectionPage = () => {
   const handleCancelBooking = async (bookingId) => {
     const loadingToast = toastNotifications.showLoading('Cancelling booking...');
     
+    const backendUrl = import.meta.env.VITE_API_URL || '';
     try {
-      await axios.delete(`/api/inspection/book/${bookingId}`);
+      await axios.delete(`${backendUrl}/api/inspection/book/${bookingId}`);
       toastNotifications.dismiss(loadingToast);
       toastNotifications.bookingCancelled(bookingId);
       
@@ -77,8 +78,9 @@ const InspectionPage = () => {
   const handleRescheduleBooking = async (bookingId, newDate, newTime) => {
     const loadingToast = toastNotifications.showLoading('Rescheduling booking...');
     
+    const backendUrl = import.meta.env.VITE_API_URL || '';
     try {
-      const response = await axios.put(`/api/inspection/book/${bookingId}`, {
+      const response = await axios.put(`${backendUrl}/api/inspection/book/${bookingId}`, {
         preferredDate: newDate,
         preferredTime: newTime
       });
@@ -164,8 +166,8 @@ Contact: ${bookingDetails.name} | ${bookingDetails.phone}
         toastNotifications.dismiss(loadingToast);
         toastNotifications.paymentSuccessful();
         
-        // Update booking status to paid
-        const response = await axios.put(`/api/inspection/book/${bookingId}/payment`, {
+        const backendUrl = import.meta.env.VITE_API_URL || '';
+        const response = await axios.put(`${backendUrl}/api/inspection/book/${bookingId}/payment`, {
           status: 'paid',
           amount: amount,
           paymentMethod: 'online'
@@ -209,8 +211,9 @@ Contact: ${bookingDetails.name} | ${bookingDetails.phone}
     // Show loading toast
     const loadingToast = toastNotifications.showLoading('Creating your booking...');
     
+    const backendUrl = import.meta.env.VITE_API_URL || '';
     try {
-      const response = await axios.post('/api/inspection/book', values, {
+      const response = await axios.post(`${backendUrl}/api/inspection/book`, values, {
         headers: {
           'Content-Type': 'application/json'
         }

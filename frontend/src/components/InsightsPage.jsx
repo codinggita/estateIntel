@@ -61,7 +61,8 @@ const InsightsPage = () => {
          const controller = new AbortController();
          const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
 
-         const response = await axios.get(`/api/insights/${city}`, {
+         const backendUrl = import.meta.env.VITE_API_URL || '';
+         const response = await axios.get(`${backendUrl}/api/insights/${city}`, {
             signal: controller.signal
          });
 
@@ -92,7 +93,8 @@ const InsightsPage = () => {
          const controller = new AbortController();
          const timeoutId = setTimeout(() => controller.abort(), 12000); // 12 second timeout
 
-         const response = await axios.get(`/api/insights/report/${location}`, {
+         const backendUrl = import.meta.env.VITE_API_URL || '';
+         const response = await axios.get(`${backendUrl}/api/insights/report/${location}`, {
             signal: controller.signal
          });
 

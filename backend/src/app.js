@@ -13,16 +13,29 @@ connectDB();
 const app = express();
 
 app.use(cors({ 
-  origin: [
-    'http://localhost:5173', 
-    'http://localhost:5174', 
-    'http://localhost:3000', 
-    'http://localhost:5175',
-    'https://estate-intel-z9o3.vercel.app',
-    'https://estateintel-5.onrender.com',
-    'https://estateintel-data-6cfs.onrender.com'
-  ],
-  credentials: true 
+  origin: function(origin, callback) {
+    const allowedOrigins = [
+      'http://localhost:5173', 
+      'http://localhost:5174', 
+      'http://localhost:3000', 
+      'http://localhost:5175',
+      'https://estate-intel-z9o3.vercel.app',
+      'https://estateintel-5.onrender.com',
+      'https://estateintel-data-6cfs.onrender.com',
+      'https://estateintel-data.onrender.com',
+      'https://estateintel-backend.onrender.com'
+    ];
+    // allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) === -1) {
+      const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept']
 }));
 app.use(express.json());
 
