@@ -100,16 +100,19 @@ function App() {
     if (isLoading) return; // Don't redirect while loading
     
     const currentPath = window.location.pathname;
-    console.log('🔍 Auth redirect check - Path:', currentPath, 'User:', !!user, 'Loading:', isLoading);
+    const storedUser = localStorage.getItem('user');
+    const isAuthenticated = user || storedUser;
     
-    if (user) {
-      console.log('✅ User is authenticated, checking redirect needs...');
+    console.log('🔍 Auth redirect check - Path:', currentPath, 'User:', !!user, 'StoredUser:', !!storedUser);
+    
+    if (isAuthenticated) {
+      // User is authenticated
       if (currentPath === '/login' || currentPath === '/signup') {
         console.log('🚀 Redirecting authenticated user from auth page to home');
         navigate('/', { replace: true });
       }
     } else {
-      console.log('📝 User is not authenticated, checking if login needed...');
+      // User is not authenticated
       if (currentPath !== '/login' && currentPath !== '/signup' && currentPath !== '/') {
         console.log('🚀 Redirecting unauthenticated user to login from:', currentPath);
         navigate('/login', { replace: true });

@@ -37,23 +37,19 @@ const SignIn = ({ onLogin }) => {
       if (result.success) {
         console.log('✅ Google authentication successful:', result.user);
         
-        // Store user data in localStorage
+        // Store user data in localStorage immediately
         localStorage.setItem('user', JSON.stringify(result.user));
         console.log('💾 Google user data stored in localStorage:', result.user);
         
         // Call parent login handler
         onLogin(result.user);
-        console.log('📞 Called onLogin handler for Google auth, waiting for redirect...');
+        console.log('📞 Called onLogin handler for Google auth');
         
-        // React Router will handle the redirect via App.jsx useEffect
-        // Add a small delay to ensure state is updated before potential manual redirect
+        // Immediate redirect using window.location for production reliability
         setTimeout(() => {
-          const currentPath = window.location.pathname;
-          if (currentPath === '/login' || currentPath === '/signup') {
-            console.log('🚀 Manual redirect fallback for Google auth - navigating to home');
-            navigate('/', { replace: true });
-          }
-        }, 200);
+          console.log('🚀 Redirecting to home page after Google auth...');
+          window.location.href = '/';
+        }, 100);
                 
         if (result.warning) {
           console.warn('⚠️ Warning:', result.warning);
@@ -100,26 +96,19 @@ const SignIn = ({ onLogin }) => {
           throw new Error(data.message || 'Something went wrong');
         }
 
-        // Store user data in localStorage
+        // Store user data in localStorage immediately
         localStorage.setItem('user', JSON.stringify(data.user));
         console.log('💾 User data stored in localStorage:', data.user);
-        console.log('🔍 Current path before redirect:', window.location.pathname);
         
         // Call parent login handler
         onLogin(data.user);
-        console.log('📞 Called onLogin handler, waiting for redirect...');
+        console.log('📞 Called onLogin handler');
         
-        // Force redirect after a short delay to ensure state is updated
+        // Immediate redirect using window.location for production reliability
         setTimeout(() => {
-          const currentPath = window.location.pathname;
-          console.log('🔍 Path after delay:', currentPath, 'User in localStorage:', !!localStorage.getItem('user'));
-          if (currentPath === '/login' || currentPath === '/signup') {
-            console.log('🚀 Manual redirect fallback - navigating to home');
-            navigate('/', { replace: true });
-          } else {
-            console.log('✅ Already redirected or on different page');
-          }
-        }, 300);
+          console.log('🚀 Redirecting to home page...');
+          window.location.href = '/';
+        }, 100);
       } catch (err) {
         setServerError(err.message);
       } finally {
