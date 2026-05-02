@@ -190,7 +190,8 @@ const InsightsPage = () => {
       </div>
    );
 
-   const { property, overallScore, verdict } = data;
+   // Safe destructuring with fallbacks
+   const { property = {}, overallScore = 0, verdict = "N/A" } = data || {};
 
    return (
       <div className="min-h-screen bg-bg font-sans selection:bg-primary/10">
@@ -414,15 +415,15 @@ const InsightsPage = () => {
                         <section className="mb-20">
                            <div className="text-[10px] font-black text-indigo-600 uppercase tracking-[0.5em] mb-12 italic">Deep-Spectral Analytics</div>
                            <div className="space-y-8">
-                              {Object.entries(report.multiScores).map(([key, item]) => (
+                              {Object.entries(report.scores || {}).map(([key, value]) => (
                                  <div key={key} className="flex items-center gap-12 border-b-2 border-slate-50 pb-8 last:border-0">
                                     <div className="w-56">
                                        <div className="text-sm font-black text-slate-900 uppercase tracking-[0.2em] mb-1 italic leading-none">{key} Matrix</div>
                                     </div>
                                     <div className="flex-grow h-4 bg-slate-50 rounded-full overflow-hidden">
-                                       <div className="h-full bg-slate-900" style={{ width: `${item.score * 10}%` }}></div>
+                                       <div className="h-full bg-slate-900" style={{ width: `${parseFloat(value) * 10}%` }}></div>
                                     </div>
-                                    <div className="text-4xl font-black text-slate-900 w-24 text-right tabular-nums italic leading-none">{item.score}/10</div>
+                                    <div className="text-4xl font-black text-slate-900 w-24 text-right tabular-nums italic leading-none">{parseFloat(value).toFixed(1)}/10</div>
                                  </div>
                               ))}
                            </div>
