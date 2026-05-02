@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo, useCallback, lazy, Suspense } from 'react';
 import { motion } from 'framer-motion';
 import { useTheme } from '../../context/ThemeContext';
 import {
@@ -9,17 +9,21 @@ import {
   Building,
   Zap,
   TrendingUp,
-  Minus
+  Minus,
+  Download,
+  Share2,
+  BarChart3,
+  Bot
 } from 'lucide-react';
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer
-} from 'recharts';
+
+// Lazy load heavy components for performance
+const BarChart = lazy(() => import('recharts').then(module => ({ default: module.BarChart })));
+const Bar = lazy(() => import('recharts').then(module => ({ default: module.Bar })));
+const XAxis = lazy(() => import('recharts').then(module => ({ default: module.XAxis })));
+const YAxis = lazy(() => import('recharts').then(module => ({ default: module.YAxis })));
+const CartesianGrid = lazy(() => import('recharts').then(module => ({ default: module.CartesianGrid })));
+const Tooltip = lazy(() => import('recharts').then(module => ({ default: module.Tooltip })));
+const ResponsiveContainer = lazy(() => import('recharts').then(module => ({ default: module.ResponsiveContainer })));
 
 import Button from '../ui/Button';
 
@@ -43,14 +47,18 @@ const ReportsPage = () => {
     { id: 8, name: 'Jubilee Hills', city: 'Hyderabad', tier: 'Tier 1', price: 12000, growth: 9.5 }
   ];
 
-  const filteredLocalities = localities.filter(
-    (locality) =>
-      locality.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      locality.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      locality.tier.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Memoize filtered localities for performance
+  const filteredLocalities = useMemo(() => {
+    return localities.filter(
+      (locality) =>
+        locality.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        locality.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        locality.tier.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [searchQuery]);
 
-  const handleGenerateReport = async (locality) => {
+  // Optimize report generation with useCallback
+  const handleGenerateReport = useCallback(async (locality) => {
     setSelectedLocation(locality);
     setIsGenerating(true);
 
@@ -142,31 +150,30 @@ const ReportsPage = () => {
 
     setReportData(mockReportData);
     setIsGenerating(false);
-  };
+  }, []);
 
   const renderSearchHero = () => (
-    <div
+    <main
+      role="main"
+      aria-label="Real Estate Reports Search"
       className={`min-h-screen flex items-center justify-center px-6 transition-colors duration-300 ${
         theme === 'dark'
           ? 'bg-zinc-950'
           : 'bg-gradient-to-br from-blue-50 via-white to-indigo-50'
       }`}
     >
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="max-w-4xl w-full"
-      >
-        <div className="text-center mb-12">
+      <div className="max-w-4xl w-full">
+        <header className="text-center mb-12">
           <div
             className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium mb-6 ${
               theme === 'dark'
                 ? 'bg-blue-900/30 text-blue-300 border border-blue-800'
                 : 'bg-blue-100 text-blue-700'
             }`}
+            role="status"
+            aria-live="polite"
           >
-            <Brain className="w-4 h-4" />
+            <Brain className="w-4 h-4" aria-hidden="true" />
             AI-Powered Intelligence
           </div>
 
@@ -189,22 +196,30 @@ const ReportsPage = () => {
           >
             Generate institutional-grade real estate analytics and livability insights instantly.
           </p>
-        </div>
+        </header>
 
-        <div
+        <section
           className={`rounded-2xl shadow-xl border p-8 ${
             theme === 'dark'
               ? 'bg-zinc-800 border-zinc-700'
               : 'bg-white border-gray-200'
           }`}
+          aria-labelledby="search-heading"
         >
+          <h2 id="search-heading" className="sr-only">Search Localities</h2>
+          
           <div className="relative mb-6">
+            <label htmlFor="locality-search" className="sr-only">
+              Search locality, city, or region
+            </label>
             <Search
               className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400"
               size={20}
+              aria-hidden="true"
             />
 
             <input
+              id="locality-search"
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
@@ -214,57 +229,73 @@ const ReportsPage = () => {
                   ? 'bg-zinc-700 text-white'
                   : 'bg-gray-50 text-gray-900'
               }`}
+              aria-describedby="search-help"
+              autoComplete="off"
+              role="combobox"
+              aria-expanded={searchQuery.length > 0}
+              aria-autocomplete="list"
             />
+            <div id="search-help" className="sr-only">
+              Type to search for localities, cities, or regions. Use arrow keys to navigate results.
+            </div>
           </div>
 
           {searchQuery && (
-            <div className="space-y-2 mb-6">
+            <ul
+              className="space-y-2 mb-6"
+              role="listbox"
+              aria-label="Search results"
+            >
               {filteredLocalities.map((locality) => (
-                <div
-                  key={locality.id}
-                  onClick={() => handleGenerateReport(locality)}
-                  className={`p-4 rounded-lg cursor-pointer transition ${
-                    theme === 'dark'
-                      ? 'bg-zinc-700 hover:bg-zinc-600'
-                      : 'bg-gray-50 hover:bg-gray-100'
-                  }`}
-                >
-                  <div className="flex justify-between">
-                    <div>
-                      <div
-                        className={`font-semibold ${
-                          theme === 'dark' ? 'text-white' : 'text-gray-900'
-                        }`}
-                      >
-                        {locality.name}
+                <li key={locality.id}>
+                  <button
+                    type="button"
+                    onClick={() => handleGenerateReport(locality)}
+                    className={`w-full p-4 rounded-lg cursor-pointer transition text-left ${
+                      theme === 'dark'
+                        ? 'bg-zinc-700 hover:bg-zinc-600'
+                        : 'bg-gray-50 hover:bg-gray-100'
+                    }`}
+                    role="option"
+                    aria-selected={selectedLocation?.id === locality.id}
+                  >
+                    <div className="flex justify-between">
+                      <div>
+                        <div
+                          className={`font-semibold ${
+                            theme === 'dark' ? 'text-white' : 'text-gray-900'
+                          }`}
+                        >
+                          {locality.name}
+                        </div>
+
+                        <div
+                          className={`text-sm ${
+                            theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
+                          }`}
+                        >
+                          {locality.city}
+                        </div>
                       </div>
 
-                      <div
-                        className={`text-sm ${
-                          theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
-                        }`}
-                      >
-                        {locality.city}
+                      <div className="text-right">
+                        <div
+                          className={`text-sm font-medium ${
+                            theme === 'dark' ? 'text-white' : 'text-gray-900'
+                          }`}
+                        >
+                          ₹{locality.price.toLocaleString()}/sqft
+                        </div>
+
+                        <div className="text-xs text-green-600">
+                          +{locality.growth}% growth
+                        </div>
                       </div>
                     </div>
-
-                    <div className="text-right">
-                      <div
-                        className={`text-sm font-medium ${
-                          theme === 'dark' ? 'text-white' : 'text-gray-900'
-                        }`}
-                      >
-                        ₹{locality.price.toLocaleString()}/sqft
-                      </div>
-
-                      <div className="text-xs text-green-600">
-                        +{locality.growth}% growth
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                  </button>
+                </li>
               ))}
-            </div>
+            </ul>
           )}
 
           <Button
@@ -275,20 +306,31 @@ const ReportsPage = () => {
             }}
             disabled={!searchQuery || filteredLocalities.length === 0}
             className="w-full py-4 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl"
+            aria-describedby="generate-help"
           >
             Generate Intelligence Report
           </Button>
-        </div>
-      </motion.div>
-    </div>
+          <div id="generate-help" className="sr-only">
+            Generate a comprehensive real estate intelligence report for the selected locality
+          </div>
+        </section>
+      </div>
+    </main>
   );
 
   if (isGenerating) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <main
+        role="main"
+        aria-label="Generating Report"
+        className="min-h-screen flex items-center justify-center"
+      >
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-
+          <div 
+            className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"
+            role="status"
+            aria-label="Loading indicator"
+          ></div>
           <p
             className={`text-lg ${
               theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
@@ -296,8 +338,11 @@ const ReportsPage = () => {
           >
             Generating Intelligence Report...
           </p>
+          <div className="sr-only" aria-live="polite" aria-atomic="true">
+            Please wait while we generate your comprehensive real estate report
+          </div>
         </div>
-      </div>
+      </main>
     );
   }
 
@@ -306,13 +351,15 @@ const ReportsPage = () => {
   }
 
   return (
-    <div
+    <main
+      role="main"
+      aria-label="Real Estate Intelligence Report"
       className={`w-full pt-20 px-6 lg:px-8 pb-12 ${
         theme === 'dark' ? 'bg-zinc-900' : 'bg-white'
       }`}
     >
       {/* HEADER */}
-      <div className="mb-8">
+      <header className="mb-8">
         <div className="text-sm text-gray-500 dark:text-gray-400 mb-2">
           LOCALITY INTELLIGENCE REPORT
         </div>
@@ -338,29 +385,31 @@ const ReportsPage = () => {
             </div>
           </div>
         </div>
-      </div>
+      </header>
 
       {/* ALERTS */}
-      <div
+      <section
         className={`rounded-2xl p-6 mb-8 ${
           theme === 'dark'
             ? 'bg-red-900/20 border border-red-800'
             : 'bg-red-50 border border-red-200'
         }`}
+        aria-labelledby="alerts-heading"
       >
         <h2
+          id="alerts-heading"
           className={`text-2xl font-bold mb-6 flex items-center gap-3 ${
             theme === 'dark' ? 'text-white' : 'text-gray-900'
           }`}
         >
-          <AlertCircle className="w-6 h-6 text-red-600" />
+          <AlertCircle className="w-6 h-6 text-red-600" aria-hidden="true" />
           Critical Alerts & Future Outlook
         </h2>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white dark:bg-zinc-800 rounded-xl p-4">
+          <article className="bg-white dark:bg-zinc-800 rounded-xl p-4">
             <div className="flex items-center gap-3 mb-3">
-              <Train className="w-5 h-5 text-red-600" />
+              <Train className="w-5 h-5 text-red-600" aria-hidden="true" />
               <h3 className="font-semibold">Metro Phase Construction</h3>
             </div>
 
@@ -371,11 +420,11 @@ const ReportsPage = () => {
             <div className="text-sm font-medium text-red-600">
               +12% appreciation impact
             </div>
-          </div>
+          </article>
 
-          <div className="bg-white dark:bg-zinc-800 rounded-xl p-4">
+          <article className="bg-white dark:bg-zinc-800 rounded-xl p-4">
             <div className="flex items-center gap-3 mb-3">
-              <Building className="w-5 h-5 text-red-600" />
+              <Building className="w-5 h-5 text-red-600" aria-hidden="true" />
               <h3 className="font-semibold">Commercial Zoning</h3>
             </div>
 
@@ -386,11 +435,11 @@ const ReportsPage = () => {
             <div className="text-sm font-medium text-red-600">
               +8% rental yield improvement
             </div>
-          </div>
+          </article>
 
-          <div className="bg-white dark:bg-zinc-800 rounded-xl p-4">
+          <article className="bg-white dark:bg-zinc-800 rounded-xl p-4">
             <div className="flex items-center gap-3 mb-3">
-              <Zap className="w-5 h-5 text-red-600" />
+              <Zap className="w-5 h-5 text-red-600" aria-hidden="true" />
               <h3 className="font-semibold">Government Development</h3>
             </div>
 
@@ -401,15 +450,18 @@ const ReportsPage = () => {
             <div className="text-sm font-medium text-red-600">
               +15% civic investment impact
             </div>
-          </div>
+          </article>
         </div>
-      </div>
+      </section>
 
       {/* AQI + SAFETY */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         {/* AQI */}
-        <div className="bg-white dark:bg-zinc-800 rounded-2xl border border-gray-200 dark:border-zinc-700 shadow-sm p-6">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+        <section 
+          className="bg-white dark:bg-zinc-800 rounded-2xl border border-gray-200 dark:border-zinc-700 shadow-sm p-6"
+          aria-labelledby="aqi-heading"
+        >
+          <h2 id="aqi-heading" className="text-xl font-bold text-gray-900 dark:text-white mb-4">
             AIR QUALITY INDEX (AQI)
           </h2>
 
@@ -424,21 +476,26 @@ const ReportsPage = () => {
           </div>
 
           <div className="h-48 mb-4">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={reportData.aqi.pollutants}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="value" fill="#10B981" radius={[8, 8, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+            <Suspense fallback={<div className="flex items-center justify-center h-full">Loading chart...</div>}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={reportData.aqi.pollutants}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip />
+                  <Bar dataKey="value" fill="#10B981" radius={[8, 8, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </Suspense>
           </div>
-        </div>
+        </section>
 
         {/* SAFETY */}
-        <div className="bg-white dark:bg-zinc-800 rounded-2xl border border-gray-200 dark:border-zinc-700 shadow-sm p-6">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+        <section 
+          className="bg-white dark:bg-zinc-800 rounded-2xl border border-gray-200 dark:border-zinc-700 shadow-sm p-6"
+          aria-labelledby="safety-heading"
+        >
+          <h2 id="safety-heading" className="text-xl font-bold text-gray-900 dark:text-white mb-4">
             SAFETY & CRIME INDEX
           </h2>
 
@@ -452,9 +509,9 @@ const ReportsPage = () => {
             </div>
           </div>
 
-          <div className="space-y-3">
+          <ul className="space-y-3">
             {reportData.safety.metrics.map((metric, index) => (
-              <div
+              <li
                 key={index}
                 className="flex justify-between items-center py-2 border-b border-gray-100 dark:border-zinc-700"
               >
@@ -465,15 +522,18 @@ const ReportsPage = () => {
                 <span className="text-sm font-medium text-gray-900 dark:text-white">
                   {metric.value}
                 </span>
-              </div>
+              </li>
             ))}
-          </div>
-        </div>
+          </ul>
+        </section>
       </div>
 
       {/* REAL ESTATE TRENDS */}
-      <div className="bg-white dark:bg-zinc-800 rounded-2xl border border-gray-200 dark:border-zinc-700 shadow-sm p-6">
-        <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-4">
+      <section 
+        className="bg-white dark:bg-zinc-800 rounded-2xl border border-gray-200 dark:border-zinc-700 shadow-sm p-6"
+        aria-labelledby="trends-heading"
+      >
+        <h2 id="trends-heading" className="text-xl font-bold text-gray-900 dark:text-white mb-4">
           Real Estate Trends
         </h2>
 
@@ -483,7 +543,7 @@ const ReportsPage = () => {
               Property price trend
             </span>
 
-            <TrendingUp className="w-4 h-4 text-green-600" />
+            <TrendingUp className="w-4 h-4 text-green-600" aria-hidden="true" />
           </div>
 
           <div className="flex justify-between items-center">
@@ -491,7 +551,7 @@ const ReportsPage = () => {
               Rental trend
             </span>
 
-            <TrendingUp className="w-4 h-4 text-green-600" />
+            <TrendingUp className="w-4 h-4 text-green-600" aria-hidden="true" />
           </div>
 
           <div className="flex justify-between items-center">
@@ -499,94 +559,80 @@ const ReportsPage = () => {
               Demand vs supply
             </span>
 
-            <Minus className="w-4 h-4 text-gray-600" />
+            <Minus className="w-4 h-4 text-gray-600" aria-hidden="true" />
           </div>
         </div>
 
         <div className="h-32 bg-gradient-to-r from-blue-50 to-green-50 rounded-lg flex items-center justify-center">
           <div className="text-xs text-gray-500">Trend Analysis Chart</div>
         </div>
-      </div>
+      </section>
 
       {/* WORKING FLOATING BUTTONS */}
       {reportData && (
-        <div
-          style={{
-            position: 'fixed',
-            bottom: '20px',
-            left: '50%',
-            transform: 'translateX(-50%)',
-            zIndex: 9999
-          }}
+        <nav
+          className="fixed bottom-5 left-1/2 transform -translate-x-1/2 z-50"
+          role="navigation"
+          aria-label="Report actions"
         >
-          <div
-            style={{
-              background: 'rgba(0,0,0,0.8)',
-              padding: '10px',
-              borderRadius: '10px',
-              display: 'flex',
-              gap: '5px'
-            }}
-          >
+          <div className="bg-gray-900 dark:bg-zinc-800 p-2.5 rounded-2xl shadow-2xl border border-gray-700 dark:border-zinc-600 flex gap-2">
             <button
-              onClick={function() { alert('SHARE BUTTON WORKS!'); }}
-              style={{
-                padding: '10px',
-                background: 'blue',
-                color: 'white',
-                border: 'none',
-                borderRadius: '5px',
-                cursor: 'pointer'
+              onClick={() => {
+                if (navigator.share) {
+                  navigator.share({
+                    title: `Real Estate Report - ${reportData.locality}`,
+                    text: `Check out this comprehensive real estate intelligence report for ${reportData.locality}, ${reportData.city}`,
+                    url: window.location.href
+                  });
+                } else {
+                  navigator.clipboard.writeText(window.location.href);
+                }
               }}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 text-sm font-medium"
+              aria-label="Share report"
             >
-              Share
+              <Share2 size={16} aria-hidden="true" />
+              <span className="hidden sm:inline">Share</span>
             </button>
 
             <button
-              onClick={function() { alert('PDF BUTTON WORKS!'); }}
-              style={{
-                padding: '10px',
-                background: 'green',
-                color: 'white',
-                border: 'none',
-                borderRadius: '5px',
-                cursor: 'pointer'
+              onClick={() => {
+                window.print();
               }}
+              className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors flex items-center gap-2 text-sm font-medium"
+              aria-label="Download PDF"
             >
-              PDF
+              <Download size={16} aria-hidden="true" />
+              <span className="hidden sm:inline">PDF</span>
             </button>
 
             <button
-              onClick={function() { alert('ANALYTICS BUTTON WORKS!'); }}
-              style={{
-                padding: '10px',
-                background: 'purple',
-                color: 'white',
-                border: 'none',
-                borderRadius: '5px',
-                cursor: 'pointer'
+              onClick={() => {
+                // Navigate to analytics page
+                window.location.href = '/app/analytics';
               }}
+              className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors flex items-center gap-2 text-sm font-medium"
+              aria-label="View analytics"
             >
-              Analytics
+              <BarChart3 size={16} aria-hidden="true" />
+              <span className="hidden sm:inline">Analytics</span>
             </button>
 
             <button
-              onClick={function() { alert('AI BUTTON WORKS!'); }}
-              style={{
-                padding: '10px',
-                background: 'orange',
-                color: 'white',
-                border: 'none',
-                borderRadius: '5px',
-                cursor: 'pointer'
+              onClick={() => {
+                // Trigger AI analysis
+                alert('AI Analysis feature coming soon!');
               }}
+              className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition-colors flex items-center gap-2 text-sm font-medium"
+              aria-label="AI analysis"
             >
-              AI
+              <Bot size={16} aria-hidden="true" />
+              <span className="hidden sm:inline">AI</span>
             </button>
           </div>
-        </div>
+        </nav>
       )}
-    </div>
+    </main>
   );
 };
 
