@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { Eye, EyeOff, ArrowLeft, AlertCircle, Shield } from 'lucide-react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useFormik } from 'formik';
@@ -6,7 +7,6 @@ import * as Yup from 'yup';
 import Button from './ui/Button';
 import { motion } from 'framer-motion';
 import { handleGoogleLogin } from '../utils/googleAuth';
-import logger from '../utils/logger';
 
 const SignIn = ({ onLogin }) => {
   const navigate = useNavigate();
@@ -31,43 +31,40 @@ const SignIn = ({ onLogin }) => {
     setServerError('');
     
     try {
-      logger.log('🔐 Starting Google sign-in from SignIn component...');
+      console.log('🔐 Starting Google sign-in from SignIn component...');
       
       const result = await handleGoogleLogin();
       
       if (result.success) {
-        logger.log('✅ Google authentication successful:', result.user);
+        console.log('✅ Google authentication successful:', result.user);
         
-        // Store user data in localStorage immediately
+        // Store user data in localStorage
         localStorage.setItem('user', JSON.stringify(result.user));
-        logger.log('💾 Google user data stored in localStorage:', result.user);
-        logger.log('📊 Google user data structure:', Object.keys(result.user));
+        console.log('💾 Google user data stored in localStorage:', result.user);
         
         // Call parent login handler
         onLogin(result.user);
-        logger.log('📞 Called onLogin handler for Google auth');
+        console.log('📞 Called onLogin handler for Google auth, waiting for redirect...');
         
-        // Verify user is stored before redirect
+        // React Router will handle the redirect via App.jsx useEffect
+        // Add a small delay to ensure state is updated before potential manual redirect
         setTimeout(() => {
-          const storedUser = localStorage.getItem('user');
-          logger.log('🔍 Google Auth Verification - User in localStorage:', !!storedUser);
-          if (storedUser) {
-            logger.log('🚀 Redirecting to home page after Google auth...');
-            window.location.href = '/';
-          } else {
-            logger.error('❌ Google user data not found in localStorage before redirect');
+          const currentPath = window.location.pathname;
+          if (currentPath === '/login' || currentPath === '/signup') {
+            console.log('🚀 Manual redirect fallback for Google auth - navigating to home');
+            navigate('/', { replace: true });
           }
         }, 200);
                 
         if (result.warning) {
-          logger.log('⚠️ Warning:', result.warning);
+          console.warn('⚠️ Warning:', result.warning);
         }
       } else {
         setServerError(result.error || 'Google sign-in failed');
-        logger.error('❌ Google authentication failed:', result.error);
+        console.error('❌ Google authentication failed:', result.error);
       }
     } catch (error) {
-      logger.error('❌ Unexpected error during Google sign-in:', error);
+      console.error('❌ Unexpected error during Google sign-in:', error);
       setServerError('An unexpected error occurred during Google sign-in');
     }
   };
@@ -91,41 +88,35 @@ const SignIn = ({ onLogin }) => {
       setServerError('');
       try {
         const endpoint = view === 'login' ? '/api/user/login' : '/api/user/register';
-        const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-        const response = await fetch(`${backendUrl}${endpoint}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(values)
+        const response = await axios.post(endpoint, values, {
+          headers: { 'Content-Type': 'application/json' }
         });
 
-        const data = await response.json();
+        const data = response.data;
 
-        if (!response.ok) {
-          throw new Error(data.message || 'Something went wrong');
-        }
-
-        // Store user data in localStorage immediately
+        // Store user data in localStorage
         localStorage.setItem('user', JSON.stringify(data.user));
-        logger.log('💾 User data stored in localStorage:', data.user);
-        logger.log('📊 Response user data structure:', Object.keys(data.user));
+        console.log('💾 User data stored in localStorage:', data.user);
+        console.log('🔍 Current path before redirect:', window.location.pathname);
         
         // Call parent login handler
         onLogin(data.user);
-        logger.log('📞 Called onLogin handler');
+        console.log('📞 Called onLogin handler, waiting for redirect...');
         
-        // Verify user is stored before redirect
+        // Force redirect after a short delay to ensure state is updated
         setTimeout(() => {
-          const storedUser = localStorage.getItem('user');
-          logger.log('🔍 Verification - User in localStorage:', !!storedUser);
-          if (storedUser) {
-            logger.log('🚀 Redirecting to home page...');
-            window.location.href = '/';
+          const currentPath = window.location.pathname;
+          console.log('🔍 Path after delay:', currentPath, 'User in localStorage:', !!localStorage.getItem('user'));
+          if (currentPath === '/login' || currentPath === '/signup') {
+            console.log('🚀 Manual redirect fallback - navigating to home');
+            navigate('/', { replace: true });
           } else {
-            logger.error('❌ User data not found in localStorage before redirect');
+            console.log('✅ Already redirected or on different page');
           }
-        }, 200);
+        }, 300);
       } catch (err) {
-        setServerError(err.message);
+        const message = err.response?.data?.message || err.message || 'An error occurred during authentication';
+        setServerError(message);
       } finally {
         setSubmitting(false);
       }
@@ -133,28 +124,24 @@ const SignIn = ({ onLogin }) => {
   });
 
   return (
-    <div className="flex min-h-screen w-full bg-bg text-text font-sans absolute inset-0 z-200" role="main">
+    <div className="flex min-h-screen w-full bg-bg text-text font-sans absolute inset-0 z-[200]">
       
       {/* Left Panel - Modern Gradient & Image */}
-      <div className="hidden lg:flex lg:w-1/2 xl:w-[55%] relative overflow-hidden" role="img" aria-label="Real estate background image">
-        <div className="absolute inset-0 bg-slate-900/40 z-10" aria-hidden="true"></div>
+      <div className="hidden lg:flex lg:w-[45%] xl:w-[50%] relative overflow-hidden">
+        <div className="absolute inset-0 bg-slate-900/40 z-10"></div>
         <img 
           src={view === 'login' 
-            ? "https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&w=1200&fm=webp&q=80" 
-            : "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&fm=webp&q=80"} 
-          alt={view === 'login' ? 'Real estate property for login' : 'Real estate property for registration'}
+            ? "https://images.unsplash.com/photo-1560518883-ce09059eeffa?auto=format&fit=crop&q=80&w=1200" 
+            : "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=1200"} 
+          alt="Real Estate" 
           className="object-cover w-full h-full transition-transform duration-1000 ease-in-out scale-105" 
           key={view}
-          loading="eager"
-          decoding="async"
-          width="1200"
-          height="800"
         />
-        <div className="absolute inset-0 bg-linear-to-t from-slate-900 via-slate-900/20 to-transparent z-20" aria-hidden="true"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/20 to-transparent z-20"></div>
         
         <div className="absolute bottom-16 left-12 right-12 z-30">
-          <Link to="/" className="flex items-center gap-2 mb-12" aria-label="EstateIntel Home">
-            <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white shadow-lg shadow-primary/20" aria-hidden="true">
+          <Link to="/" className="flex items-center gap-2 mb-12">
+            <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-white shadow-lg shadow-primary/20">
               <Shield size={24} fill="currentColor" />
             </div>
             <span className="text-2xl font-bold tracking-tight text-white">
@@ -167,7 +154,6 @@ const SignIn = ({ onLogin }) => {
             animate={{ opacity: 1, y: 0 }}
             key={view + 'title'}
             className="text-5xl font-bold mt-2 leading-tight tracking-tight mb-4 text-white"
-            id="page-title"
           >
             {view === 'login' ? 'Smarter Property Decisions' : 'Unlock the Market'}
           </motion.h2>
@@ -177,7 +163,6 @@ const SignIn = ({ onLogin }) => {
             transition={{ delay: 0.1 }}
             key={view + 'desc'}
             className="text-white/70 text-lg mb-8 max-w-md leading-relaxed"
-            aria-describedby="page-title"
           >
             {view === 'login' 
               ? 'Access real-time analytics, accurate valuations, and predictive insights for your real estate portfolio.' 
@@ -187,14 +172,13 @@ const SignIn = ({ onLogin }) => {
       </div>
 
       {/* Right Panel - Form */}
-      <div className="w-full lg:w-1/2 xl:w-[45%] flex flex-col items-center justify-center relative py-8 sm:py-12 px-4 sm:px-6 lg:px-8 xl:px-12 bg-bg overflow-y-auto" role="main">
+      <div className="w-full lg:w-[55%] xl:w-[50%] flex flex-col items-center justify-center relative py-12 px-6 sm:px-12 lg:px-16 xl:px-24 bg-bg overflow-y-auto">
         
         {/* Back Button */}
         <button 
           type="button"
           onClick={() => navigate('/')}
-          className="absolute top-4 sm:top-8 left-4 sm:left-6 flex items-center space-x-2 text-subtext hover:text-text transition-colors font-bold text-sm group"
-          aria-label="Navigate back to home page"
+          className="absolute top-8 left-6 sm:left-8 flex items-center space-x-2 text-subtext hover:text-text transition-colors font-bold text-sm group"
         >
           <div className="w-8 h-8 rounded-full bg-card border border-white/5 flex items-center justify-center transition-colors">
             <ArrowLeft size={16} />
@@ -203,112 +187,88 @@ const SignIn = ({ onLogin }) => {
         </button>
 
         {/* Top Right Toggle */}
-        <div className="absolute top-4 sm:top-8 right-4 sm:right-6">
+        <div className="absolute top-8 right-6 sm:right-12">
           <Button 
             variant="secondary"
             onClick={() => handleViewChange(view === 'login' ? 'register' : 'login')} 
             className="text-sm px-6 rounded-full"
-            aria-label={`Switch to ${view === 'login' ? 'registration' : 'login'} form`}
           >
             {view === 'login' ? 'Create Account' : 'Sign In'}
           </Button>
         </div>
 
-        <div className="w-full max-w-sm sm:max-w-md animate-in fade-in slide-in-from-bottom-4 duration-500 py-4 sm:py-8">
+        <div className="w-full max-w-[440px] animate-in fade-in slide-in-from-bottom-4 duration-500 py-8">
           
-          <div className="mb-8 sm:mb-10 text-center lg:text-left">
-            <h1 className="text-3xl sm:text-4xl font-bold text-text tracking-tight mb-3" id="form-title">
+          <div className="mb-10 text-center lg:text-left">
+            <h1 className="text-4xl font-bold text-text tracking-tight mb-3">
               {view === 'login' ? 'Welcome Back' : 'Get Started'}
             </h1>
-            <p className="text-subtext font-medium" aria-describedby="form-title">
+            <p className="text-subtext font-medium">
               {view === 'login' ? 'Sign in to access your property insights' : 'Join thousands of smart property investors'}
             </p>
           </div>
 
-          <form className="space-y-4 sm:space-y-6" onSubmit={formik.handleSubmit} noValidate aria-labelledby="form-title">
+          <form className="space-y-6" onSubmit={formik.handleSubmit}>
             {serverError && (
-              <div className="bg-red-500/10 border border-red-500/20 text-red-500 px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-2" role="alert" aria-live="polite">
-                <AlertCircle size={18} aria-hidden="true" />
-                <span>{serverError}</span>
+              <div className="bg-red-500/10 border border-red-500/20 text-red-500 px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-2">
+                <AlertCircle size={18} />
+                {serverError}
               </div>
             )}
 
             {view === 'register' && (
               <div className="space-y-2">
-                <label htmlFor="fullName" className="text-xs text-black uppercase tracking-widest text-subtext ml-1">Full Name</label>
+                <label className="text-xs font-black uppercase tracking-widest text-subtext ml-1">Full Name</label>
                 <input 
                   {...formik.getFieldProps('fullName')}
-                  id="fullName"
                   type="text" 
-                  className={`w-full px-4 sm:px-5 py-3 sm:py-4 bg-card border ${formik.touched.fullName && formik.errors.fullName ? 'border-red-500' : 'border-white/30'} rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/50 text-subtext font-bold transition-all placeholder:text-subtext/40 text-sm sm:text-base`} 
+                  className={`w-full px-5 py-4 bg-card border ${formik.touched.fullName && formik.errors.fullName ? 'border-red-500' : 'border-white/30'} rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/50 text-subtext font-bold transition-all placeholder:text-subtext/40`} 
                   placeholder="John Doe" 
-                  aria-invalid={formik.touched.fullName && formik.errors.fullName ? 'true' : 'false'}
-                  aria-describedby={formik.touched.fullName && formik.errors.fullName ? 'fullName-error' : undefined}
                 />
                 {formik.touched.fullName && formik.errors.fullName && (
-                  <p id="fullName-error" className="text-red-500 text-xs ml-1 font-bold" role="alert">{formik.errors.fullName}</p>
+                  <p className="text-red-500 text-xs ml-1 font-bold">{formik.errors.fullName}</p>
                 )}
               </div>
             )}
             
             <div className="space-y-2">
-              <label htmlFor="email" className="text-xs text-black uppercase tracking-widest text-subtext ml-1">Email Address</label>
+              <label className="text-xs font-black uppercase tracking-widest text-subtext ml-1">Email Address</label>
               <input 
                 {...formik.getFieldProps('email')}
-                id="email"
                 type="email" 
-                className={`w-full px-4 sm:px-5 py-3 sm:py-4 bg-card border ${formik.touched.email && formik.errors.email ? 'border-red-500' : 'border-white/30'} rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/50 text-subtext font-bold transition-all placeholder:text-subtext/40 text-sm sm:text-base`} 
+                className={`w-full px-5 py-4 bg-card border ${formik.touched.email && formik.errors.email ? 'border-red-500' : 'border-white/30'} rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/50 text-subtext font-bold transition-all placeholder:text-subtext/40`} 
                 placeholder="you@example.com" 
-                aria-invalid={formik.touched.email && formik.errors.email ? 'true' : 'false'}
-                aria-describedby={formik.touched.email && formik.errors.email ? 'email-error' : undefined}
               />
               {formik.touched.email && formik.errors.email && (
-                <p id="email-error" className="text-red-500 text-xs ml-1 font-bold" role="alert">{formik.errors.email}</p>
+                <p className="text-red-500 text-xs ml-1 font-bold">{formik.errors.email}</p>
               )}
             </div>
             
             <div className="space-y-2">
-              <label htmlFor="password" className="text-xs text-black uppercase tracking-widest text-subtext ml-1">Password</label>
+              <label className="text-xs font-black uppercase tracking-widest text-subtext ml-1">Password</label>
               <div className="relative group">
                 <input 
                   {...formik.getFieldProps('password')}
-                  id="password"
                   type={showPassword ? "text" : "password"} 
-                  className={`w-full pl-4 sm:pl-5 pr-12 sm:pr-14 py-3 sm:py-4 bg-card border ${formik.touched.password && formik.errors.password ? 'border-red-500' : 'border-white/30'} rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/50 text-subtext font-bold transition-all placeholder:text-subtext/40 text-sm sm:text-base`} 
-                  placeholder="••••••" 
-                  aria-invalid={formik.touched.password && formik.errors.password ? 'true' : 'false'}
-                  aria-describedby={formik.touched.password && formik.errors.password ? 'password-error' : undefined}
+                  className={`w-full pl-5 pr-14 py-4 bg-card border ${formik.touched.password && formik.errors.password ? 'border-red-500' : 'border-white/30'} rounded-2xl focus:outline-none focus:ring-2 focus:ring-primary/50 text-subtext font-bold transition-all placeholder:text-subtext/40`} 
+                  placeholder="••••••••" 
                 />
-                <button 
-                  type="button" 
-                  onClick={() => setShowPassword(!showPassword)} 
-                  className="absolute right-4 sm:right-5 top-3.5 sm:top-4.5 text-subtext hover:text-text transition-colors"
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
-                  aria-controls="password"
-                >
+                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-5 top-[18px] text-subtext hover:text-text transition-colors">
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
               </div>
               {formik.touched.password && formik.errors.password && (
-                <p id="password-error" className="text-red-500 text-xs ml-1 font-bold" role="alert">{formik.errors.password}</p>
+                <p className="text-red-500 text-xs ml-1 font-bold">{formik.errors.password}</p>
               )}
             </div>
             
             {view === 'login' && (
-              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-4">
+              <div className="flex items-center justify-between">
                 <label className="flex items-center gap-2 cursor-pointer group">
-                  <input 
-                    type="checkbox" 
-                    className="w-4 h-4 rounded border-white/10 bg-card text-primary focus:ring-primary/50 cursor-pointer" 
-                    aria-describedby="remember-help"
-                  />
+                  <input type="checkbox" className="w-4 h-4 rounded border-white/10 bg-card text-primary focus:ring-primary/50 cursor-pointer" />
                   <span className="text-sm font-bold text-subtext group-hover:text-text transition-colors">Remember me</span>
                 </label>
-                <button 
-                  type="button" 
-                  className="text-sm font-bold text-primary hover:underline underline-offset-4"
-                  aria-label="Reset password"
-                >
+                <button type="button" className="text-sm font-bold text-primary hover:underline underline-offset-4">
                   Forgot password?
                 </button>
               </div>
@@ -319,19 +279,19 @@ const SignIn = ({ onLogin }) => {
               variant="secondary"
               disabled={formik.isSubmitting} 
               fullWidth
-              className="py-3 sm:py-4 rounded-2xl text-base sm:text-lg mt-4 sm:mt-6 shadow-xl"
+              className="py-4 rounded-2xl text-lg mt-4 shadow-xl"
             >
               {formik.isSubmitting ? (
                 <div className="w-6 h-6 border-2 border-black/20 border-t-black rounded-full animate-spin"></div>
               ) : (
-                <span className="text-black font-black uppercase tracking-widest text-sm">
+                <span className="!text-black font-black uppercase tracking-widest text-sm">
                   {view === 'login' ? 'Sign In' : 'Create Account'}
                 </span>
               )}
             </Button>
           </form>
 
-          <div className="my-8 sm:my-10 flex items-center gap-4">
+          <div className="my-10 flex items-center gap-4">
             <div className="flex-1 h-px bg-white/5"></div>
             <span className="text-[10px] font-black text-subtext uppercase tracking-[0.2em] whitespace-nowrap">
               or continue with
@@ -342,7 +302,7 @@ const SignIn = ({ onLogin }) => {
           <div className="w-full">
             <button 
               onClick={handleGoogleSignIn}
-              className="w-full flex items-center justify-center gap-3 px-4 py-3 sm:py-4 bg-card border border-white/30 rounded-2xl hover:border-primary/50 hover:shadow-md transition-all font-bold text-sm sm:text-base shadow-sm"
+              className="w-full flex items-center justify-center gap-3 px-4 py-4 bg-card border border-white/30 rounded-2xl hover:border-primary/50 hover:shadow-md transition-all font-bold text-sm shadow-sm"
               type="button"
             >
               <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" alt="Google" className="w-5 h-5" />

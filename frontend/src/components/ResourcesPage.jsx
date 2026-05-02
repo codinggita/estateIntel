@@ -138,6 +138,7 @@ const ResourcesPage = () => {
           onMarkerClick={handleMarkerClick}
           externalUserLocation={userLocation}
           shouldZoomToSelected={true}
+          isEmbedded={true}
         />
       </div>
 

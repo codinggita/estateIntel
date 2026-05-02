@@ -1,13 +1,14 @@
 import React, { useState, useCallback, useRef } from "react";
 import { GoogleMap, useJsApiLoader, Marker } from "@react-google-maps/api";
+import { useTheme } from "../context/ThemeContext";
 import "./Map.css";
-import logger from "../utils/logger";
 
 const API_KEY = "AIzaSyCEW0bCq_jD9iZR5SIuWi9GXC8aZ-jiB_k";
 
 const defaultCenter = { lat: 20.5937, lng: 78.9629 };
 
-const MapComponent = ({ resources = [], selectedResourceId = null, onMarkerClick = null, externalUserLocation = null, shouldZoomToSelected = false }) => {
+const MapComponent = ({ resources = [], selectedResourceId = null, onMarkerClick = null, externalUserLocation = null, shouldZoomToSelected = false, isEmbedded = false }) => {
+  const { theme } = useTheme();
   const { isLoaded, loadError } = useJsApiLoader({
     id: 'google-map-script',
     googleMapsApiKey: API_KEY,
@@ -59,7 +60,7 @@ const MapComponent = ({ resources = [], selectedResourceId = null, onMarkerClick
                 lng: pos.coords.longitude,
               });
             },
-            (error) => logger.warn("Watch position error:", error),
+            (error) => console.warn("Watch position error:", error),
             { enableHighAccuracy: true, maximumAge: 10000 }
           );
         }
@@ -89,59 +90,103 @@ const MapComponent = ({ resources = [], selectedResourceId = null, onMarkerClick
   }, [map, selectedResourceId, safeResources, shouldZoomToSelected]);
 
   if (loadError) {
-    return <div className="map-container-wrapper flex items-center justify-center p-6 text-center text-red-600 bg-red-50 font-bold">Error loading maps! Your specific API key is either invalid or missing a billing account in Google Cloud.</div>;
+    if (isEmbedded) {
+      return <div className="w-full h-full flex items-center justify-center text-red-600 bg-red-50 font-bold p-4 text-center rounded-xl">Error loading maps!</div>;
+    }
+    return (
+      <div className={`map-page-wrapper ${theme === 'dark' ? 'bg-gray-900' : 'bg-slate-100'}`}>
+        <div className="map-inner-container flex items-center justify-center text-red-600 bg-red-50 font-bold rounded-2xl p-6 text-center">
+          Error loading maps! Your API key is either invalid or missing a billing account in Google Cloud.
+        </div>
+      </div>
+    );
   }
 
   if (!isLoaded) {
-    return <div className="map-container-wrapper flex items-center justify-center font-bold">Loading Google Maps...</div>;
+    if (isEmbedded) {
+      return <div className="w-full h-full flex items-center justify-center font-bold text-gray-500">Loading Google Maps...</div>;
+    }
+    return (
+      <div className={`map-page-wrapper ${theme === 'dark' ? 'bg-gray-900' : 'bg-slate-100'}`}>
+        <div className="map-inner-container flex items-center justify-center font-bold text-gray-500 rounded-2xl">
+          Loading Google Maps...
+        </div>
+      </div>
+    );
   }
 
-  return (
-    <div className="map-container-wrapper">
-      {errorMsg && <div className="location-error-toast">{errorMsg}</div>}
-      
-      <GoogleMap
-        mapContainerStyle={{ width: "100%", height: "100%" }}
-        center={userLocation || defaultCenter}
-        zoom={userLocation ? 14 : 5}
-        onLoad={onLoad}
-        onUnmount={onUnmount}
-        options={{
-          mapId: '8ece33f178716766',
-          disableDefaultUI: false,
-          clickableIcons: true,
-          zoomControl: true,
-          streetViewControl: false,
-          fullscreenControl: false,
-        }}
-      >
-        {userLocation && (
-          <Marker 
-            position={userLocation} 
-            title="You are here" 
-            options={{
-              zIndex: 100
-            }}
-          />
-        )}
-        
-        {safeResources.map(res => (
-          <Marker
-            key={res.id}
-            position={{ lat: res.latitude, lng: res.longitude }}
-            title={res.name}
-            onClick={() => onMarkerClick && onMarkerClick(res)}
-          />
-        ))}
-        
-        {!safeResources.length && !userLocation && (
-           <Marker position={defaultCenter} title="Default Center" />
-        )}
-      </GoogleMap>
+  // Embedded mode — renders inline inside a parent container (e.g. ResourcesPage)
+  if (isEmbedded) {
+    return (
+      <div className="relative w-full h-full">
+        {errorMsg && <div className="location-error-toast">{errorMsg}</div>}
+        <GoogleMap
+          mapContainerStyle={{ width: "100%", height: "100%" }}
+          center={userLocation || defaultCenter}
+          zoom={userLocation ? 14 : 5}
+          onLoad={onLoad}
+          onUnmount={onUnmount}
+          options={{
+            mapId: '8ece33f178716766',
+            disableDefaultUI: false,
+            clickableIcons: true,
+            zoomControl: true,
+            streetViewControl: false,
+            fullscreenControl: false,
+          }}
+        >
+          {userLocation && <Marker position={userLocation} title="You are here" options={{ zIndex: 100 }} />}
+          {safeResources.map(res => (
+            <Marker key={res.id} position={{ lat: res.latitude, lng: res.longitude }} title={res.name} onClick={() => onMarkerClick && onMarkerClick(res)} />
+          ))}
+          {!safeResources.length && !userLocation && <Marker position={defaultCenter} title="Default Center" />}
+        </GoogleMap>
+        <button className={`locate-me-btn ${theme === 'dark' ? 'locate-me-dark' : ''}`} onClick={handleLocateMeClick}>
+          📍 {userLocation ? "Live Tracking" : "Locate Me"}
+        </button>
+      </div>
+    );
+  }
 
-      <button className="locate-me-btn" onClick={handleLocateMeClick}>
-         📍 {userLocation ? "Live Tracking" : "Locate Me"}
-      </button>
+  // Standalone full-page mode (with padding + theme background)
+  return (
+    <div className={`map-page-wrapper ${theme === 'dark' ? 'bg-gray-900' : 'bg-slate-100'}`}>
+      <div className="map-inner-container">
+        {errorMsg && <div className="location-error-toast">{errorMsg}</div>}
+
+        <GoogleMap
+          mapContainerStyle={{ width: "100%", height: "100%", borderRadius: "16px" }}
+          center={userLocation || defaultCenter}
+          zoom={userLocation ? 14 : 5}
+          onLoad={onLoad}
+          onUnmount={onUnmount}
+          options={{
+            mapId: '8ece33f178716766',
+            disableDefaultUI: false,
+            clickableIcons: true,
+            zoomControl: true,
+            streetViewControl: false,
+            fullscreenControl: false,
+          }}
+        >
+          {userLocation && (
+            <Marker position={userLocation} title="You are here" options={{ zIndex: 100 }} />
+          )}
+          {safeResources.map(res => (
+            <Marker key={res.id} position={{ lat: res.latitude, lng: res.longitude }} title={res.name} onClick={() => onMarkerClick && onMarkerClick(res)} />
+          ))}
+          {!safeResources.length && !userLocation && (
+            <Marker position={defaultCenter} title="Default Center" />
+          )}
+        </GoogleMap>
+
+        <button
+          className={`locate-me-btn ${theme === 'dark' ? 'locate-me-dark' : ''}`}
+          onClick={handleLocateMeClick}
+        >
+          📍 {userLocation ? "Live Tracking" : "Locate Me"}
+        </button>
+      </div>
     </div>
   );
 };

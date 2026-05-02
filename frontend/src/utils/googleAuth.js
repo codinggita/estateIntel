@@ -11,9 +11,8 @@ export const handleGoogleLogin = async () => {
   try {
     console.log('🔐 Starting Google sign-in...');
     
-    // Determine backend URL based on environment
-    const backendUrl = import.meta.env.VITE_API_URL || 
-      (window.location.hostname === 'localhost' ? 'http://localhost:5000' : 'https://estateintel-2.onrender.com');
+    // Use relative paths to leverage Vite proxy
+    const backendUrl = '';
     
     console.log('🌐 Using backend URL:', backendUrl);
     

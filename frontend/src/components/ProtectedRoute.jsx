@@ -1,53 +1,50 @@
 import React, { useEffect, useState } from 'react';
 import { Navigate } from 'react-router-dom';
-import logger from '../utils/logger';
 
 const ProtectedRoute = ({ user, children }) => {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Check authentication immediately without delay
+    console.log('🔍 ProtectedRoute - Checking authentication...');
+    
+    // Check both user prop and localStorage for authentication
     const checkAuth = () => {
-      try {
-        const storedUser = localStorage.getItem('user');
-        const isAuthenticated = user || storedUser;
-        
-        if (storedUser) {
-          try {
-            JSON.parse(storedUser); // Validate JSON format
-          } catch (error) {
-            logger.warn('Invalid stored user data in ProtectedRoute:', error);
-            localStorage.removeItem('user');
-          }
-        }
-        
-        setIsLoading(false);
-      } catch (error) {
-        logger.error('ProtectedRoute auth check error:', error);
-        setIsLoading(false);
+      const storedUser = localStorage.getItem('user');
+      console.log('🔍 ProtectedRoute - User prop:', !!user, 'LocalStorage:', !!storedUser);
+      
+      if (user || storedUser) {
+        setIsAuthenticated(true);
+        console.log('✅ ProtectedRoute - User is authenticated');
+      } else {
+        setIsAuthenticated(false);
+        console.log('❌ ProtectedRoute - User is not authenticated');
       }
+      setIsLoading(false);
     };
 
-    // Check immediately without delay to prevent blocking
+    // Check immediately, no delay needed
     checkAuth();
   }, [user]);
 
   if (isLoading) {
-    // Minimal loading state to prevent blocking FCP
+    console.log('⏳ ProtectedRoute - Loading authentication state...');
     return (
-      <div className="min-h-screen flex items-center justify-center bg-bg text-text" role="status" aria-label="Checking authentication">
-        <div className="w-6 h-6 border-2 border-primary/20 border-t-primary rounded-full animate-spin" aria-hidden="true"></div>
+      <div className="min-h-screen flex items-center justify-center bg-bg text-text">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-subtext">Loading...</p>
+        </div>
       </div>
     );
   }
 
-  const storedUser = localStorage.getItem('user');
-  const isAuthenticated = user || storedUser;
-
   if (!isAuthenticated) {
-    return <Navigate to="/signin" replace />;
+    console.log('🚀 ProtectedRoute - Redirecting to login (not authenticated)');
+    return <Navigate to="/login" replace />;
   }
 
+  console.log('✅ ProtectedRoute - Rendering protected content');
   return children;
 };
 

@@ -49,7 +49,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
     <link rel="dns-prefetch" href="https://images.unsplash.com" />
-    <link rel="preload" href="/vite.svg" as="image" type="image/svg+xml" />
     <script type="application/ld+json">
     [{
       "@context": "https://schema.org",
@@ -136,25 +135,5 @@
       </div>
     </noscript>
     
-    <!-- Performance monitoring -->
-    <script>
-      // Monitor Core Web Vitals (production-safe)
-      if ('PerformanceObserver' in window && navigator.sendBeacon) {
-        const observer = new PerformanceObserver((list) => {
-          for (const entry of list.getEntries()) {
-            const metric = {
-              type: entry.entryType,
-              value: entry.entryType === 'layout-shift' ? entry.value : entry.startTime,
-              url: window.location.href,
-              timestamp: Date.now()
-            };
-            
-            // Send to analytics endpoint using beacon for non-blocking
-            navigator.sendBeacon('/api/vitals', JSON.stringify(metric));
-          }
-        });
-        observer.observe({ entryTypes: ['largest-contentful-paint', 'first-input', 'layout-shift'] });
-      }
-    </script>
   </body>
 </html>

@@ -4,11 +4,13 @@ import { useTheme } from '../context/ThemeContext';
 import { Sun, Moon } from 'lucide-react';
 import { 
   Search, MapPin, TrendingUp, FileText, Download, Share2, Filter, X,
+  Brain, Building, Train, Zap, AlertCircle, Minus
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line, Area, AreaChart, PieChart as RechartsPieChart, Cell, RadialBarChart, RadialBar } from 'recharts';
 import Button from './ui/Button';
 import { generatePDF, generateMultiPagePDF, generateSummaryPDF, printReport } from '../utils/pdfExport';
+import logger from '../utils/logger';
 
 const ReportsPage = () => {
   const navigate = useNavigate();
