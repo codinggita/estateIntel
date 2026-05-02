@@ -21,11 +21,18 @@ const FooterSection = () => {
               Standardizing property intelligence for the modern homebuyer. Know the reality of every brick before you buy.
             </p>
             <div className="flex gap-4">
-              {[Send, Share2, MessageCircle, Camera].map((Icon, idx) => (
-                <a key={idx} href="#" className="w-10 h-10 rounded-xl bg-card border border-white/10 flex items-center justify-center text-subtext hover:text-primary hover:border-primary/50 transition-all">
-                  <Icon size={20} />
-                </a>
-              ))}
+              <a href="https://facebook.com/estateintel" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-xl bg-card border border-white/10 flex items-center justify-center text-subtext hover:text-primary hover:border-primary/50 transition-all">
+                <Send size={20} />
+              </a>
+              <a href="https://twitter.com/estateintel" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-xl bg-card border border-white/10 flex items-center justify-center text-subtext hover:text-primary hover:border-primary/50 transition-all">
+                <Share2 size={20} />
+              </a>
+              <a href="https://instagram.com/estateintel" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-xl bg-card border border-white/10 flex items-center justify-center text-subtext hover:text-primary hover:border-primary/50 transition-all">
+                <MessageCircle size={20} />
+              </a>
+              <a href="mailto:hello@estateintel.in" className="w-10 h-10 rounded-xl bg-card border border-white/10 flex items-center justify-center text-subtext hover:text-primary hover:border-primary/50 transition-all">
+                <Camera size={20} />
+              </a>
             </div>
           </div>
 
@@ -33,11 +40,21 @@ const FooterSection = () => {
           <div className="space-y-6">
             <h4 className="text-sm font-black uppercase tracking-widest text-text">Platform</h4>
             <ul className="space-y-4">
-              {['Home', 'Property Map', 'Resources', 'Insights', 'Reports'].map(link => (
-                <li key={link}>
-                  <a href="#" className="text-subtext hover:text-primary transition-colors text-sm font-semibold">{link}</a>
-                </li>
-              ))}
+              <li>
+                <Link to="/" className="text-subtext hover:text-primary transition-colors text-sm font-semibold">Home</Link>
+              </li>
+              <li>
+                <Link to="/app/map" className="text-subtext hover:text-primary transition-colors text-sm font-semibold">Property Map</Link>
+              </li>
+              <li>
+                <Link to="/app/resources" className="text-subtext hover:text-primary transition-colors text-sm font-semibold">Resources</Link>
+              </li>
+              <li>
+                <Link to="/app/insights" className="text-subtext hover:text-primary transition-colors text-sm font-semibold">Insights</Link>
+              </li>
+              <li>
+                <Link to="/app/reports" className="text-subtext hover:text-primary transition-colors text-sm font-semibold">Reports</Link>
+              </li>
             </ul>
           </div>
 
@@ -45,11 +62,21 @@ const FooterSection = () => {
           <div className="space-y-6">
             <h4 className="text-sm font-black uppercase tracking-widest text-text">Company</h4>
             <ul className="space-y-4">
-              {['About Us', 'Contact', 'Privacy Policy', 'Terms of Service', 'Career'].map(link => (
-                <li key={link}>
-                  <a href="#" className="text-subtext hover:text-primary transition-colors text-sm font-semibold">{link}</a>
-                </li>
-              ))}
+              <li>
+                <Link to="/about" className="text-subtext hover:text-primary transition-colors text-sm font-semibold">About Us</Link>
+              </li>
+              <li>
+                <Link to="/contact" className="text-subtext hover:text-primary transition-colors text-sm font-semibold">Contact</Link>
+              </li>
+              <li>
+                <Link to="/privacy" className="text-subtext hover:text-primary transition-colors text-sm font-semibold">Privacy Policy</Link>
+              </li>
+              <li>
+                <Link to="/terms" className="text-subtext hover:text-primary transition-colors text-sm font-semibold">Terms of Service</Link>
+              </li>
+              <li>
+                <Link to="/careers" className="text-subtext hover:text-primary transition-colors text-sm font-semibold">Career</Link>
+              </li>
             </ul>
           </div>
 
@@ -80,9 +107,9 @@ const FooterSection = () => {
             © {new Date().getFullYear()} EstateIntel Advisory Pvt Ltd. All rights reserved.
           </p>
           <div className="flex gap-8">
-            <a href="#" className="text-xs font-bold text-subtext hover:text-text tracking-widest uppercase">Privacy</a>
-            <a href="#" className="text-xs font-bold text-subtext hover:text-text tracking-widest uppercase">Terms</a>
-            <a href="#" className="text-xs font-bold text-subtext hover:text-text tracking-widest uppercase">Ethics</a>
+            <Link to="/privacy" className="text-xs font-bold text-subtext hover:text-text tracking-widest uppercase">Privacy</Link>
+            <Link to="/terms" className="text-xs font-bold text-subtext hover:text-text tracking-widest uppercase">Terms</Link>
+            <Link to="/ethics" className="text-xs font-bold text-subtext hover:text-text tracking-widest uppercase">Ethics</Link>
           </div>
         </div>
       </div>

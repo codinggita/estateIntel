@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, Zap, Shield, Star, HelpCircle } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { SectionWrapper, Heading } from '../ui/Layout';
 import Card from '../ui/Card';
 import Button from '../ui/Button';
@@ -149,14 +150,16 @@ const PricingSection = () => {
                   ))}
                 </ul>
 
-                <Button 
-                  variant={plan.highlight ? 'white' : 'primary'} 
-                  fullWidth 
-                  className="h-14 rounded-2xl group"
-                >
-                  Get Started Now
-                  <Zap size={18} className="transition-transform group-hover:scale-125" />
-                </Button>
+                <Link to="/signup">
+                  <Button 
+                    variant={plan.highlight ? 'white' : 'primary'} 
+                    fullWidth 
+                    className="h-14 rounded-2xl group"
+                  >
+                    Get Started Now
+                    <Zap size={18} className="transition-transform group-hover:scale-125" />
+                  </Button>
+                </Link>
               </Card>
             </motion.div>
           ))}
