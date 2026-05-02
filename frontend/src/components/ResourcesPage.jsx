@@ -71,8 +71,9 @@ const ResourcesPage = () => {
       // Add timeout to prevent hanging requests
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      const backendUrl = import.meta.env.VITE_API_URL || '';
       
-      const { data } = await axios.get('/api/resources', {
+      const { data } = await axios.get(`${backendUrl}/api/resources`, {
         params: {
           lat: userLocation.lat,
           lng: userLocation.lng,
