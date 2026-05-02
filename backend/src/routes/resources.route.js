@@ -110,7 +110,15 @@ function buildOverpassQuery(lat, lng, radiusM, typeFilter) {
     tags = ALL_TAGS[typeFilter] || [];
   }
 
-  const lines = tags.map(t => `  ${t}(around:${radiusM},${lat},${lng});`).join('\n');
+  // Add search keyword filter if provided
+  let lines = '';
+  if (reqQuery && reqQuery.search && reqQuery.search.length > 2) {
+    const s = reqQuery.search.replace(/["\\]/g, '');
+    lines = `  nwr(around:${radiusM},${lat},${lng})["name"~"${s}",i];`;
+  } else {
+    lines = tags.map(t => `  ${t}(around:${radiusM},${lat},${lng});`).join('\n');
+  }
+
   return `[out:json][timeout:60];\n(\n${lines}\n);\nout center tags;`;
 }
 
@@ -119,14 +127,15 @@ router.get('/', async (req, res) => {
   const lng = parseFloat(req.query.lng);
   const radiusKm = parseFloat(req.query.radius) || 5;
   const typeFilter = req.query.type || 'all';
+  const search = req.query.search || '';
 
   if (isNaN(lat) || isNaN(lng)) return res.status(400).json({ error: 'Lat/Lng missing' });
 
   const radiusM = radiusKm * 1000;
-  console.log(`[Resources] Fetching ${typeFilter} at ${lat},${lng} (radius ${radiusKm}km)`);
+  console.log(`[Resources] Fetching ${typeFilter} (search: ${search}) at ${lat},${lng} (radius ${radiusKm}km)`);
 
   try {
-    const query = buildOverpassQuery(lat, lng, radiusM, typeFilter);
+    const query = buildOverpassQuery(lat, lng, radiusM, typeFilter, req.query);
     const body = `data=${encodeURIComponent(query)}`;
     
     // List of reliable Overpass mirrors for failover
