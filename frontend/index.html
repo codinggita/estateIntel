@@ -18,65 +18,73 @@
     <link rel="dns-prefetch" href="https://maps.googleapis.com" />
     <link rel="dns-prefetch" href="https://api.mapbox.com" />
     
-    <!-- Critical CSS Preload -->
-    <link rel="preload" href="/src/index.css" as="style" onload="this.onload=null;this.rel='stylesheet'" />
-    <noscript><link rel="stylesheet" href="/src/index.css" /></noscript>
-    
-    <!-- Font Preloading -->
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" />
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" /></noscript>
-    
-    <!-- Favicon and App Icons -->
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <link rel="manifest" href="/manifest.json" />
-    
-    <!-- Open Graph Meta Tags -->
-    <meta property="og:type" content="website" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="EstateIntel - Smart Property Decisions with AI-Powered Real Estate Analytics" />
+    <meta name="keywords" content="real estate, property analytics, neighborhood insights, property valuation, market trends, AI-powered, smart decisions" />
+    <meta name="author" content="EstateIntel Team" />
     <meta property="og:title" content="EstateIntel - Smart Property Decisions" />
-    <meta property="og:description" content="AI-powered real estate intelligence platform for property analysis, neighborhood insights, and smart investment decisions in India." />
-    <meta property="og:image" content="https://estateintel-5.onrender.com/og-image.jpg" />
+    <meta property="og:description" content="Make smarter property decisions with AI-powered real estate analytics and insights" />
+    <meta property="og:type" content="website" />
     <meta property="og:url" content="https://estateintel-5.onrender.com" />
+    <meta property="og:image" content="https://estateintel-5.onrender.com/og-image.jpg" />
     <meta property="og:site_name" content="EstateIntel" />
     <meta property="og:locale" content="en_US" />
-    
-    <!-- Twitter Card Meta Tags -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="EstateIntel - Smart Property Decisions" />
-    <meta name="twitter:description" content="AI-powered real estate intelligence platform for property analysis and smart investment decisions." />
+    <meta name="twitter:description" content="Make smarter property decisions with AI-powered real estate analytics and insights" />
     <meta name="twitter:image" content="https://estateintel-5.onrender.com/twitter-image.jpg" />
     <meta name="twitter:site" content="@estateintel" />
-    
-    <!-- SEO Meta Tags -->
-    <title>EstateIntel - Smart Property Decisions | AI-Powered Real Estate Intelligence</title>
-    <meta name="description" content="EstateIntel provides AI-powered real estate intelligence, property analysis, neighborhood insights, and smart investment decisions for Indian real estate market." />
-    <meta name="keywords" content="real estate, property analysis, AI intelligence, neighborhood insights, property investment, Indian real estate, smart property decisions" />
-    <meta name="author" content="EstateIntel Advisory Pvt Ltd" />
-    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <link rel="canonical" href="https://estateintel-5.onrender.com" />
-    
-    <!-- Security Headers -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://api.mapbox.com https://firebase.googleapis.com https://www.googletagmanager.com;" />
-    
-    <!-- Structured Data -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net" />
+    <link rel="dns-prefetch" href="https://images.unsplash.com" />
+    <link rel="modulepreload" href="/src/main.jsx" as="script" />
+    <link rel="preload" href="/vite.svg" as="image" type="image/svg+xml" />
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "WebApplication",
+      "@type": "WebSite",
       "name": "EstateIntel",
-      "description": "AI-powered real estate intelligence platform for property analysis and smart investment decisions",
       "url": "https://estateintel-5.onrender.com",
-      "applicationCategory": "Real Estate",
-      "operatingSystem": "Web",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "INR"
+      "description": "AI-powered real estate analytics platform providing smart property decisions through comprehensive neighborhood insights, market trends, and predictive analytics",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://estateintel-5.onrender.com/app/map",
+        "query-input": "required",
+        "name": "Search Properties"
       },
-      "provider": {
+      "mainEntity": {
         "@type": "Organization",
-        "name": "EstateIntel Advisory Pvt Ltd",
-        "url": "https://estateintel-5.onrender.com"
+        "name": "EstateIntel",
+        "url": "https://estateintel-5.onrender.com",
+        "logo": "https://estateintel-5.onrender.com/logo.png",
+        "sameAs": "https://twitter.com/estateintel"
+      },
+      "breadcrumb": {
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+          {
+            "@type": "ListItem",
+            "position": 1,
+            "name": "Home",
+            "item": "https://estateintel-5.onrender.com"
+          },
+          {
+            "@type": "ListItem", 
+            "position": 2,
+            "name": "Property Search",
+            "item": "https://estateintel-5.onrender.com/app/map"
+          },
+          {
+            "@type": "ListItem",
+            "position": 3,
+            "name": "Analytics",
+            "item": "https://estateintel-5.onrender.com/app/insights"
+          }
+        ]
       }
     }
     </script>
@@ -88,10 +96,10 @@
     </a>
     
     <!-- Main App Container -->
-    <div id="root" role="application" aria-label="EstateIntel Application"></div>
+    <div id="root"></div>
     
     <!-- Critical JavaScript with error handling -->
-    <script type="module" src="/src/main.jsx"></script>
+    <script type="module" src="/src/main.jsx" defer></script>
     
     <!-- Fallback for JavaScript disabled -->
     <noscript>

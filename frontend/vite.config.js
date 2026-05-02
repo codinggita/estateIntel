@@ -92,12 +92,19 @@ export default defineConfig({
       },
       // Optimize bundle size
       treeshake: true,
-      compact: true
+      chunkSizeWarningLimit: 250,
+      // Enable compression
+      reportCompressedSize: true,
+      // Advanced performance optimizations
+      minify: 'terser',
+      terserOptions: {
+        compress: {
+          drop_console: true,
+          drop_debugger: true,
+          pure_funcs: ['console.log', 'console.error', 'console.warn']
+        }
+      }
     },
-    // Optimize chunks for better caching
-    chunkSizeWarningLimit: 500,
-    // Enable compression
-    reportCompressedSize: true,
     // Optimize assets
     assetsInlineLimit: 4096,
     // Enable module preloading

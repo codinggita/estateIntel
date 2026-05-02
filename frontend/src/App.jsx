@@ -23,25 +23,76 @@ const Sitemap = lazy(() => import("./components/Sitemap/Sitemap"));
 const PublicRoute = lazy(() => import("./components/PublicRoute"));
 const ProtectedRoute = lazy(() => import("./components/ProtectedRoute"));
 
-// Performance monitoring component
+// Performance monitoring component with optimization
 const PerformanceMonitor = ({ children }) => {
   useEffect(() => {
-    // Monitor Core Web Vitals
+    // Monitor Core Web Vitals for 100+ Lighthouse scores
     if ('PerformanceObserver' in window) {
       const observer = new PerformanceObserver((list) => {
         for (const entry of list.getEntries()) {
+          // Track LCP (Largest Contentful Paint)
           if (entry.entryType === 'largest-contentful-paint') {
-            logger.log('LCP:', entry.startTime);
+            // Send to analytics for performance tracking
+            if (navigator.sendBeacon) {
+              navigator.sendBeacon('/api/vitals', JSON.stringify({
+                metric: 'LCP',
+                value: entry.startTime,
+                url: window.location.href
+              }));
+            }
           }
+          
+          // Track FID (First Input Delay)
           if (entry.entryType === 'first-input') {
-            logger.log('FID:', entry.processingStart - entry.startTime);
+            if (navigator.sendBeacon) {
+              navigator.sendBeacon('/api/vitals', JSON.stringify({
+                metric: 'FID',
+                value: entry.processingStart - entry.startTime,
+                url: window.location.href
+              }));
+            }
           }
+          
+          // Track CLS (Cumulative Layout Shift)
           if (entry.entryType === 'layout-shift') {
-            logger.log('CLS:', entry.value);
+            if (navigator.sendBeacon) {
+              navigator.sendBeacon('/api/vitals', JSON.stringify({
+                metric: 'CLS',
+                value: entry.value,
+                url: window.location.href
+              }));
+            }
           }
         }
       });
-      observer.observe({ entryTypes: ['largest-contentful-paint', 'first-input', 'layout-shift'] });
+      
+      // Observe critical performance metrics
+      observer.observe({ 
+        entryTypes: ['largest-contentful-paint', 'first-input', 'layout-shift'],
+        buffered: true 
+      });
+      
+      // Preload critical resources for better LCP
+      const criticalResources = [
+        '/src/main.jsx',
+        '/vite.svg',
+        'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap'
+      ];
+      
+      criticalResources.forEach(resource => {
+        const link = document.createElement('link');
+        link.rel = 'preload';
+        link.href = resource;
+        if (resource.includes('.css')) {
+          link.as = 'style';
+        } else if (resource.includes('.jsx')) {
+          link.as = 'script';
+        } else if (resource.includes('.svg')) {
+          link.as = 'image';
+          link.type = 'image/svg+xml';
+        }
+        document.head.appendChild(link);
+      });
     }
   }, []);
   
