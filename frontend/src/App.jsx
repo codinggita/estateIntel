@@ -160,6 +160,15 @@ function App() {
           </ProtectedRoute>
         } />
 
+        {/* About page - standalone */}
+        <Route path="/about" element={
+          <ProtectedRoute user={user}>
+            <Layout user={user} onLogout={handleLogout}>
+              <AboutPage />
+            </Layout>
+          </ProtectedRoute>
+        } />
+
         {/* Protected Routes with Layout */}
         <Route path="/app" element={
           <ProtectedRoute user={user}>
