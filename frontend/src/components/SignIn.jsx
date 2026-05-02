@@ -31,31 +31,32 @@ const SignIn = ({ onLogin }) => {
     
     try {
       console.log('🔐 Starting Google sign-in from SignIn component...');
-      console.log('📍 Current path before login:', window.location.pathname);
       
       const result = await handleGoogleLogin();
       
       if (result.success) {
         console.log('✅ Google authentication successful:', result.user);
-        console.log('📍 Current path before redirect:', window.location.pathname);
-        console.log('🚀 About to redirect to home...');
         
-        // Call parent login handler first
+        // Store user data in localStorage immediately
+        localStorage.setItem('user', JSON.stringify(result.user));
+        console.log('💾 Google user data stored in localStorage:', result.user);
+        console.log('📊 Google user data structure:', Object.keys(result.user));
+        
+        // Call parent login handler
         onLogin(result.user);
+        console.log('📞 Called onLogin handler for Google auth');
         
-        // Force redirect to home immediately
-        navigate('/');
-        
-        console.log('✅ Navigate to home called');
-        
-        // Additional redirect as fallback
+        // Verify user is stored before redirect
         setTimeout(() => {
-          if (window.location.pathname !== '/') {
-            console.log('🔄 Fallback: Still not on home, forcing redirect...');
+          const storedUser = localStorage.getItem('user');
+          console.log('🔍 Google Auth Verification - User in localStorage:', !!storedUser);
+          if (storedUser) {
+            console.log('🚀 Redirecting to home page after Google auth...');
             window.location.href = '/';
+          } else {
+            console.error('❌ Google user data not found in localStorage before redirect');
           }
         }, 200);
-        
                 
         if (result.warning) {
           console.warn('⚠️ Warning:', result.warning);
@@ -89,7 +90,8 @@ const SignIn = ({ onLogin }) => {
       setServerError('');
       try {
         const endpoint = view === 'login' ? '/api/user/login' : '/api/user/register';
-        const response = await fetch(`http://localhost:5000${endpoint}`, {
+        const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+        const response = await fetch(`${backendUrl}${endpoint}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(values)
@@ -101,8 +103,26 @@ const SignIn = ({ onLogin }) => {
           throw new Error(data.message || 'Something went wrong');
         }
 
+        // Store user data in localStorage immediately
+        localStorage.setItem('user', JSON.stringify(data.user));
+        console.log('💾 User data stored in localStorage:', data.user);
+        console.log('📊 Response user data structure:', Object.keys(data.user));
+        
+        // Call parent login handler
         onLogin(data.user);
-        navigate('/');
+        console.log('📞 Called onLogin handler');
+        
+        // Verify user is stored before redirect
+        setTimeout(() => {
+          const storedUser = localStorage.getItem('user');
+          console.log('🔍 Verification - User in localStorage:', !!storedUser);
+          if (storedUser) {
+            console.log('🚀 Redirecting to home page...');
+            window.location.href = '/';
+          } else {
+            console.error('❌ User data not found in localStorage before redirect');
+          }
+        }, 200);
       } catch (err) {
         setServerError(err.message);
       } finally {

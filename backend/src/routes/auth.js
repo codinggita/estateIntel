@@ -116,6 +116,8 @@ router.get('/user/:uid', async (req, res) => {
   try {
     const { uid } = req.params;
     
+    console.log('🔍 Looking for user with UID:', uid);
+    
     if (!uid) {
       return res.status(400).json({
         success: false,
@@ -125,10 +127,12 @@ router.get('/user/:uid', async (req, res) => {
     
     const user = await User.findByUid(uid);
     
+    console.log('📝 Found user:', user ? 'YES' : 'NO');
+    
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: 'User not found'
+        message: `User with UID '${uid}' not found. Please create the user first using POST /api/auth/google`
       });
     }
     
@@ -147,8 +151,11 @@ router.get('/user/:uid', async (req, res) => {
       preferences: user.preferences
     };
     
+    console.log('✅ Returning user data for:', userData.email);
+    
     res.status(200).json({
       success: true,
+      message: 'User retrieved successfully',
       user: userData
     });
     
@@ -156,7 +163,8 @@ router.get('/user/:uid', async (req, res) => {
     console.error('❌ Get user error:', error);
     res.status(500).json({
       success: false,
-      message: 'Internal server error'
+      message: 'Internal server error',
+      error: error.message
     });
   }
 });
