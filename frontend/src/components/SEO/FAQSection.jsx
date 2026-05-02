@@ -117,7 +117,7 @@ const FAQSection = () => {
           viewport={{ once: true }}
           className="mt-12 sm:mt-16 text-center"
         >
-          <div className="bg-gradient-to-r from-primary to-primary/80 rounded-2xl sm:rounded-2xl p-6 sm:p-8 text-white">
+          <div className="bg-linear-to-r from-primary/10 to-transparent border-l-4 border-primary/20 rounded-2xl sm:rounded-2xl p-6 sm:p-8 text-white">
             <h3 className="text-xl sm:text-2xl font-bold mb-3 sm:mb-4">
               Still have questions about buying property in Ahmedabad?
             </h3>

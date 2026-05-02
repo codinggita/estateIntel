@@ -1,13 +1,125 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <!-- Performance & SEO Meta Tags -->
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="theme-color" content="#2563eb" />
+    <meta name="msapplication-TileColor" content="#2563eb" />
+    
+    <!-- Preconnect to external domains -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://firebase.googleapis.com" crossorigin />
+    <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin />
+    
+    <!-- DNS Prefetch for performance -->
+    <link rel="dns-prefetch" href="https://maps.googleapis.com" />
+    <link rel="dns-prefetch" href="https://api.mapbox.com" />
+    
+    <!-- Critical CSS Preload -->
+    <link rel="preload" href="/src/index.css" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+    <noscript><link rel="stylesheet" href="/src/index.css" /></noscript>
+    
+    <!-- Font Preloading -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" />
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" /></noscript>
+    
+    <!-- Favicon and App Icons -->
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>frontend</title>
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.json" />
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="EstateIntel - Smart Property Decisions" />
+    <meta property="og:description" content="AI-powered real estate intelligence platform for property analysis, neighborhood insights, and smart investment decisions in India." />
+    <meta property="og:image" content="https://estateintel-5.onrender.com/og-image.jpg" />
+    <meta property="og:url" content="https://estateintel-5.onrender.com" />
+    <meta property="og:site_name" content="EstateIntel" />
+    <meta property="og:locale" content="en_US" />
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="EstateIntel - Smart Property Decisions" />
+    <meta name="twitter:description" content="AI-powered real estate intelligence platform for property analysis and smart investment decisions." />
+    <meta name="twitter:image" content="https://estateintel-5.onrender.com/twitter-image.jpg" />
+    <meta name="twitter:site" content="@estateintel" />
+    
+    <!-- SEO Meta Tags -->
+    <title>EstateIntel - Smart Property Decisions | AI-Powered Real Estate Intelligence</title>
+    <meta name="description" content="EstateIntel provides AI-powered real estate intelligence, property analysis, neighborhood insights, and smart investment decisions for Indian real estate market." />
+    <meta name="keywords" content="real estate, property analysis, AI intelligence, neighborhood insights, property investment, Indian real estate, smart property decisions" />
+    <meta name="author" content="EstateIntel Advisory Pvt Ltd" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <link rel="canonical" href="https://estateintel-5.onrender.com" />
+    
+    <!-- Security Headers -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self' https://api.mapbox.com https://firebase.googleapis.com https://www.googletagmanager.com;" />
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "EstateIntel",
+      "description": "AI-powered real estate intelligence platform for property analysis and smart investment decisions",
+      "url": "https://estateintel-5.onrender.com",
+      "applicationCategory": "Real Estate",
+      "operatingSystem": "Web",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "INR"
+      },
+      "provider": {
+        "@type": "Organization",
+        "name": "EstateIntel Advisory Pvt Ltd",
+        "url": "https://estateintel-5.onrender.com"
+      }
+    }
+    </script>
   </head>
   <body>
-    <div id="root"></div>
+    <!-- Skip to main content for accessibility -->
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 bg-blue-600 text-white px-4 py-2 rounded-md z-50">
+      Skip to main content
+    </a>
+    
+    <!-- Main App Container -->
+    <div id="root" role="application" aria-label="EstateIntel Application"></div>
+    
+    <!-- Critical JavaScript with error handling -->
     <script type="module" src="/src/main.jsx"></script>
+    
+    <!-- Fallback for JavaScript disabled -->
+    <noscript>
+      <div style="text-align: center; padding: 50px; font-family: Arial, sans-serif;">
+        <h1>JavaScript Required</h1>
+        <p>EstateIntel requires JavaScript to function properly. Please enable JavaScript in your browser settings.</p>
+      </div>
+    </noscript>
+    
+    <!-- Performance monitoring -->
+    <script>
+      // Monitor Core Web Vitals
+      if ('PerformanceObserver' in window) {
+        const observer = new PerformanceObserver((list) => {
+          for (const entry of list.getEntries()) {
+            if (entry.entryType === 'largest-contentful-paint') {
+              console.log('LCP:', entry.startTime);
+            }
+            if (entry.entryType === 'first-input') {
+              console.log('FID:', entry.processingStart - entry.startTime);
+            }
+            if (entry.entryType === 'layout-shift') {
+              console.log('CLS:', entry.value);
+            }
+          }
+        });
+        observer.observe({ entryTypes: ['largest-contentful-paint', 'first-input', 'layout-shift'] });
+      }
+    </script>
   </body>
 </html>

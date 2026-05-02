@@ -18,7 +18,7 @@ const Hero = () => {
             y: [0, 30, 0]
           }}
           transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-          className="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] bg-primary/20 blur-[120px] rounded-full"
+          className="absolute top-[-20%] left-[-10%] w-[50%] h-[50%] bg-primary/20 blur-[120px] rounded-full"
         />
         <motion.div 
           animate={{ 
@@ -28,7 +28,7 @@ const Hero = () => {
             y: [0, -30, 0]
           }}
           transition={{ duration: 12, repeat: Infinity, ease: "linear" }}
-          className="absolute -bottom-[20%] -right-[10%] w-[50%] h-[50%] bg-secondary/20 blur-[120px] rounded-full"
+          className="absolute bottom-[-20%] right-[-10%] w-[50%] h-[50%] bg-secondary/20 blur-[120px] rounded-full"
         />
         <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 brightness-100 contrast-150"></div>
       </div>
@@ -45,7 +45,7 @@ const Hero = () => {
             <div className="flex -space-x-2">
               {[1, 2, 3, 4].map(i => (
                 <div key={i} className="w-6 sm:w-8 h-6 sm:h-8 rounded-full border-2 border-card bg-slate-200 overflow-hidden">
-                  <img src={`https://i.pravatar.cc/100?img=${i+10}`} alt="User" />
+                  <img src={`https://i.pravatar.cc/100?img=${i+10}`} alt={`User avatar ${i}`} loading="lazy" decoding="async" width="32" height="32" />
                 </div>
               ))}
             </div>

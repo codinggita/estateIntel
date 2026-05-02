@@ -1,9 +1,24 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import { resolve } from 'path'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react({
+      // Enable Fast Refresh with HMR optimizations
+      fastRefresh: true,
+      // Enable React 18+ features
+      jsxRuntime: 'automatic'
+    })
+  ],
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, 'src'),
+      '@components': resolve(__dirname, 'src/components'),
+      '@assets': resolve(__dirname, 'src/assets')
+    }
+  },
   server: {
     proxy: {
       '/api': {
@@ -16,30 +31,108 @@ export default defineConfig({
     }
   },
   build: {
-    target: 'es2015',
+    target: 'es2020',
+    minify: 'esbuild',
+    sourcemap: false,
+    cssCodeSplit: true,
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom'],
-          router: ['react-router-dom'],
-          ui: ['framer-motion', 'lucide-react'],
-          firebase: ['firebase/auth']
+        // Aggressive code splitting for optimal caching
+        manualChunks: (id) => {
+          // Vendor chunks - avoid circular dependencies
+          if (id.includes('node_modules')) {
+            if (id.includes('react') && !id.includes('react-router')) {
+              return 'react-vendor'
+            }
+            if (id.includes('react-router')) {
+              return 'router-vendor'
+            }
+            if (id.includes('firebase')) {
+              return 'firebase-vendor'
+            }
+            if (id.includes('framer-motion')) {
+              return 'animation-vendor'
+            }
+            if (id.includes('recharts')) {
+              return 'charts-vendor'
+            }
+            if (id.includes('leaflet')) {
+              return 'maps-vendor'
+            }
+            if (id.includes('lucide')) {
+              return 'icons-vendor'
+            }
+            return 'vendor'
+          }
+          
+          // Feature-based chunks
+          if (id.includes('components/Reports')) {
+            return 'reports'
+          }
+          if (id.includes('components/Map')) {
+            return 'maps'
+          }
+          if (id.includes('components/Insights')) {
+            return 'insights'
+          }
+          if (id.includes('components/Inspection')) {
+            return 'inspection'
+          }
+          if (id.includes('components/Resources')) {
+            return 'resources'
+          }
+          if (id.includes('components/landing')) {
+            return 'landing'
+          }
         },
         format: 'es',
         entryFileNames: 'assets/[name].[hash].js',
         chunkFileNames: 'assets/[name].[hash].js',
         assetFileNames: 'assets/[name].[hash].[ext]'
-      }
+      },
+      // Optimize bundle size
+      treeshake: true,
+      compact: true
     },
-    assetsDir: 'assets',
-    sourcemap: false,
-    minify: 'esbuild',
-    chunkSizeWarningLimit: 1000
+    // Optimize chunks for better caching
+    chunkSizeWarningLimit: 500,
+    // Enable compression
+    reportCompressedSize: true,
+    // Optimize assets
+    assetsInlineLimit: 4096,
+    // Enable module preloading
+    modulePreload: {
+      polyfill: true
+    }
   },
-  define: {
-    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development')
-  },
+  // Optimize dependencies
   optimizeDeps: {
-    include: ['react', 'react-dom', 'react-router-dom']
+    include: [
+      'react',
+      'react-dom',
+      'react-router-dom',
+      'framer-motion',
+      'lucide-react'
+    ],
+    exclude: ['@types/*']
+  },
+  // Environment variables
+  define: {
+    'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
+    'process.env.VITE_APP_VERSION': JSON.stringify(process.env.npm_package_version || '1.0.0')
+  },
+  // CSS optimization
+  css: {
+    devSourcemap: false,
+    preprocessorOptions: {
+      scss: {
+        additionalData: `@import "@/styles/variables.scss";`
+      }
+    }
+  },
+  // Preview server optimization
+  preview: {
+    port: 3000,
+    strictPort: true
   }
 })
